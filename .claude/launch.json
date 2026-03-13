@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "live-server",
+      "runtimeExecutable": "C:\\Users\\syree\\AppData\\Local\\Programs\\Antigravity\\Antigravity.exe",
+      "runtimeArgs": ["serve.js"],
+      "env": { "ELECTRON_RUN_AS_NODE": "1" },
+      "port": 8000
+    }
+  ]
+}

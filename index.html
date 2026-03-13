@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#000000" />
+  <title>Route Command</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- GATEKEEPER SCREEN -->
+  <div id="gatekeeper-screen">
+    <div class="gatekeeper-card">
+      <h1>Enter Company Passcode</h1>
+      <form id="gatekeeper-form">
+        <input
+          id="passcode-input"
+          type="password"
+          placeholder="Passcode"
+          autocomplete="current-password"
+          required
+        />
+        <button type="submit">Unlock</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MAIN APP (hidden until authenticated) -->
+  <div id="app-container" hidden>
+
+    <!-- FIXED HEADER -->
+    <header id="main-header">
+      <span class="header-title">Route Command</span>
+      <button id="hamburger-btn" aria-label="Open navigation menu" aria-expanded="false" aria-controls="side-drawer">
+        <span class="hamburger-bar"></span>
+        <span class="hamburger-bar"></span>
+        <span class="hamburger-bar"></span>
+      </button>
+    </header>
+
+    <!-- OVERLAY (dims background when drawer is open) -->
+    <div id="overlay"></div>
+
+    <!-- NAVIGATION DRAWER -->
+    <nav id="side-drawer" aria-label="Main navigation">
+      <ul class="drawer-nav-list">
+        <li><a href="#" class="drawer-link" data-page="main-expense-view">Submit Expense</a></li>
+        <li><a href="#" class="drawer-link" data-page="fleet-health-page">Fleet Health</a></li>
+        <li><a href="#" class="drawer-link" data-page="push-list-page">Push List</a></li>
+        <li><a href="#" class="drawer-link" data-page="roadmap-page">Feature Roadmap</a></li>
+      </ul>
+    </nav>
+
+    <!-- PAGE CONTENT (padded below fixed header) -->
+    <main id="main-content">
+
+      <!-- ======================================
+           MAIN EXPENSE FORM
+           ====================================== -->
+      <section id="main-expense-view">
+        <form id="expense-form" novalidate>
+
+          <!-- Employee Name -->
+          <div class="form-group">
+            <label for="employee-name">Employee Name</label>
+            <select id="employee-name" required>
+              <option value="" disabled selected>Select your name</option>
+              <option value="David Lindholm">David Lindholm</option>
+              <option value="Hannah">Hannah</option>
+              <option value="Ian Aps">Ian Aps</option>
+              <option value="Kaleb">Kaleb</option>
+              <option value="Nick">Nick</option>
+              <option value="Steve">Steve</option>
+              <option value="Syreese Delos Santos">Syreese Delos Santos</option>
+              <option value="Tagen Garris">Tagen Garris</option>
+              <option value="Teresa">Teresa</option>
+              <option value="Tyler Sharpe">Tyler Sharpe</option>
+            </select>
+          </div>
+
+          <!-- Receipt Date -->
+          <div class="form-group">
+            <label for="receipt-date">Date on Receipt</label>
+            <input id="receipt-date" type="date" required />
+          </div>
+
+          <!-- Expense Category -->
+          <div class="form-group">
+            <label for="expense-category">Expense Category</label>
+            <select id="expense-category" required>
+              <option value="" disabled selected>Select a category</option>
+              <option value="Fuel">Fuel</option>
+              <option value="Sales Lunch / Client Entertainment">Sales Lunch / Client Entertainment</option>
+              <option value="Vehicle Maintenance">Vehicle Maintenance</option>
+              <option value="Office / Warehouse Supplies">Office / Warehouse Supplies</option>
+              <option value="Tolls / Parking">Tolls / Parking</option>
+              <option value="Ferry">Ferry</option>
+              <option value="Equipment / Tools">Equipment / Tools</option>
+              <option value="Lodging / Hotel">Lodging / Hotel</option>
+              <option value="Miscellaneous">Miscellaneous</option>
+            </select>
+          </div>
+
+          <!-- Expense Amount -->
+          <div class="form-group">
+            <label for="expense-amount">Expense Amount ($)</label>
+            <input
+              id="expense-amount"
+              type="number"
+              inputmode="decimal"
+              pattern="[0-9]*"
+              step="0.01"
+              placeholder="0.00"
+              required
+            />
+          </div>
+
+          <!-- Vehicle Tag -->
+          <div class="form-group">
+            <label for="vehicle-tag">Vehicle Tag</label>
+            <select id="vehicle-tag">
+              <option value="N/A" selected>N/A</option>
+              <option value="Bumblebee">Bumblebee</option>
+              <option value="Prime">Prime</option>
+              <option value="Heno">Heno</option>
+              <option value="White Van">White Van</option>
+              <option value="Personal Vehicle">Personal Vehicle</option>
+            </select>
+          </div>
+
+          <!-- Receipt Upload -->
+          <div class="form-group">
+            <label>Receipt Photo</label>
+            <div class="file-upload-wrapper">
+              <input
+                id="receipt-upload"
+                type="file"
+                accept="image/*"
+                capture="environment"
+                required
+              />
+              <label for="receipt-upload" id="receipt-upload-label" class="file-upload-btn">
+                <svg class="camera-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" stroke="#201f1d" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="12" cy="13" r="4" stroke="#201f1d" stroke-width="1.5"/>
+                </svg>
+                <span id="receipt-upload-text">Attach Receipt Photo</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" id="submit-btn">Submit Expense</button>
+
+        </form>
+      </section>
+
+      <!-- ======================================
+           SUCCESS STATE
+           ====================================== -->
+      <div id="success-state">
+        <div class="success-body">
+          <svg class="success-checkmark" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <circle cx="40" cy="40" r="38" stroke="#22c55e" stroke-width="4"/>
+            <path d="M24 40l11 11 21-21" stroke="#22c55e" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <h2 class="success-heading">Upload Successful!</h2>
+          <p class="success-subtext">Ian has your receipt.</p>
+          <button id="reset-btn" type="button">Submit Another Expense</button>
+        </div>
+      </div>
+
+      <!-- ======================================
+           FLEET HEALTH PAGE
+           ====================================== -->
+      <section id="fleet-health-page">
+        <a href="#" class="back-link" data-page="main-expense-view">&#8592; Back to Expense Form</a>
+        <div class="placeholder-page-body">
+          <svg class="placeholder-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M51.2 12.8C47.6 9.2 42.8 7 38 7c-2.2 0-4.4.4-6.4 1.2L38 15l-5 5-6.8-6.8C24.4 15 23 17.4 23 20c0 4.4 2.6 8.2 6.4 10l-16 16c-1.6 1.6-1.6 4.2 0 5.8s4.2 1.6 5.8 0l16-16c1.8.8 3.8 1.2 5.8 1.2 4.8 0 9.6-2.2 13.2-5.8 5-5 6.4-12.2 4-18.4l-8 8-5-5 8-8c-1.2-.4-2.6-.6-4-.6l.2 3.6z" fill="#201f1d"/>
+          </svg>
+          <h2>Fleet Health <span class="coming-soon-badge">Coming Soon</span></h2>
+          <p>A streamlined pre-trip inspection tool to log mileage, monitor reefer temperatures, and instantly report maintenance issues to Ian before the trucks leave the yard.</p>
+        </div>
+      </section>
+
+      <!-- ======================================
+           PUSH LIST PAGE
+           ====================================== -->
+      <section id="push-list-page">
+        <a href="#" class="back-link" data-page="main-expense-view">&#8592; Back to Expense Form</a>
+        <div class="placeholder-page-body">
+          <svg class="placeholder-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect x="8" y="10" width="48" height="6" rx="2" fill="#201f1d"/>
+            <rect x="8" y="22" width="32" height="6" rx="2" fill="#201f1d"/>
+            <rect x="8" y="34" width="40" height="6" rx="2" fill="#201f1d"/>
+            <rect x="8" y="46" width="24" height="6" rx="2" fill="#201f1d"/>
+            <rect x="44" y="38" width="4" height="18" rx="2" fill="#201f1d"/>
+            <rect x="36" y="50" width="20" height="4" rx="2" fill="#201f1d"/>
+          </svg>
+          <h2>Push List <span class="coming-soon-badge">Coming Soon</span></h2>
+          <p>A live, dynamic hit-list updated by the warehouse highlighting short-dated inventory, giving the sales team instant visibility to move product before it expires.</p>
+        </div>
+      </section>
+
+      <!-- ======================================
+           FEATURE ROADMAP PAGE
+           ====================================== -->
+      <section id="roadmap-page">
+        <a href="#" class="back-link" data-page="main-expense-view">&#8592; Back to Expense Form</a>
+        <div class="placeholder-page-body">
+          <svg class="placeholder-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <circle cx="32" cy="32" r="22" stroke="#201f1d" stroke-width="4"/>
+            <circle cx="32" cy="32" r="6" fill="#201f1d"/>
+            <line x1="32" y1="10" x2="32" y2="18" stroke="#201f1d" stroke-width="4" stroke-linecap="round"/>
+            <line x1="32" y1="46" x2="32" y2="54" stroke="#201f1d" stroke-width="4" stroke-linecap="round"/>
+            <line x1="10" y1="32" x2="18" y2="32" stroke="#201f1d" stroke-width="4" stroke-linecap="round"/>
+            <line x1="46" y1="32" x2="54" y2="32" stroke="#201f1d" stroke-width="4" stroke-linecap="round"/>
+          </svg>
+          <h2>The Route Command Vision</h2>
+          <p>This application is currently in MVP Phase 1. Our goal is to expand this into a centralized command center to optimize operations for our ~15 person team. Upcoming Phase 2 integrations include Automated AI Receipt Scanning to eliminate manual data entry, and Dynamic Inventory Routing to automatically ping sales writers about warehouse overstock in real-time. Stay tuned.</p>
+        </div>
+      </section>
+
+    </main>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

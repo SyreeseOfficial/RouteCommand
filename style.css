@@ -1,0 +1,511 @@
+/* =============================================
+   ROOT VARIABLES
+   ============================================= */
+:root {
+  --color-primary-accent: #7b0618;
+  --color-primary-dark:   #000000;
+  --color-secondary-dark: #201f1d;
+  --color-base:           #ffffff;
+}
+
+/* =============================================
+   GLOBAL RESET
+   ============================================= */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* =============================================
+   BASE STYLES
+   ============================================= */
+html, body {
+  height: 100%;
+  background-color: var(--color-base);
+  color: var(--color-primary-dark);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Mobile-first: constrain max width for readability on large screens */
+body {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* =============================================
+   GATEKEEPER SCREEN
+   ============================================= */
+#gatekeeper-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100vw;
+  height: 100vh;
+  background-color: var(--color-base);
+  /* Break out of the body max-width so it truly fills the viewport */
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+}
+
+.gatekeeper-card {
+  width: 100%;
+  max-width: 360px;
+  padding: 0 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.gatekeeper-card h1 {
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: var(--color-primary-dark);
+  text-align: center;
+}
+
+#gatekeeper-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+#passcode-input {
+  height: 48px;
+  width: 100%;
+  border: 1px solid var(--color-secondary-dark);
+  border-radius: 6px;
+  padding: 0 14px;
+  font-size: 1rem;
+  font-family: inherit;
+  background-color: var(--color-base);
+  color: var(--color-primary-dark);
+  outline: none;
+  transition: border 0.2s ease;
+}
+
+#passcode-input:focus {
+  border: 2px solid var(--color-primary-accent);
+}
+
+#passcode-input::placeholder {
+  color: var(--color-secondary-dark);
+  opacity: 0.6;
+}
+
+#gatekeeper-form button[type="submit"] {
+  height: 48px;
+  width: 100%;
+  background-color: var(--color-primary-accent);
+  color: var(--color-base);
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: inherit;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  transition: opacity 0.2s ease;
+}
+
+#gatekeeper-form button[type="submit"]:active {
+  opacity: 0.85;
+}
+
+/* =============================================
+   APP CONTAINER (hidden by default)
+   ============================================= */
+#app-container {
+  display: none;
+}
+
+/* =============================================
+   FIXED HEADER
+   ============================================= */
+#main-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  /* Match body max-width so header stays contained */
+  max-width: 600px;
+  margin: 0 auto;
+  height: 56px;
+  background-color: var(--color-primary-dark);
+  color: var(--color-base);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  z-index: 500;
+}
+
+.header-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-base);
+  letter-spacing: 0.03em;
+}
+
+/* Hamburger button */
+#hamburger-btn {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 44px;
+  height: 48px;
+  padding: 0 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  /* Ensure tap target is at least 48px */
+  align-items: center;
+}
+
+.hamburger-bar {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background-color: var(--color-base);
+  border-radius: 2px;
+}
+
+/* Main content offset so it clears the fixed header */
+#main-content {
+  padding-top: 56px;
+}
+
+/* =============================================
+   OVERLAY
+   ============================================= */
+#overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 600;
+}
+
+/* =============================================
+   SIDE DRAWER
+   ============================================= */
+#side-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 250px;
+  height: 100%;
+  background-color: var(--color-secondary-dark);
+  z-index: 700;
+  transform: translateX(100%);
+  transition: transform 0.3s ease-in-out;
+  padding-top: 72px; /* clear the header */
+}
+
+#side-drawer.open {
+  transform: translateX(0);
+}
+
+.drawer-nav-list {
+  list-style: none;
+}
+
+.drawer-link {
+  display: block;
+  padding: 16px 24px;
+  color: var(--color-base);
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: 500;
+  min-height: 48px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  transition: background-color 0.15s ease;
+}
+
+.drawer-link:active,
+.drawer-link:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+/* =============================================
+   EXPENSE FORM
+   ============================================= */
+#main-expense-view {
+  padding: 24px 20px;
+}
+
+#expense-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-primary-dark);
+}
+
+.form-group select,
+.form-group input[type="date"],
+.form-group input[type="number"],
+.form-group input[type="text"] {
+  height: 48px;
+  width: 100%;
+  border: 1px solid var(--color-secondary-dark);
+  border-radius: 6px;
+  padding: 0 14px;
+  font-size: 1rem;
+  font-family: inherit;
+  background-color: var(--color-base);
+  color: var(--color-primary-dark);
+  outline: none;
+  transition: border 0.2s ease;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Custom dropdown arrow for selects */
+.form-group select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23201f1d' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 40px;
+}
+
+.form-group select:focus,
+.form-group input[type="date"]:focus,
+.form-group input[type="number"]:focus,
+.form-group input[type="text"]:focus {
+  border: 2px solid var(--color-primary-accent);
+}
+
+/* Hidden native file input */
+#receipt-upload {
+  opacity: 0;
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.file-upload-wrapper {
+  position: relative;
+}
+
+.file-upload-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 48px;
+  width: 100%;
+  border: 1px dashed var(--color-secondary-dark);
+  border-radius: 6px;
+  background-color: var(--color-base);
+  color: var(--color-secondary-dark);
+  font-size: 0.95rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.file-upload-btn:active {
+  background-color: #f5f5f5;
+}
+
+.file-upload-btn.has-file {
+  border-style: solid;
+  border-color: var(--color-primary-accent);
+  color: var(--color-primary-accent);
+  font-weight: 600;
+}
+
+.camera-icon {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+}
+
+.file-upload-btn.has-file .camera-icon path,
+.file-upload-btn.has-file .camera-icon circle {
+  stroke: var(--color-primary-accent);
+}
+
+/* Submit button */
+#submit-btn {
+  height: 48px;
+  width: 100%;
+  background-color: var(--color-primary-accent);
+  color: var(--color-base);
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: inherit;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  margin-top: 6px;
+  transition: opacity 0.2s ease, background-color 0.2s ease;
+}
+
+#submit-btn:active {
+  opacity: 0.85;
+}
+
+#submit-btn:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+/* =============================================
+   SUCCESS STATE
+   ============================================= */
+#success-state {
+  display: none;
+  padding: 24px 20px;
+}
+
+.success-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding-top: 80px;
+  gap: 16px;
+}
+
+.success-checkmark {
+  width: 96px;
+  height: 96px;
+  animation: scaleIn 0.4s ease-out;
+}
+
+@keyframes scaleIn {
+  0%   { transform: scale(0); opacity: 0; }
+  60%  { transform: scale(1.15); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.success-heading {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-primary-dark);
+}
+
+.success-subtext {
+  font-size: 1rem;
+  color: var(--color-secondary-dark);
+}
+
+#reset-btn {
+  height: 48px;
+  width: 100%;
+  max-width: 300px;
+  margin-top: 20px;
+  background-color: var(--color-base);
+  color: var(--color-primary-dark);
+  font-size: 0.95rem;
+  font-weight: 600;
+  font-family: inherit;
+  border: 1px solid var(--color-secondary-dark);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+#reset-btn:active {
+  background-color: #f5f5f5;
+}
+
+/* Fade transition for form / success swap */
+#main-expense-view,
+#success-state {
+  transition: opacity 0.3s ease;
+}
+
+/* =============================================
+   PLACEHOLDER PAGES (Fleet Health, Push List, Roadmap)
+   ============================================= */
+#fleet-health-page,
+#push-list-page,
+#roadmap-page {
+  display: none;
+  padding: 24px 20px;
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 40px;
+  color: var(--color-secondary-dark);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  min-height: 48px;
+  line-height: 48px;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+.placeholder-page-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 0 8px;
+  gap: 20px;
+}
+
+.placeholder-icon {
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
+}
+
+.placeholder-page-body h2 {
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: var(--color-primary-dark);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.coming-soon-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-secondary-dark);
+  border: 1px solid var(--color-secondary-dark);
+  border-radius: 4px;
+  padding: 2px 6px;
+  vertical-align: middle;
+}
+
+.placeholder-page-body p {
+  font-size: 0.975rem;
+  color: var(--color-secondary-dark);
+  line-height: 1.65;
+  max-width: 480px;
+}
