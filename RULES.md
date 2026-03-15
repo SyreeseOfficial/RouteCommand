@@ -1,8 +1,17 @@
-Reference the PRD.md when needed
-Update the CHANGELOG.md whenever you make serious changes. Use it like a GitHub commit changelog to keep track of big changes. Keep it concise and include dates and times.
-No External Frameworks: Strictly use Vanilla HTML5, CSS3, and JavaScript. Do not use React, Vue, Tailwind, or Bootstrap.
-Strict Color Palette: ONLY use the following colors: Primary Red (#7b0618), Deep Black (#000000), Charcoal (#201f1d), and White (#FFFFFF).
-Mobile-First & PWA: The UI must be optimized for mobile screens. All touch targets must be at least 48px.
-Hardcoded IDs: NEVER change the Google Sheet ID ( 1EVNu8oFX3ll-slu8EX0kCtNOEvfii4aXRyvzXt1a-m0) or Drive Folder ID ( 1N0MTnkIyHIhwRGgPnaM-R3v4DXp4zCzb).
-Zero Cost: Do not implement any paid APIs or services.
-Reference TODO.md. We will run prompts from TODO.md one at a time. You can reference the entire markdown file to get a better understanding of what we're trying to accomplish if you need to. Don't jump ahead.
+# Project Rules
+
+## 1. Process & Memory
+* Reference `PRD.md` for all architectural decisions.
+* Update `CHANGELOG.md` after every successful task. Include Date/Time.
+* Follow `TODO.md` strictly. Complete one task, update the file, and STOP. Never jump ahead.
+
+## 2. Technical Constraints
+* **Stack:** Vanilla HTML5, CSS3, and ES6+ JavaScript ONLY. 
+* **Frameworks:** Strictly forbidden (No React, Tailwind, etc.).
+* **Color Palette:** Primary Red (#7b0618), Deep Black (#000000), Charcoal (#201f1d), White (#FFFFFF).
+* **Mobile-First:** 48px minimum touch targets. Must pass PWA lighthouse audits.
+
+## 3. Environment & Security
+* **System:** Omarchy Linux. Use `pnpm` for dependencies.
+* **Hardcoded IDs:** NEVER modify Google Sheet ID (`1EVNu8oFX3ll-slu8EX0kCtNOEvfii4aXRyvzXt1a-m0`) or Google Drive ID (`1N0MTnkIyHIhwRGgPnaM-R3v4DXp4zCzb`).
+* **Zero Cost:** No paid APIs.
