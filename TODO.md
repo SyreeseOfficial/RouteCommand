@@ -5,46 +5,23 @@
 
 ---
 
-### Phase 1: The Foundation & UI (Visuals First)
-Prompt 1: Project Initialization & CSS Variables
-> "Read PRD.md and rules.md to understand the full context of this project. Initialize our workspace. Create index.html, style.css, and app.js. In style.css, set up the :root CSS variables for our exact color palette: Primary Accent (#7b0618), Primary Dark (#000000), Secondary Dark (#201f1d), and Base (#FFFFFF). Set up a global reset ( * { box-sizing: border-box; margin: 0; padding: 0; }), use the system font stack, and apply a base background color of White. Ensure mobile-first styling. Update changelog.md with today's date and note that the project was initialized."
-Prompt 2: The Gatekeeper UI
-> "Review rules.md to ensure no external frameworks are used. In index.html, create a div with the id gatekeeper-screen. It should take up the full viewport (100vh, 100vw), have a white background, and use Flexbox to center its contents. Inside, add an h1 ('Enter Company Passcode'), a password <input> field, and a submit <button>. In style.css, style the input with a 48px height, a 1px solid #201f1d border, and a 6px border-radius. Style the button with our Primary Red background, white bold text, and a 48px height. Hide the rest of the application body for now."
-Prompt 3: The Header & Navigation Skeleton
-> "In index.html, add a <header> element inside a new main #app-container (which should be hidden by default while the gatekeeper is active). The header must be fixed to the top ( position: sticky or fixed), have a #000000 background, and white text. Use Flexbox to put the title 'Route Command' on the left. On the right, create a hamburger menu button. CRITICAL: Do not use FontAwesome or external libraries. Draw the hamburger icon using three span elements styled with CSS or an inline SVG. Update changelog.md."
-Prompt 4: The Navigation Drawer UI
-> "In index.html, create a <nav> element with the id side-drawer. Style it in style.css to be fixed to the right side, full height, with a width of 250px, and a background color of #201f1d. Transform it entirely off-screen to the right by default ( transform: translateX(100%)). Create a <div id="overlay"> that covers the whole screen with rgba(0,0,0,0.5), z-index below the drawer but above the main content, and display: none by default. Inside the drawer, add an unordered list with four links (white text): Submit Expense, Fleet Health, Push List, and Feature Roadmap."
-Prompt 5: The Drawer JavaScript
-> "In app.js, write the Vanilla JS to handle the hamburger menu toggle. Select the hamburger button, the side-drawer, and the overlay. Add click event listeners so that clicking the hamburger button adds an 'open' class to the drawer (translating it to 0%) and changes the overlay to display: block. Clicking the overlay or any link inside the drawer must remove the 'open' class and hide the overlay. Ensure you add transition: transform 0.3s ease-in-out to the drawer in style.css."
-Prompt 6: The Placeholder Pages UI
-> "In index.html, create three separate <section> elements with ids: fleet-health-page, push-list-page, and roadmap-page. Set them all to display: none in style.css. Inside each, add a minimalist inline SVG icon matching its theme (charcoal color), a headline, and the specific pitch text from Section 4.2 of PRD.md. Add a textual link at the top of each that says '← Back to Expense Form'. Update changelog.md."
-Prompt 7: Navigation Routing Logic
-> "In app.js, create a simple DOM-based routing function. When a user clicks a specific link in the side drawer, hide the main expense form section (which we will build next) and all other placeholder pages, and only set the target page to display: block. When the user clicks the '← Back to Expense Form' link on any placeholder page, hide that page and show the main expense form again."
-Prompt 8: Main Expense Form UI (Part 1)
-> "In index.html, create a <form id="expense-form"> inside a <section id="main-expense-view">. Add the following fields, wrapping each in a flex-column group with clear labels. 1. Employee Name: <select> dropdown containing exactly these options (David Lindholm, Hannah, Ian Aps, Kaleb, Nick, Steve, Syreese Delos Santos, Tagen Garris, Teresa, Tyler Sharpe). 2. Receipt Date: <input type="date">. 3. Expense Category: <select> dropdown with the exact options from Section 4.4 of PRD.md. Style all inputs in style.css to be 48px high, with charcoal borders and red focus states."
-Prompt 9: Main Expense Form UI (Part 2)
-> "Continuing with the #expense-form, add the following. 1. Expense Amount: <input type="number" inputmode="decimal" step="0.01">. 2. Vehicle Tag: <select> dropdown defaulting to 'N/A', containing (Bumblebee, Prime, Heno, White Van, Personal Vehicle). 3. Receipt Upload: Add <input type="file" id="receipt-upload" accept="image/*" capture="environment">. Hide this default input with CSS ( opacity: 0; position: absolute; width: 0;). Create a <label> styled as a large charcoal-bordered button with a camera icon. Write JS so when a file is selected, the label text changes to 'Receipt Attached (1)'."
-Prompt 10: Form Submit & Success UI
-> "Add a <button type="submit"> at the bottom of the form. Style it full-width, #7b0618 background, white bold text, 48px height. Next, in index.html, create a <div id="success-state"> set to display: none. It should fill the container. Inside, add a large green CSS-drawn checkmark (or inline SVG), the text 'Upload Successful! Ian has your receipt.', and a secondary button 'Submit Another Expense'. Update changelog.md with UI completion."___
-### Phase 2: Client-Side Logic (Making it Work)
-Prompt 11: Gatekeeper JavaScript
-> "Review rules.md to remember we only use Vanilla JS. In app.js, handle the Gatekeeper logic. On DOMContentLoaded, check localStorage.getItem('auth'). If it equals 'verified', hide #gatekeeper-screen and show #app-container. If not, keep the gatekeeper visible. Add a submit event listener to the gatekeeper form. If the input value exactly matches 'boarshead', run localStorage.setItem('auth', 'verified'), hide the gatekeeper, and show the app. Prevent default form submission."
-Prompt 12: Form State Persistence
-> "In app.js, let's save time for the drivers. On DOMContentLoaded, check if localStorage.getItem('savedEmployeeName') exists. If it does, set the 'Employee Name' dropdown value to that string. Next, add a change event listener to the 'Employee Name' dropdown. Whenever it changes, update localStorage.setItem('savedEmployeeName', e.target.value)."
-Prompt 13: Image Compression (The Canvas API - CRITICAL)
-> "In app.js, create an asynchronous function to compress the uploaded image using ONLY Vanilla JS (No external libraries). When the user selects a file, read it using FileReader. Load it into an Image object. Draw it onto an HTML5 <canvas>. Calculate the aspect ratio to resize the image so its maximum width or height is exactly 1024px. Finally, use canvas.toDataURL('image/jpeg', 0.7) to extract the highly compressed Base64 string. Store this string in a global variable for the submit payload."
-Prompt 14: Form Validation & Button State
-> "In app.js, attach a submit event listener to #expense-form. Call e.preventDefault(). Write strict validation logic: check if the Receipt Date, Amount, Category, and the compressed Base64 image variable are NOT empty. If any are empty, trigger a native alert() telling the user what is missing. If validation passes, disable the submit button, change its background to gray (#cccccc), and change its text content to 'Uploading... Please Wait'. Update changelog.md."___
-### Phase 3: The Backend (Google Apps Script)
-(Copy these into Google Apps Script editor, Code.gs)
-Prompt 15: Google Apps Script Skeleton & CORS
-> "I am now writing the backend in Google Apps Script. Generate the Code.gs file. Write a doPost(e) function. It is absolutely critical that you return a ContentService.createTextOutput() containing a JSON string, and you MUST set the MimeType to JSON. Extract the POST body using JSON.parse(e.postData.contents). Verify the passcode key in the payload equals 'boarshead'. If not, return an unauthorized error."
-Prompt 16: Base64 Decoding & Drive Storage
-> "Expand Code.gs. Take the imageBase64 string from the parsed JSON. Strip the metadata prefix (e.g., 'data:image/jpeg;base64,') if it exists. Use Utilities.base64Decode() to convert it to a byte array. Create a blob using Utilities.newBlob(bytes, 'image/jpeg', fileName). The fileName MUST be formatted as [receiptDate]_[employeeName]_[category]_[amount].jpg. Save this Blob to the specific Drive Folder using DriveApp.getFolderById('1N0MTnkIyHIhwRGgPnaM-R3v4DXp4zCzb').createFile(blob). Get the getUrl() of the new file."
-Prompt 17: Sheets Append & Response
-> "Finish Code.gs. Using the Drive URL from the previous step, append a new row to the Google Sheet using SpreadsheetApp.openById('1EVNu8oFX3ll-slu8EX0kCtNOEvfii4aXRyvzXt1a-m0').getSheets()[0]. The appended array MUST exactly match this column order: [Timestamp, Receipt Date, Employee Name, Category, Amount, Vehicle Tag, Drive Image URL]. Return a success JSON response. Ensure the script is ready to be deployed as a Web App executed as me, accessible by anyone."___
-### Phase 4: Final Connection & Edge Cases
-Prompt 18: The Fetch API & Success Routing
-> "Back in app.js for our frontend. Inside the form submit event listener (after validation and disabling the button), construct the JSON payload object matching PRD.md section 5.3. Use fetch() to send a POST request to my Google Web App URL (leave a placeholder const GOOGLE_URL = 'YOUR_URL_HERE';). Use mode: 'no-cors' if necessary, but prefer standard POST if CORS allows. On success, fade out #expense-form and fade in #success-state. On catch(error), re-enable the submit button, revert its text, and alert 'Network error. Please try again'."
-Prompt 19: Edge Cases & PWA Modal
-> "In app.js, add a window.addEventListener('beforeunload', …) that triggers ONLY if the submit button is currently in the 'Uploading…' state, warning the user not to close the app. Finally, build the PWA installation modal. Below the submit button in index.html, add a link: 'Want to add this to your home screen?'. When clicked, open a sleek #201f1d modal explaining how to 'Add to Home Screen' for iOS and Android. Add a close button to this modal. Update changelog.md to mark MVP v1.0 complete."
+# TODO: Route Command v1.2 Build Plan
+
+## Phase 1: Architecture & Layout
+- [ ] 1.1: Initialize project with CSS variables (Boar's Head palette) and Inter font.
+- [ ] 1.2: Build Responsive Shell: Sidebar (Desktop) and Bottom Nav (Mobile).
+- [ ] 1.3: Implement "More Menu" drawer for Mobile view.
+- [ ] 1.4: Build Page Routing logic to switch between Dashboard tabs.
+
+## Phase 2: Feature Views & Aesthetics
+- [ ] 2.1: Build the 'Receipts' Tab: Stat Cards and Premium Form Card.
+- [ ] 2.2: Add 'Notes' field and styled File Upload button (Gold accents).
+- [ ] 2.3: Build 'Vehicles', 'Short Dates', and 'Roadmap' placeholder pages.
+- [ ] 2.4: Build 'Settings' page with Identity display and Reset button.
+- [ ] 2.5: Add Animations: Hover states, button micro-interactions, and fade-in effects.
+
+## Phase 3: Logic & Security
+- [ ] 3.1: Build the 'Gatekeeper' Shield screen and localStorage auth logic.
+- [ ] 3.2: Implement Canvas Image Compression (1024px, 0.7 quality).
+- [ ] 3.3: Write Google Apps Script for Drive/Sheets integration.
+- [ ] 3.4: Connect Frontend Fetch to Backend and implement Success/Error states.
