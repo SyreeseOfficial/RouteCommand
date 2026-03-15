@@ -71,6 +71,24 @@
           </span>
           <span class="nav-item__label">Short Dates</span>
         </button>
+        <button class="nav-item" data-view="route-map">
+          <span class="nav-item__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </span>
+          <span class="nav-item__label">Route Map</span>
+        </button>
+        <button class="nav-item" data-view="training">
+          <span class="nav-item__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+          </span>
+          <span class="nav-item__label">Training</span>
+        </button>
+        <button class="nav-item" data-view="incentives">
+          <span class="nav-item__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>
+          </span>
+          <span class="nav-item__label">Incentives</span>
+        </button>
         <button class="nav-item" data-view="roadmap">
           <span class="nav-item__icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
@@ -246,6 +264,142 @@
         </div>
       </section>
 
+      <!-- ROUTE MAP VIEW -->
+      <section id="route-map-view" class="view" aria-label="Route Map">
+        <div class="view__header">
+          <h2 class="view__title">Route Map</h2>
+          <p class="view__sub">Intelligent routing for your daily stops.</p>
+        </div>
+        <div class="coming-soon-banner">
+          <div class="coming-soon-banner__left">
+            <span class="coming-soon-banner__badge">Coming Soon</span>
+            <span class="coming-soon-banner__version">v2.2 Feature</span>
+          </div>
+          <button class="btn btn--outline coming-soon-banner__btn" data-view="roadmap">v2.2 Roadmap</button>
+        </div>
+        <div class="map-placeholder">
+          <div class="map-placeholder__inner">
+            <div class="map-placeholder__icon" aria-hidden="true">
+              <svg viewBox="0 0 48 56" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M24 4C14.059 4 6 12.059 6 22c0 14.5 18 32 18 32s18-17.5 18-32C42 12.059 33.941 4 24 4z"/>
+                <circle cx="24" cy="22" r="7"/>
+              </svg>
+            </div>
+            <span class="map-placeholder__label">Map Preview</span>
+          </div>
+        </div>
+        <div class="view-copy-card">
+          <h3 class="view-copy-card__title">Smart Routing.</h3>
+          <p class="view-copy-card__body">We're building a tool that looks at live traffic and your daily stops for you. It will figure out the best route and the right time to leave the yard so our deli products always arrive fresh and on time.</p>
+        </div>
+      </section>
+
+      <!-- TRAINING VIEW -->
+      <section id="training-view" class="view" aria-label="Training">
+        <div class="view__header">
+          <h2 class="view__title">Training</h2>
+          <p class="view__sub">Learn the Boar's Head Way.</p>
+        </div>
+        <div class="coming-soon-banner">
+          <div class="coming-soon-banner__left">
+            <span class="coming-soon-banner__badge">Coming Soon</span>
+            <span class="coming-soon-banner__version">v2.2 Feature</span>
+          </div>
+          <button class="btn btn--outline coming-soon-banner__btn" data-view="roadmap">v2.2 Roadmap</button>
+        </div>
+        <div class="video-grid">
+          <div class="video-thumb" aria-hidden="true">
+            <div class="video-thumb__play"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
+            <span class="video-thumb__label">Truck Safety</span>
+          </div>
+          <div class="video-thumb" aria-hidden="true">
+            <div class="video-thumb__play"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
+            <span class="video-thumb__label">Food Handling</span>
+          </div>
+          <div class="video-thumb" aria-hidden="true">
+            <div class="video-thumb__play"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
+            <span class="video-thumb__label">Slicer Safety</span>
+          </div>
+          <div class="video-thumb" aria-hidden="true">
+            <div class="video-thumb__play"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
+            <span class="video-thumb__label">Merchandising</span>
+          </div>
+          <div class="video-thumb" aria-hidden="true">
+            <div class="video-thumb__play"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
+            <span class="video-thumb__label">Brand Standards</span>
+          </div>
+          <div class="video-thumb" aria-hidden="true">
+            <div class="video-thumb__play"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>
+            <span class="video-thumb__label">Customer Service</span>
+          </div>
+        </div>
+        <div class="view-copy-card">
+          <h3 class="view-copy-card__title">Training at your fingertips.</h3>
+          <p class="view-copy-card__body">Get quick, 60-second refreshers on truck safety, food handling, slicer safety, and brand merchandising. Learn the Boar's Head Way right from your phone.</p>
+        </div>
+      </section>
+
+      <!-- INCENTIVES VIEW -->
+      <section id="incentives-view" class="view" aria-label="Incentives">
+        <div class="view__header">
+          <h2 class="view__title">Incentives</h2>
+          <p class="view__sub">The Leaderboard.</p>
+        </div>
+        <div class="coming-soon-banner">
+          <div class="coming-soon-banner__left">
+            <span class="coming-soon-banner__badge">Coming Soon</span>
+            <span class="coming-soon-banner__version">v2.2 Feature</span>
+          </div>
+          <button class="btn btn--outline coming-soon-banner__btn" data-view="roadmap">v2.2 Roadmap</button>
+        </div>
+        <div class="leaderboard">
+          <div class="leaderboard__row">
+            <span class="leaderboard__rank leaderboard__rank--gold">1</span>
+            <div class="leaderboard__info">
+              <span class="leaderboard__name">Marcus Chen</span>
+              <div class="leaderboard__bar-wrap"><div class="leaderboard__bar" style="width:92%"></div></div>
+            </div>
+            <span class="leaderboard__pts">920 pts</span>
+          </div>
+          <div class="leaderboard__row">
+            <span class="leaderboard__rank leaderboard__rank--silver">2</span>
+            <div class="leaderboard__info">
+              <span class="leaderboard__name">Sarah O'Brien</span>
+              <div class="leaderboard__bar-wrap"><div class="leaderboard__bar" style="width:78%"></div></div>
+            </div>
+            <span class="leaderboard__pts">780 pts</span>
+          </div>
+          <div class="leaderboard__row">
+            <span class="leaderboard__rank leaderboard__rank--bronze">3</span>
+            <div class="leaderboard__info">
+              <span class="leaderboard__name">Tyler Sharpe</span>
+              <div class="leaderboard__bar-wrap"><div class="leaderboard__bar" style="width:65%"></div></div>
+            </div>
+            <span class="leaderboard__pts">650 pts</span>
+          </div>
+          <div class="leaderboard__row">
+            <span class="leaderboard__rank">4</span>
+            <div class="leaderboard__info">
+              <span class="leaderboard__name">Tagen Garris</span>
+              <div class="leaderboard__bar-wrap"><div class="leaderboard__bar" style="width:51%"></div></div>
+            </div>
+            <span class="leaderboard__pts">510 pts</span>
+          </div>
+          <div class="leaderboard__row">
+            <span class="leaderboard__rank">5</span>
+            <div class="leaderboard__info">
+              <span class="leaderboard__name">Hannah Mills</span>
+              <div class="leaderboard__bar-wrap"><div class="leaderboard__bar" style="width:38%"></div></div>
+            </div>
+            <span class="leaderboard__pts">380 pts</span>
+          </div>
+        </div>
+        <div class="view-copy-card">
+          <h3 class="view-copy-card__title">The Leaderboard.</h3>
+          <p class="view-copy-card__body">Track your performance in real-time. See where you stand in sales contests, demo conversion rates, and safety bonuses. Turn your hard work into rewards.</p>
+        </div>
+      </section>
+
       <!-- ROADMAP VIEW -->
       <section id="roadmap-view" class="view" aria-label="Roadmap">
         <div class="view__header">
@@ -267,6 +421,21 @@
             <div class="roadmap-item__badge roadmap-item__badge--soon">v2.1</div>
             <h4 class="roadmap-item__title">Short Dates Live Feed</h4>
             <p class="roadmap-item__desc">Live warehouse inventory expiration alerts with push notifications to the sales team.</p>
+          </div>
+          <div class="roadmap-item">
+            <div class="roadmap-item__badge roadmap-item__badge--soon">v2.2</div>
+            <h4 class="roadmap-item__title">Smart Route Map</h4>
+            <p class="roadmap-item__desc">Live traffic-aware routing optimized for your daily delivery stops, with departure timing from the yard to keep product fresh.</p>
+          </div>
+          <div class="roadmap-item">
+            <div class="roadmap-item__badge roadmap-item__badge--soon">v2.2</div>
+            <h4 class="roadmap-item__title">Training Hub</h4>
+            <p class="roadmap-item__desc">60-second on-demand video refreshers covering truck safety, food handling, slicer safety, and brand merchandising standards.</p>
+          </div>
+          <div class="roadmap-item">
+            <div class="roadmap-item__badge roadmap-item__badge--soon">v2.2</div>
+            <h4 class="roadmap-item__title">Incentives Leaderboard</h4>
+            <p class="roadmap-item__desc">Real-time performance tracking for sales contests, demo conversion rates, and safety bonuses — turning hard work into rewards.</p>
           </div>
         </div>
       </section>
@@ -394,6 +563,24 @@
     <div class="drawer hidden" id="more-drawer" role="dialog" aria-modal="true" aria-label="More options">
       <div class="drawer__handle" aria-hidden="true"></div>
       <nav class="drawer__nav">
+        <button class="drawer__item" data-view="route-map">
+          <span class="drawer__item-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </span>
+          <span>Route Map</span>
+        </button>
+        <button class="drawer__item" data-view="training">
+          <span class="drawer__item-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+          </span>
+          <span>Training</span>
+        </button>
+        <button class="drawer__item" data-view="incentives">
+          <span class="drawer__item-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>
+          </span>
+          <span>Incentives</span>
+        </button>
         <button class="drawer__item" data-view="roadmap">
           <span class="drawer__item-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>

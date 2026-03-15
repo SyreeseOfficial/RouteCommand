@@ -163,6 +163,11 @@ drawerItems.forEach(item => {
   });
 });
 
+/* Coming Soon banner roadmap buttons */
+document.querySelectorAll('.coming-soon-banner__btn[data-view]').forEach(btn => {
+  btn.addEventListener('click', () => navigateTo(btn.dataset.view));
+});
+
 /* ═══════════════════════════════════════════════════════════
    4. LOCALSTORAGE PERSISTENCE
 ═══════════════════════════════════════════════════════════ */
@@ -486,7 +491,7 @@ let observer = null;
 
 function observeAnimatables() {
   const animatables = document.querySelectorAll(
-    '.stat-card:not(.visible), .form-card:not(.visible), .placeholder-card:not(.visible), .roadmap-item:not(.visible)'
+    '.stat-card:not(.visible), .form-card:not(.visible), .placeholder-card:not(.visible), .roadmap-item:not(.visible), .coming-soon-banner:not(.visible), .map-placeholder:not(.visible), .video-grid:not(.visible), .leaderboard:not(.visible), .view-copy-card:not(.visible)'
   );
 
   if (!animatables.length) return;
