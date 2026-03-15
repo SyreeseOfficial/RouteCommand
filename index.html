@@ -240,13 +240,52 @@
       <section id="vehicles-view" class="view" aria-label="Vehicles">
         <div class="view__header">
           <h2 class="view__title">Vehicles</h2>
+          <p class="view__sub">Fleet health at a glance.</p>
         </div>
-        <div class="placeholder-card">
-          <div class="placeholder-card__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+        <div class="coming-soon-banner">
+          <div class="coming-soon-banner__left">
+            <span class="coming-soon-banner__badge">Coming Soon</span>
+            <span class="coming-soon-banner__version">COMING IN v1.3</span>
           </div>
-          <h3 class="placeholder-card__title">Fleet Monitoring</h3>
-          <p class="placeholder-card__body">Fleet health monitoring coming soon. Future features include mileage logs, maintenance problem reporting, and reefer temperature tracking for easy spreadsheet export.</p>
+          <button class="btn btn--outline coming-soon-banner__btn" data-view="roadmap">v1.3 Roadmap</button>
+        </div>
+        <div class="stat-cards stat-cards--3">
+          <div class="stat-card">
+            <span class="stat-card__label">Truck Status</span>
+            <span class="stat-card__value">
+              <span class="status-dot status-dot--online" aria-hidden="true"></span>
+              All Clear
+            </span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-card__label">Total Mileage</span>
+            <span class="stat-card__value stat-card__value--muted">---</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-card__label">Reefer Temp</span>
+            <span class="stat-card__value">
+              <span class="status-dot status-dot--safe" aria-hidden="true"></span>
+              Safe
+            </span>
+          </div>
+        </div>
+        <div class="section-card">
+          <h3 class="section-card__title">Maintenance Reports</h3>
+          <div class="maintenance-list">
+            <div class="maintenance-item maintenance-item--placeholder">
+              <div class="maintenance-item__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+              </div>
+              <div class="maintenance-item__body">
+                <span class="maintenance-item__name">No reports filed yet</span>
+                <span class="maintenance-item__sub">Reports will appear here once v1.3 launches</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="view-copy-card">
+          <h3 class="view-copy-card__title">Fleet Monitoring.</h3>
+          <p class="view-copy-card__body">Soon you can log your truck's miles and report any mechanical problems right here. We are even adding a tool to track reefer temps so Ian gets the data instantly.</p>
         </div>
       </section>
 
@@ -254,13 +293,56 @@
       <section id="short-dates-view" class="view" aria-label="Short Dates">
         <div class="view__header">
           <h2 class="view__title">Short Dates</h2>
+          <p class="view__sub">Expiring inventory alerts.</p>
         </div>
-        <div class="placeholder-card">
-          <div class="placeholder-card__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+        <div class="coming-soon-banner">
+          <div class="coming-soon-banner__left">
+            <span class="coming-soon-banner__badge">Coming Soon</span>
+            <span class="coming-soon-banner__version">COMING IN v1.6</span>
           </div>
-          <h3 class="placeholder-card__title">Inventory Alerts</h3>
-          <p class="placeholder-card__body">Warehouse inventory alerts coming soon. Real-time visibility on stock expiring soon so employees can move product before it expires.</p>
+          <button class="btn btn--outline coming-soon-banner__btn" data-view="roadmap">v1.6 Roadmap</button>
+        </div>
+        <div class="section-card">
+          <h3 class="section-card__title">Inventory Alerts</h3>
+          <div class="inventory-list">
+            <div class="inventory-item">
+              <div class="inventory-item__header">
+                <span class="inventory-item__name">Maple Glazed Honey Ham</span>
+                <span class="expiring-tag">Expiring Soon</span>
+              </div>
+              <div class="inventory-item__footer">
+                <span class="inventory-item__sub">Stock Level</span>
+                <div class="stock-bar-wrap"><div class="stock-bar" style="width: 22%"></div></div>
+                <span class="inventory-item__pct">22%</span>
+              </div>
+            </div>
+            <div class="inventory-item">
+              <div class="inventory-item__header">
+                <span class="inventory-item__name">Ovengold Turkey</span>
+                <span class="expiring-tag">Expiring Soon</span>
+              </div>
+              <div class="inventory-item__footer">
+                <span class="inventory-item__sub">Stock Level</span>
+                <div class="stock-bar-wrap"><div class="stock-bar" style="width: 35%"></div></div>
+                <span class="inventory-item__pct">35%</span>
+              </div>
+            </div>
+            <div class="inventory-item">
+              <div class="inventory-item__header">
+                <span class="inventory-item__name">Black Forest Ham</span>
+                <span class="expiring-tag">Expiring Soon</span>
+              </div>
+              <div class="inventory-item__footer">
+                <span class="inventory-item__sub">Stock Level</span>
+                <div class="stock-bar-wrap"><div class="stock-bar" style="width: 48%"></div></div>
+                <span class="inventory-item__pct">48%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="view-copy-card">
+          <h3 class="view-copy-card__title">Inventory Alerts.</h3>
+          <p class="view-copy-card__body">See what deli products in the warehouse are expiring soon. This helps sales reps move the product to our customers before it goes bad. No more wasted stock.</p>
         </div>
       </section>
 
@@ -273,9 +355,9 @@
         <div class="coming-soon-banner">
           <div class="coming-soon-banner__left">
             <span class="coming-soon-banner__badge">Coming Soon</span>
-            <span class="coming-soon-banner__version">v2.2 Feature</span>
+            <span class="coming-soon-banner__version">COMING IN v1.4</span>
           </div>
-          <button class="btn btn--outline coming-soon-banner__btn" data-view="roadmap">v2.2 Roadmap</button>
+          <button class="btn btn--outline coming-soon-banner__btn" data-view="roadmap">v1.4 Roadmap</button>
         </div>
         <div class="map-placeholder">
           <div class="map-placeholder__inner">
@@ -303,9 +385,9 @@
         <div class="coming-soon-banner">
           <div class="coming-soon-banner__left">
             <span class="coming-soon-banner__badge">Coming Soon</span>
-            <span class="coming-soon-banner__version">v2.2 Feature</span>
+            <span class="coming-soon-banner__version">COMING IN v1.7</span>
           </div>
-          <button class="btn btn--outline coming-soon-banner__btn" data-view="roadmap">v2.2 Roadmap</button>
+          <button class="btn btn--outline coming-soon-banner__btn" data-view="roadmap">v1.7 Roadmap</button>
         </div>
         <div class="video-grid">
           <div class="video-thumb" aria-hidden="true">
@@ -348,9 +430,9 @@
         <div class="coming-soon-banner">
           <div class="coming-soon-banner__left">
             <span class="coming-soon-banner__badge">Coming Soon</span>
-            <span class="coming-soon-banner__version">v2.2 Feature</span>
+            <span class="coming-soon-banner__version">COMING IN v1.5</span>
           </div>
-          <button class="btn btn--outline coming-soon-banner__btn" data-view="roadmap">v2.2 Roadmap</button>
+          <button class="btn btn--outline coming-soon-banner__btn" data-view="roadmap">v1.5 Roadmap</button>
         </div>
         <div class="leaderboard">
           <div class="leaderboard__row">
@@ -409,33 +491,33 @@
         <div class="roadmap-list">
           <div class="roadmap-item roadmap-item--active">
             <div class="roadmap-item__badge roadmap-item__badge--live">Live</div>
-            <h4 class="roadmap-item__title">v1.2 — Expense Submission MVP</h4>
-            <p class="roadmap-item__desc">Receipt capture, image compression, Drive storage, and Sheets logging.</p>
+            <h4 class="roadmap-item__title">v1.2 — Expense Submission</h4>
+            <p class="roadmap-item__desc">Receipt capture, image compression, Drive storage, and Sheets logging. The core expense tool is live now.</p>
           </div>
           <div class="roadmap-item">
-            <div class="roadmap-item__badge roadmap-item__badge--soon">v2.0</div>
-            <h4 class="roadmap-item__title">AI OCR Auto-Fill</h4>
-            <p class="roadmap-item__desc">Implement AI Vision to scan receipts and auto-populate Category, Date, and Amount fields.</p>
+            <div class="roadmap-item__badge roadmap-item__badge--soon">v1.3</div>
+            <h4 class="roadmap-item__title">Fleet Monitoring</h4>
+            <p class="roadmap-item__desc">Log your truck's miles and report mechanical problems right from the app. Reefer temp tracking so Ian gets the data instantly.</p>
           </div>
           <div class="roadmap-item">
-            <div class="roadmap-item__badge roadmap-item__badge--soon">v2.1</div>
-            <h4 class="roadmap-item__title">Short Dates Live Feed</h4>
-            <p class="roadmap-item__desc">Live warehouse inventory expiration alerts with push notifications to the sales team.</p>
-          </div>
-          <div class="roadmap-item">
-            <div class="roadmap-item__badge roadmap-item__badge--soon">v2.2</div>
+            <div class="roadmap-item__badge roadmap-item__badge--soon">v1.4</div>
             <h4 class="roadmap-item__title">Smart Route Map</h4>
-            <p class="roadmap-item__desc">Live traffic-aware routing optimized for your daily delivery stops, with departure timing from the yard to keep product fresh.</p>
+            <p class="roadmap-item__desc">A tool that looks at live traffic and your daily stops. It will figure out the best route and the right time to leave so product always arrives fresh and on time.</p>
           </div>
           <div class="roadmap-item">
-            <div class="roadmap-item__badge roadmap-item__badge--soon">v2.2</div>
-            <h4 class="roadmap-item__title">Training Hub</h4>
-            <p class="roadmap-item__desc">60-second on-demand video refreshers covering truck safety, food handling, slicer safety, and brand merchandising standards.</p>
-          </div>
-          <div class="roadmap-item">
-            <div class="roadmap-item__badge roadmap-item__badge--soon">v2.2</div>
+            <div class="roadmap-item__badge roadmap-item__badge--soon">v1.5</div>
             <h4 class="roadmap-item__title">Incentives Leaderboard</h4>
-            <p class="roadmap-item__desc">Real-time performance tracking for sales contests, demo conversion rates, and safety bonuses — turning hard work into rewards.</p>
+            <p class="roadmap-item__desc">Track your performance in real-time. See where you stand in sales contests, demo conversion rates, and safety bonuses. Turn your hard work into rewards.</p>
+          </div>
+          <div class="roadmap-item">
+            <div class="roadmap-item__badge roadmap-item__badge--soon">v1.6</div>
+            <h4 class="roadmap-item__title">Inventory Alerts (Short Dates)</h4>
+            <p class="roadmap-item__desc">See what deli products in the warehouse are expiring soon. Helps sales reps move product to customers before it goes bad. No more wasted stock.</p>
+          </div>
+          <div class="roadmap-item">
+            <div class="roadmap-item__badge roadmap-item__badge--soon">v1.7</div>
+            <h4 class="roadmap-item__title">Training Hub</h4>
+            <p class="roadmap-item__desc">Quick 60-second refreshers on truck safety, food handling, slicer safety, and brand merchandising. Learn the Boar's Head Way right from your phone.</p>
           </div>
         </div>
       </section>

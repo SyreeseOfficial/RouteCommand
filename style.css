@@ -697,6 +697,199 @@ img, svg { display: block; }
   line-height: 1.7;
 }
 
+/* ── 17b. SECTION CARD (Vehicles / Short Dates inner panels) ── */
+.section-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  opacity: 0;
+  transform: translateY(12px);
+}
+
+.section-card.visible {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.4s ease-out 0.1s, transform 0.4s ease-out 0.1s;
+}
+
+.section-card__title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--color-subtext);
+  margin-bottom: 1rem;
+}
+
+/* ── 17c. STAT CARDS — 3-COLUMN VARIANT ───────────────────── */
+.stat-cards--3 {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+@media (max-width: 520px) {
+  .stat-cards--3 { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 340px) {
+  .stat-cards--3 { grid-template-columns: 1fr; }
+}
+
+.stat-card__value--muted {
+  color: var(--color-subtext);
+  letter-spacing: 0.05em;
+}
+
+.status-dot--safe {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #3b82f6;
+  box-shadow: 0 0 6px rgba(59, 130, 246, 0.6);
+  flex-shrink: 0;
+}
+
+/* ── 17d. MAINTENANCE LIST ─────────────────────────────────── */
+.maintenance-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.maintenance-item {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 0.875rem;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.maintenance-item--placeholder {
+  border-style: dashed;
+}
+
+.maintenance-item__icon {
+  width: 20px;
+  height: 20px;
+  color: var(--color-subtext);
+  flex-shrink: 0;
+}
+
+.maintenance-item__icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.maintenance-item__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.maintenance-item__name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-subtext);
+}
+
+.maintenance-item__sub {
+  font-size: 0.75rem;
+  color: var(--color-subtext);
+  opacity: 0.6;
+}
+
+/* ── 17e. INVENTORY ALERTS (Short Dates) ───────────────────── */
+.inventory-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.inventory-item {
+  padding: 0.875rem 1rem;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  transition: border-color 0.3s ease-out;
+}
+
+.inventory-item:hover {
+  border-color: rgba(132,27,42,0.35);
+}
+
+.inventory-item__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.inventory-item__name {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.expiring-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15em 0.625em;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: rgba(132,27,42,0.15);
+  color: #e05060;
+  border: 1px solid rgba(132,27,42,0.35);
+  white-space: nowrap;
+}
+
+.inventory-item__footer {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.inventory-item__sub {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-subtext);
+  white-space: nowrap;
+}
+
+.stock-bar-wrap {
+  flex: 1;
+  height: 4px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.stock-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-red), #e05060);
+  border-radius: 999px;
+  transition: width 0.6s ease-out;
+}
+
+.inventory-item__pct {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-subtext);
+  min-width: 2.5rem;
+  text-align: right;
+}
+
 /* ── 18. ROADMAP ───────────────────────────────────────────── */
 .roadmap-list {
   display: flex;

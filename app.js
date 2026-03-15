@@ -491,7 +491,7 @@ let observer = null;
 
 function observeAnimatables() {
   const animatables = document.querySelectorAll(
-    '.stat-card:not(.visible), .form-card:not(.visible), .placeholder-card:not(.visible), .roadmap-item:not(.visible), .coming-soon-banner:not(.visible), .map-placeholder:not(.visible), .video-grid:not(.visible), .leaderboard:not(.visible), .view-copy-card:not(.visible)'
+    '.stat-card:not(.visible), .form-card:not(.visible), .placeholder-card:not(.visible), .section-card:not(.visible), .roadmap-item:not(.visible), .coming-soon-banner:not(.visible), .map-placeholder:not(.visible), .video-grid:not(.visible), .leaderboard:not(.visible), .view-copy-card:not(.visible)'
   );
 
   if (!animatables.length) return;

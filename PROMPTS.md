@@ -50,3 +50,42 @@
 
 **Prompt 12: Connection & Success State (Step 3.4)**
 > "Tying it all together. In `app.js`, write the `fetch` call to send the form data to the Google Apps Script. On click, change the button to 'Uploading...'. On success, trigger the 'Success State': hide the form and show a large Red/Gold checkmark with the text 'Upload Successful! Ian has your receipt.' Add a 'Submit Another' button to reset the form but keep the Employee Name selected."
+
+# New Prompts
+
+### Vibe Coding Prompt: Settings Page Overhaul
+
+03-15-2026
+
+> "Reference `prd.md` and `rules.md`. I want to overhaul the 'Settings' view to make it look like a premium enterprise dashboard. Please update the HTML and CSS for the settings tab to include the following sections:
+> 
+> 1. **User Profile Section:** Add a 'Default Vehicle' dropdown that saves to `localStorage` so the user can pre-select their primary truck. Include "N/A" as the default option.
+> 
+> 2. **App Setup Section:** Add a dedicated 'Installation' card. Include a button labeled 'Install to Home Screen (Mobile)' that triggers our Gold-accented PWA instruction modal.
+> 
+> 3. **Stats & Info Section:** Add a 'Quick Stats' grid with two cards. Card 1: 'Usage' (displays a count of total submissions from `localStorage`). Add a simple line of code to our app.js that does count++ every time the "Success" state is triggered. Card 2: 'Storage' (displays '2TB Syreese's Cloud Storage - Connected').
+> 
+> 4. **Branding & Documentation:** At the bottom, add a 'How it Works' section with 3 concise bullet points for drivers. Below that, add 'Developed by Syreese & Realyfe Ventures LLC' in a modern, muted font.
+> 
+> **Aesthetic Requirements:** Use similiar styling that fits the site and generous white space. Ensure all new elements follow our 0.3s smooth transitions.
+
+---
+
+### Vibe Coding Prompt: Dashboard Vision & "Coming Soon" Features
+
+03-15-2026
+
+> "Reference `prd.md` and `rules.md`. I want to expand the Dashboard to include three new high-fidelity 'Coming Soon' views. Please update the navigation and create these new pages with a premium, elegant, and minimalist design that matches our Boar's Head Dark Mode aesthetic.
+
+> **1. Navigation Update:** Add 'Route Map', 'Training', and 'Incentives' to the sidebar (Desktop) and the 'More' menu drawer (Mobile). Use Gold (#625636) minimalist icons for each. Do NOT put 'Coming Soon' in the labels.
+
+> **2. Route Map View:** > - **Visuals:** A large placeholder for a dark-themed map (use a sleek charcoal rectangle with a 'Map Preview' icon).
+> - **Copy:** 'Smart Routing. We’re building a tool that looks at live traffic and your daily stops for you. It will figure out the best route and the right time to leave the yard so our deli products always arrive fresh and on time.'
+
+> **3. Training View:** > - **Visuals:** A grid of 'Video Thumbnail' placeholders (charcoal boxes with play icons).
+> - **Copy:** 'Training at your fingertips. Get quick, 60-second refreshers on truck safety, food handling, slicer safety, and brand merchandising. Learn the Boar's Head Way right from your phone.'
+
+> **4. Incentives View:** > - **Visuals:** A sleek leaderboard skeleton (a list of 5 placeholder rows with 'Sales Rep Name' and 'Points' progress bars). Use random names for the sales reps.
+> - **Copy:** 'The Leaderboard. Track your performance in real-time. See where you stand in sales contests, demo conversion rates, and safety bonuses. Turn your hard work into rewards.'
+
+> **5. Design Requirement:** Each of these three pages must have a 'Coming Soon' banner at the top and a 'v2.2 Roadmap' button. They should look like real dashboard pages but with the inputs/data disabled or replaced with high-quality placeholders. Ensure 0.3s smooth transitions and Intersection Observer fade-in effects for all new content."
