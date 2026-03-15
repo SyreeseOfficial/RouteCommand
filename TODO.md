@@ -21,7 +21,7 @@
 - [x] 2.5: Add Animations: Hover states, button micro-interactions, and fade-in effects.
 
 ## Phase 3: Logic & Security
-- [ ] 3.1: Build the 'Gatekeeper' Shield screen and localStorage auth logic.
-- [ ] 3.2: Implement Canvas Image Compression (1024px, 0.7 quality).
-- [ ] 3.3: Write Google Apps Script for Drive/Sheets integration.
-- [ ] 3.4: Connect Frontend Fetch to Backend and implement Success/Error states.
+- [x] 3.1: Build the 'Gatekeeper' Shield screen and localStorage auth logic.
+- [x] 3.2: Implement Canvas Image Compression (1024px, 0.7 quality).
+- [x] 3.3: Write Google Apps Script for Drive/Sheets integration.
+- [x] 3.4: Connect Frontend Fetch to Backend and implement Success/Error states.

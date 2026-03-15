@@ -305,7 +305,7 @@ if (expenseForm) {
     };
 
     try {
-      const GAS_URL = ''; /* TODO: Insert Google Apps Script web app URL after deployment */
+      const GAS_URL = 'https://script.google.com/macros/s/AKfycbybD1lYj0K_h4hSy8yMu0SopTKAryFpPH-5ILl-LfM_-82xRWb7A_z-WQxiUr1qHdOQeQ/exec';
 
       if (!GAS_URL) {
         /* Dev/staging mode: simulate success */
