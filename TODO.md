@@ -8,17 +8,17 @@
 # TODO: Route Command v1.2 Build Plan
 
 ## Phase 1: Architecture & Layout
-- [ ] 1.1: Initialize project with CSS variables (Boar's Head palette) and Inter font.
-- [ ] 1.2: Build Responsive Shell: Sidebar (Desktop) and Bottom Nav (Mobile).
-- [ ] 1.3: Implement "More Menu" drawer for Mobile view.
-- [ ] 1.4: Build Page Routing logic to switch between Dashboard tabs.
+- [x] 1.1: Initialize project with CSS variables (Boar's Head palette) and Inter font.
+- [x] 1.2: Build Responsive Shell: Sidebar (Desktop) and Bottom Nav (Mobile).
+- [x] 1.3: Implement "More Menu" drawer for Mobile view.
+- [x] 1.4: Build Page Routing logic to switch between Dashboard tabs.
 
 ## Phase 2: Feature Views & Aesthetics
-- [ ] 2.1: Build the 'Receipts' Tab: Stat Cards and Premium Form Card.
-- [ ] 2.2: Add 'Notes' field and styled File Upload button (Gold accents).
-- [ ] 2.3: Build 'Vehicles', 'Short Dates', and 'Roadmap' placeholder pages.
-- [ ] 2.4: Build 'Settings' page with Identity display and Reset button.
-- [ ] 2.5: Add Animations: Hover states, button micro-interactions, and fade-in effects.
+- [x] 2.1: Build the 'Receipts' Tab: Stat Cards and Premium Form Card.
+- [x] 2.2: Add 'Notes' field and styled File Upload button (Gold accents).
+- [x] 2.3: Build 'Vehicles', 'Short Dates', and 'Roadmap' placeholder pages.
+- [x] 2.4: Build 'Settings' page with Identity display and Reset button.
+- [x] 2.5: Add Animations: Hover states, button micro-interactions, and fade-in effects.
 
 ## Phase 3: Logic & Security
 - [ ] 3.1: Build the 'Gatekeeper' Shield screen and localStorage auth logic.
