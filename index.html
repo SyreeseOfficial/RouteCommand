@@ -275,16 +275,58 @@
       <section id="settings-view" class="view" aria-label="Settings">
         <div class="view__header">
           <h2 class="view__title">Settings</h2>
+          <p class="view__sub">Manage your preferences and account.</p>
         </div>
 
+        <!-- USER PROFILE -->
         <div class="settings-section">
-          <h3 class="settings-section__title">Identity</h3>
+          <h3 class="settings-section__title">User Profile</h3>
           <div class="settings-card">
             <span class="settings-card__label">Active Profile</span>
             <span class="settings-card__value" id="active-identity">Not set</span>
           </div>
+          <div class="settings-card settings-card--field">
+            <label class="settings-card__label" for="default-vehicle">Default Vehicle</label>
+            <select class="form-select settings-select" id="default-vehicle" name="default-vehicle">
+              <option value="N/A">N/A</option>
+              <option value="Bumblebee">Bumblebee</option>
+              <option value="Prime">Prime</option>
+              <option value="Heno">Heno</option>
+              <option value="White Van">White Van</option>
+              <option value="Personal Vehicle">Personal Vehicle</option>
+            </select>
+          </div>
         </div>
 
+        <!-- APP SETUP -->
+        <div class="settings-section">
+          <h3 class="settings-section__title">App Setup</h3>
+          <div class="settings-card">
+            <span class="settings-card__label">Installation</span>
+            <p class="settings-card__desc">Add Route Command to your device's home screen for fast, offline-ready access.</p>
+            <button class="btn btn--gold btn--full" id="install-pwa-btn">Install to Home Screen (Mobile)</button>
+          </div>
+        </div>
+
+        <!-- STATS & INFO -->
+        <div class="settings-section">
+          <h3 class="settings-section__title">Quick Stats</h3>
+          <div class="stat-cards">
+            <div class="stat-card">
+              <span class="stat-card__label">Usage</span>
+              <span class="stat-card__value" id="submission-count">0 submissions</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-card__label">Storage</span>
+              <span class="stat-card__value">
+                <span class="status-dot status-dot--online" aria-hidden="true"></span>
+                2TB Connected
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- APPEARANCE -->
         <div class="settings-section">
           <h3 class="settings-section__title">Appearance</h3>
           <div class="settings-card settings-card--row">
@@ -296,10 +338,24 @@
           </div>
         </div>
 
+        <!-- SYSTEM -->
         <div class="settings-section">
           <h3 class="settings-section__title">System</h3>
           <button class="btn btn--red btn--full" id="reset-btn">Reset Application</button>
           <p class="settings-hint">Clears all saved data and returns to the passcode screen.</p>
+        </div>
+
+        <!-- HOW IT WORKS + BRANDING -->
+        <div class="settings-section">
+          <h3 class="settings-section__title">How It Works</h3>
+          <div class="settings-card">
+            <ul class="how-it-works">
+              <li>Fill out the expense form and attach a photo of your receipt.</li>
+              <li>Your submission is securely logged to the company's shared Google Sheet and Drive folder.</li>
+              <li>Ian reviews and approves reimbursements — no paperwork required.</li>
+            </ul>
+          </div>
+          <p class="settings-branding">Developed by Syreese &amp; Realyfe Ventures LLC</p>
         </div>
       </section>
 
@@ -351,6 +407,31 @@
           <span>Settings</span>
         </button>
       </nav>
+    </div>
+
+    <!-- PWA INSTALL MODAL -->
+    <div class="modal-overlay hidden" id="pwa-modal-overlay" aria-hidden="true"></div>
+    <div class="modal hidden" id="pwa-modal" role="dialog" aria-modal="true" aria-labelledby="pwa-modal-title">
+      <div class="modal__header">
+        <h3 class="modal__title" id="pwa-modal-title">Install to Home Screen</h3>
+        <button class="modal__close" id="pwa-modal-close" aria-label="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal__body">
+        <div class="pwa-step">
+          <span class="pwa-step__num">1</span>
+          <p><strong>iOS Safari:</strong> Tap the <strong>Share</strong> button at the bottom of your browser, then select <strong>"Add to Home Screen."</strong></p>
+        </div>
+        <div class="pwa-step">
+          <span class="pwa-step__num">2</span>
+          <p><strong>Android Chrome:</strong> Tap the <strong>three-dot menu</strong> in the top right, then tap <strong>"Add to Home Screen"</strong> or <strong>"Install App."</strong></p>
+        </div>
+        <div class="pwa-step">
+          <span class="pwa-step__num">3</span>
+          <p>Confirm the prompt. Route Command will appear on your home screen like a native app — no App Store required.</p>
+        </div>
+      </div>
     </div>
 
   </div><!-- /app -->

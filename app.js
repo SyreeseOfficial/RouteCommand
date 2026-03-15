@@ -8,9 +8,11 @@
 /* ═══════════════════════════════════════════════════════════
    CONSTANTS
 ═══════════════════════════════════════════════════════════ */
-const AUTH_KEY     = 'rc_auth';
-const NAME_KEY     = 'rc_employee_name';
-const LAST_SUB_KEY = 'rc_last_submission';
+const AUTH_KEY          = 'rc_auth';
+const NAME_KEY          = 'rc_employee_name';
+const LAST_SUB_KEY      = 'rc_last_submission';
+const SUBMISSION_COUNT_KEY = 'rc_submission_count';
+const DEFAULT_VEHICLE_KEY  = 'rc_default_vehicle';
 
 /* ═══════════════════════════════════════════════════════════
    DOM REFERENCES
@@ -43,6 +45,12 @@ const uploadConfirm    = document.getElementById('upload-confirm');
 const receiptPhotoInput = document.getElementById('receipt-photo');
 const resetBtn         = document.getElementById('reset-btn');
 const darkModeToggle   = document.getElementById('dark-mode-toggle');
+const submissionCountEl  = document.getElementById('submission-count');
+const defaultVehicleEl   = document.getElementById('default-vehicle');
+const installPwaBtn      = document.getElementById('install-pwa-btn');
+const pwaModalOverlay    = document.getElementById('pwa-modal-overlay');
+const pwaModal           = document.getElementById('pwa-modal');
+const pwaModalClose      = document.getElementById('pwa-modal-close');
 
 /* Stores compressed image as base64 */
 let compressedImageData = null;
@@ -174,6 +182,23 @@ function loadPersistedData() {
   /* Active identity in settings */
   if (activeIdentityEl) {
     activeIdentityEl.textContent = savedName ? savedName : 'Not set';
+  }
+
+  /* Submission count */
+  const count = parseInt(localStorage.getItem(SUBMISSION_COUNT_KEY) || '0', 10);
+  if (submissionCountEl) {
+    submissionCountEl.textContent = `${count} submission${count !== 1 ? 's' : ''}`;
+  }
+
+  /* Default vehicle */
+  const savedVehicle = localStorage.getItem(DEFAULT_VEHICLE_KEY);
+  if (savedVehicle && defaultVehicleEl) {
+    defaultVehicleEl.value = savedVehicle;
+  }
+  /* Pre-populate vehicle tag on the form */
+  const vehicleTagEl = document.getElementById('vehicle-tag');
+  if (savedVehicle && vehicleTagEl) {
+    vehicleTagEl.value = savedVehicle;
   }
 }
 
@@ -339,6 +364,13 @@ if (expenseForm) {
 function handleSuccess() {
   updateLastSubmission();
 
+  /* Increment submission count */
+  const newCount = parseInt(localStorage.getItem(SUBMISSION_COUNT_KEY) || '0', 10) + 1;
+  localStorage.setItem(SUBMISSION_COUNT_KEY, newCount);
+  if (submissionCountEl) {
+    submissionCountEl.textContent = `${newCount} submission${newCount !== 1 ? 's' : ''}`;
+  }
+
   expenseForm.classList.add('hidden');
   successState.classList.remove('hidden');
 
@@ -394,6 +426,33 @@ if (submitAnotherBtn) {
 /* ═══════════════════════════════════════════════════════════
    7. SETTINGS
 ═══════════════════════════════════════════════════════════ */
+
+/* Default vehicle persistence */
+if (defaultVehicleEl) {
+  defaultVehicleEl.addEventListener('change', () => {
+    localStorage.setItem(DEFAULT_VEHICLE_KEY, defaultVehicleEl.value);
+    const vehicleTagEl = document.getElementById('vehicle-tag');
+    if (vehicleTagEl) vehicleTagEl.value = defaultVehicleEl.value;
+  });
+}
+
+/* PWA install modal */
+function openPwaModal() {
+  pwaModalOverlay.classList.remove('hidden');
+  pwaModal.classList.remove('hidden');
+  pwaModalOverlay.removeAttribute('aria-hidden');
+}
+
+function closePwaModal() {
+  pwaModalOverlay.classList.add('hidden');
+  pwaModal.classList.add('hidden');
+  pwaModalOverlay.setAttribute('aria-hidden', 'true');
+}
+
+if (installPwaBtn)   installPwaBtn.addEventListener('click', openPwaModal);
+if (pwaModalOverlay) pwaModalOverlay.addEventListener('click', closePwaModal);
+if (pwaModalClose)   pwaModalClose.addEventListener('click', closePwaModal);
+
 if (resetBtn) {
   resetBtn.addEventListener('click', () => {
     if (!confirm('Reset Route Command? This will clear all saved data and return to the login screen.')) return;
