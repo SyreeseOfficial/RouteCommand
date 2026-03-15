@@ -177,6 +177,13 @@ img, svg { display: block; }
   text-align: center;
 }
 
+.gatekeeper__credit {
+  font-size: 0.75rem;
+  color: var(--color-muted);
+  margin-top: 1rem;
+  text-align: center;
+}
+
 @keyframes shieldPulse {
   0%, 100% { filter: drop-shadow(0 8px 32px rgba(132,27,42,0.5)); }
   50%       { filter: drop-shadow(0 8px 48px rgba(132,27,42,0.85)); }

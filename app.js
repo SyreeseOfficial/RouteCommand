@@ -117,6 +117,9 @@ function navigateTo(viewId) {
     item.classList.toggle('active', item.dataset.view === viewId);
   });
 
+  /* Scroll to top of new view */
+  window.scrollTo(0, 0);
+
   /* Trigger scroll-based animations for the new view */
   observeAnimatables();
 }
