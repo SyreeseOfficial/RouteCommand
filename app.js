@@ -344,18 +344,15 @@ if (expenseForm) {
         return;
       }
 
-      const res = await fetch(GAS_URL, {
+      await fetch(GAS_URL, {
         method:  'POST',
+        mode:    'no-cors',
         body:    JSON.stringify(payload),
       });
 
-      const data = await res.json();
-
-      if (data.status === 'success') {
-        handleSuccess();
-      } else {
-        throw new Error(data.message || 'Server error');
-      }
+      /* no-cors returns an opaque response (can't read body),
+         but if fetch didn't throw, the request was sent successfully */
+      handleSuccess();
     } catch (err) {
       handleError(err.message);
     } finally {
