@@ -335,24 +335,21 @@ if (expenseForm) {
     };
 
     try {
-      const GAS_URL = 'https://script.google.com/macros/s/AKfycbybD1lYj0K_h4hSy8yMu0SopTKAryFpPH-5ILl-LfM_-82xRWb7A_z-WQxiUr1qHdOQeQ/exec';
+      const API_URL = '/api/submit-receipt';
 
-      if (!GAS_URL) {
-        /* Dev/staging mode: simulate success */
-        await new Promise(r => setTimeout(r, 1200));
-        handleSuccess();
-        return;
-      }
-
-      await fetch(GAS_URL, {
+      const res = await fetch(API_URL, {
         method:  'POST',
-        mode:    'no-cors',
+        headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify(payload),
       });
 
-      /* no-cors returns an opaque response (can't read body),
-         but if fetch didn't throw, the request was sent successfully */
-      handleSuccess();
+      const data = await res.json();
+
+      if (data.status === 'success') {
+        handleSuccess();
+      } else {
+        throw new Error(data.message || 'Server error');
+      }
     } catch (err) {
       handleError(err.message);
     } finally {
