@@ -1,3 +1,10 @@
+> **AI INSTRUCTIONS:** This file contains the sequential prompts designed to build the "Route Command" project.
+> - **Purpose:** To provide you, the AI, with exact, step-by-step instructions on what to implement and how.
+> - **How to use:** Run these prompts *in order*. Never skip ahead or run more than one prompt at a time. Read through them to understand the end goal and the architectural roadmap.
+> - **Relationship:** These prompts are the execution steps for completing the items in `TODO.md`. They implement the requirements detailed in `PRD.md`. Keep `RULES.md` in mind while executing these, and memorialize your progress in the `CHANGELOG.md`.
+
+---
+
 ### Phase 1: Architecture & Layout (The Shell)
 
 **Prompt 1: Project Initialization & Theme (Step 1.1)**

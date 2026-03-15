@@ -1,3 +1,10 @@
+> **AI INSTRUCTIONS:** This is the overarching checklist for the "Route Command" project.
+> - **Purpose:** To track the high-level progress of the project phases and their corresponding implementational details.
+> - **How to use:** Update this file as you complete tasks. Mark tasks as in progress or completed to maintain state. Never jump ahead; work linearly.
+> - **Relationship:** This todo list essentially maps exactly to the `PROMPTS.md` file. Once a step is checked off here, log the milestone in the `CHANGELOG.md`. Everything built here works toward realizing the `PRD.md` under the constraints of `RULES.md`.
+
+---
+
 ### Phase 1: The Foundation & UI (Visuals First)
 Prompt 1: Project Initialization & CSS Variables
 > "Read PRD.md and rules.md to understand the full context of this project. Initialize our workspace. Create index.html, style.css, and app.js. In style.css, set up the :root CSS variables for our exact color palette: Primary Accent (#7b0618), Primary Dark (#000000), Secondary Dark (#201f1d), and Base (#FFFFFF). Set up a global reset ( * { box-sizing: border-box; margin: 0; padding: 0; }), use the system font stack, and apply a base background color of White. Ensure mobile-first styling. Update changelog.md with today's date and note that the project was initialized."

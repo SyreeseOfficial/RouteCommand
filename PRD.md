@@ -1,3 +1,10 @@
+> **AI INSTRUCTIONS:** This is the Product Requirements Document (PRD).
+> - **Purpose:** It serves as the definitive source of truth for all architectural decisions, design aesthetics, and core features for the "Route Command" project.
+> - **How to use:** Reference this file to understand the *why* and *what* of the project. Whenever there's an ambiguity in design (like colors, layout) or functionality, consult this PRD.
+> - **Relationship:** The `PROMPTS.md` and `TODO.md` files are actionable steps derived from this PRD. Ensure any executed prompt or completed todo aligns with the constraints and vision described here. Always abide by `RULES.md` while implementing these requirements.
+
+---
+
 # Product Requirements Document (PRD): Route Command v1.2
 
 **Project Name:** Route Command (Internal Operations & Expense MVP)

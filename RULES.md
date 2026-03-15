@@ -1,3 +1,10 @@
+> **AI INSTRUCTIONS:** This file outlines the strict rules for the "Route Command" project.
+> - **Purpose:** To enforce technical constraints, workflows, and guidelines you must follow at all times.
+> - **How to use:** Internalize these rules before writing any code or performing any actions. Do not deviate from these constraints under any circumstances.
+> - **Relationship:** These rules govern how you execute the `PROMPTS.md` and check off the `TODO.md`. They ensure that the technical implementation matches the `PRD.md` precisely.
+
+---
+
 # Project Rules
 
 ## 1. Process & Memory
