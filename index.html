@@ -60,6 +60,12 @@
           </span>
           <span class="nav-item__label">Receipts</span>
         </button>
+        <button class="nav-item" data-view="credits">
+          <span class="nav-item__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+          </span>
+          <span class="nav-item__label">Credits</span>
+        </button>
         <button class="nav-item" data-view="vehicles">
           <span class="nav-item__icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
@@ -347,6 +353,121 @@
         </div>
       </section>
 
+      <!-- CREDITS VIEW -->
+      <section id="credits-view" class="view" aria-label="Credits">
+        <div class="view__header">
+          <h2 class="view__title">Credits</h2>
+          <p class="view__sub">Submit a store credit request to Ian.</p>
+        </div>
+
+        <div class="form-card" id="credit-form-card">
+          <form id="credit-form" novalidate>
+
+            <!-- Salesperson -->
+            <div class="form-group">
+              <label class="form-label" for="credit-salesperson">Your Name</label>
+              <select class="form-select" id="credit-salesperson" required>
+                <option value="" disabled selected>Select your name</option>
+                <option value="David">David</option>
+                <option value="Hannah">Hannah</option>
+                <option value="Ian">Ian</option>
+                <option value="Kaleb">Kaleb</option>
+                <option value="Syreese">Syreese</option>
+                <option value="Tagen">Tagen</option>
+                <option value="Teresa">Teresa</option>
+                <option value="Tyler">Tyler</option>
+              </select>
+              <label class="remember-row" for="credit-remember-me">
+                <input type="checkbox" id="credit-remember-me" checked />
+                <span>Remember me on this device</span>
+              </label>
+            </div>
+
+            <!-- Store -->
+            <div class="form-group">
+              <label class="form-label" for="credit-store-input">Store</label>
+              <div class="store-search-wrap">
+                <input
+                  type="text"
+                  class="form-input"
+                  id="credit-store-input"
+                  placeholder="Search store…"
+                  autocomplete="off"
+                  autocorrect="off"
+                  spellcheck="false"
+                  inputmode="search"
+                />
+                <div class="store-suggestions hidden" id="store-suggestions" role="listbox" aria-label="Store suggestions"></div>
+              </div>
+            </div>
+
+            <!-- Date -->
+            <div class="form-group">
+              <label class="form-label" for="credit-date">Date</label>
+              <input class="form-input" type="date" id="credit-date" required />
+            </div>
+
+            <!-- Credit Line Items -->
+            <div class="form-group">
+              <div class="credit-items-label">
+                <span class="form-label">Credit Items</span>
+                <span class="credit-items-count" id="credit-items-count">1 item</span>
+              </div>
+              <div id="credit-items-list"></div>
+              <button type="button" class="btn btn--outline btn--full" id="add-credit-item-btn" style="margin-top:0.75rem;">+ Add Another Item</button>
+            </div>
+
+            <!-- Notes -->
+            <div class="form-group">
+              <label class="form-label" for="credit-notes">Notes <span class="form-label--optional">(Optional)</span></label>
+              <textarea class="form-textarea" id="credit-notes" placeholder="Any extra context for Ian…" rows="2"></textarea>
+            </div>
+
+            <button type="submit" class="btn btn--red btn--full" id="credit-submit-btn">Submit Credits</button>
+
+          </form>
+
+          <!-- SUCCESS STATE -->
+          <div id="credit-success-state" class="success-state hidden" aria-live="polite">
+            <div class="success-state__icon" aria-hidden="true">
+              <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="40" cy="40" r="38" stroke="#841b2a" stroke-width="2"/>
+                <polyline points="22,40 35,53 58,28" stroke="#625636" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <h3 class="success-state__title">Credits Submitted!</h3>
+            <p class="success-state__msg">Ian has your credit request.</p>
+            <div class="credit-success-summary" id="credit-success-summary"></div>
+            <button class="btn btn--outline btn--full" id="credit-submit-another-btn">Submit Another Credit</button>
+          </div>
+        </div>
+
+        <!-- BOOKMARK GUIDE -->
+        <div class="form-card" id="bookmark-guide-card" style="margin-top:1.5rem;">
+          <h3 class="bookmark-guide__title">Save to Your Phone</h3>
+          <p class="bookmark-guide__sub">Add Route Command to your home screen or bookmarks for one-tap access — no typing the URL every time.</p>
+
+          <div class="form-group">
+            <label class="form-label">Your Device</label>
+            <div class="pill-toggle" id="bookmark-os-toggle">
+              <button type="button" class="pill-toggle__btn pill-toggle__btn--active" data-os="ios">iPhone / iOS</button>
+              <button type="button" class="pill-toggle__btn" data-os="android">Android</button>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">What to Add</label>
+            <div class="pill-toggle" id="bookmark-type-toggle">
+              <button type="button" class="pill-toggle__btn pill-toggle__btn--active" data-btype="homescreen">Home Screen Icon</button>
+              <button type="button" class="pill-toggle__btn" data-btype="bookmark">Browser Bookmark</button>
+            </div>
+          </div>
+
+          <div class="bookmark-instructions" id="bookmark-instructions"></div>
+        </div>
+
+      </section>
+
       <!-- ROUTE MAP VIEW -->
       <section id="route-map-view" class="view" aria-label="Route Map">
         <div class="view__header">
@@ -495,6 +616,11 @@
             <h4 class="roadmap-item__title">v1.2 — Expense Submission</h4>
             <p class="roadmap-item__desc">Receipt capture, image compression, Drive storage, and Sheets logging. The core expense tool is live now.</p>
           </div>
+          <div class="roadmap-item roadmap-item--active">
+            <div class="roadmap-item__badge roadmap-item__badge--live">Live</div>
+            <h4 class="roadmap-item__title">v1.3 — Credit Submission</h4>
+            <p class="roadmap-item__desc">Submit store credit requests with multi-item support, fuzzy store search, and instant logging to Ian's Google Sheet. Replaces the credit text message thread so nothing falls through the cracks.</p>
+          </div>
           <div class="roadmap-item">
             <div class="roadmap-item__badge roadmap-item__badge--soon">v1.3</div>
             <h4 class="roadmap-item__title">Fleet Monitoring</h4>
@@ -627,11 +753,11 @@
         </span>
         <span class="bottom-nav__label">Vehicles</span>
       </button>
-      <button class="bottom-nav__item" data-view="short-dates" aria-label="Short Dates">
+      <button class="bottom-nav__item" data-view="credits" aria-label="Credits">
         <span class="bottom-nav__icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
         </span>
-        <span class="bottom-nav__label">Short Dates</span>
+        <span class="bottom-nav__label">Credits</span>
       </button>
       <button class="bottom-nav__item" id="more-btn" aria-label="More options" aria-expanded="false">
         <span class="bottom-nav__icon" aria-hidden="true">
@@ -646,6 +772,12 @@
     <div class="drawer hidden" id="more-drawer" role="dialog" aria-modal="true" aria-label="More options">
       <div class="drawer__handle" aria-hidden="true"></div>
       <nav class="drawer__nav">
+        <button class="drawer__item" data-view="short-dates">
+          <span class="drawer__item-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          </span>
+          <span>Short Dates</span>
+        </button>
         <button class="drawer__item" data-view="route-map">
           <span class="drawer__item-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
@@ -706,6 +838,7 @@
 
   </div><!-- /app -->
 
+  <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2/dist/fuse.min.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
