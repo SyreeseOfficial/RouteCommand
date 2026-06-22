@@ -497,7 +497,281 @@ const STORES = [
   'Walt\'s Market','Whidbey NAS Comm','Wing Point Golf Club','Yellow Deli',
 ];
 
+const DONATION_ITEMS = [
+  // Ham
+  'Smokemaster Black Forest Ham Whole',
+  '11069 Bourbonridge Smoked Ham',
+  '102 Deluxe Ham Baby',
+  '150 Maple Honey Ham Whole',
+  '11018 Service Deli Sweet Slice',
+  '11082 Tavern Ham',
+  '159 Lower Sodium Ham Half',
+  '11093 Brown Sugar & Spice Deluxe Ham',
+  // Bologna
+  '358 Beef Bologna',
+  '354 Garlic Bologna',
+  '781 Lebanon Bologna',
+  // Beef
+  '12011 London Broil Roast Beef',
+  '197 Corned Beef Top Round',
+  '205 Pastrami Top Round',
+  '235 Deluxe Roast Beef Half',
+  '915 Londonport Roast Beef',
+  // Turkey
+  '13018 No Salt Added Turkey',
+  '13033 Blackened Turkey',
+  '13063 Pitcraft Smoked Turkey',
+  '270 Maple Honey Turkey',
+  '275 Pastrami Turkey',
+  '276 Cracked Peppermill Turkey',
+  '278 Ovengold Turkey',
+  '284 Salsalito Turkey',
+  '294 Mesquite Turkey',
+  '296 Cajun Turkey',
+  '297 Black Forest Turkey',
+  '326 Oven Roasted Turkey Breast',
+  '421 Lower Sodium Turkey',
+  // Chicken
+  '13014 Everroast Chicken',
+  '13034 Chipotle Chicken',
+  '13044 Ichiban Teriyaki Chicken',
+  '13086 Firesmith Grilled Chicken Breast',
+  '13096 Sweet Bourbon Honey BBQ Chicken Breast',
+  '437 Golden Classic Chicken',
+  '439 Lemon Pepper Chicken',
+  '440 Blazing Buffalo Chicken',
+  // Bacon
+  '480 Fully Cooked Bacon 2.29oz',
+  '533 Fully Cooked Bacon (300 Slices)',
+  '539 Domestic Layer Bacon 18/22',
+  '542 Imported Bacon 1lb',
+  '546 Imported Layer Bacon 12/14',
+  '11078 Extra Thick Smoked Bacon 20oz',
+  // Franks & Sausage
+  '14003 Beef Frank Skinless 12.5oz',
+  '14008 Beef Frank 8/1 14oz',
+  '14013 Italian Chicken Sausage',
+  '14014 Buffalo Chicken Sausage',
+  '14017 Bratwurst Chicken Sausage',
+  '14018 Apple Chicken Sausage',
+  '14025 Chorizo Andouille Chicken Sausage',
+  '14033 Andouille Chicken Sausage',
+  '399 Bratwurst 1lb',
+  '410 Beef Knockwurst 1lb',
+  '415 Beef Frank Skinless 4/1 8"',
+  // Italian / Specialty Meats (Bulk)
+  '16137 Mortadella',
+  '16146 Peppered Salame',
+  '16147 Prosciutto Di Parma',
+  '502 Capocollo Hot',
+  '527 Pepperoni 3lb',
+  '530 Prosciutto Piccolo Half',
+  '531 Prosciutto Skinless/Shankless',
+  '545 Pancetta',
+  '547 Genoa Salami Half',
+  '557 Hard Salami Half',
+  '558 Pepperoni Sandwich Style',
+  "568 Bianco D'Oro Salame",
+  '872 Capocollo Hot Half',
+  '873 Capocollo Sweet Half',
+  // Italian / Specialty Meats (Packaged)
+  '16307 Uncured Genoa & Mozzarella Cheese Tray',
+  '16308 Uncured Pepperoni & Vermont Cheddar',
+  "16030 Bianco D'Oro Salame 7oz",
+  '16057 Genoa Salami 9oz',
+  '16072 Rolled Mozzarella Prosciutto 8oz',
+  '16073 All Natural Salame',
+  '16078 Pepperoni Stick 6.5oz',
+  '16088 Diced Pancetta 4oz',
+  '16093 Peppered Salame 8oz',
+  '16154 Turkey Pepperoni Pouch',
+  '16188 Superiore Italian Dry Sausage Hot',
+  '16189 Superiore Italian Dry Sausage Sweet',
+  '16191 Superiore Sopressata Sweet',
+  '16206 Sliced Sopressata 4oz',
+  '16208 Genoa Salami Sliced 4oz',
+  '16209 Superiore Chorizo',
+  '16235 Hard Salami Pouch 5oz',
+  '16253 Pouch Genoa',
+  '595 Pouch Pepperoni 6oz',
+  '16271 PS Trio Sopressata Copa Genoa',
+  '16275 PS Duet Hard Salami Gouda',
+  '16279 PS Trio Prosciutto Genoa Sopressata',
+  '16321 Trio Milano Calabrese Fennel Tray',
+  '16328 UC Napoli Salame Tray',
+  '16329 UC Fennel Salame Tray',
+  '16330 UC Calabrese Salame Tray',
+  '16349 Speck Chiffonade Tray',
+  '16350 Speck Trio with Napoli Milano',
+  // Cheese (Bulk)
+  '15010 Asiago Cheese',
+  '15035 Smoked Gouda Cheese',
+  '15060 Chipotle Gouda Cheese',
+  '15061 3 Pepper Colby Jack',
+  '15179 Smoked Wisconsin Cheddar',
+  '15206 Cheddar Yellow Black Wax',
+  '15207 Cheddar White Red Wax',
+  '15217 Caramelized Onion Jack',
+  '620 Mozzarella Cheese',
+  '627 Horseradish Cheddar',
+  '628 Vermont Cheddar White',
+  '629 Vermont Cheddar Yellow',
+  '648 Picante Provolone',
+  '652 American Cheese Yellow',
+  '653 American Cheese White',
+  '654 Muenster Cheese',
+  '663 Mild Swiss Cheese',
+  '668 Low Sodium Provolone',
+  '670 Lacey Swiss Cheese',
+  '672 Baby Swiss Cheese',
+  '682 Imported Swiss Cheese',
+  '700 Colby Jack Cheese',
+  '725 Havarti Cheese',
+  '726 Havarti Dill Cheese',
+  '727 Havarti Jalapeno Cheese',
+  '751 Pepper Jack Cheese',
+  // Cheese (Sliced / Packaged)
+  '15118 Colby Jack Shreds',
+  '15121 Mozzarella & Provolone Shreds',
+  '15189 Provolone Sliced',
+  '15191 Pepper Jack Sliced',
+  '15192 Vermont Cheddar Sliced Yellow',
+  '15194 Mild Swiss Sliced',
+  '644 American Cheese Yellow 160 Slice',
+  '645 American Cheese Yellow 120 Slice',
+  '647 American Cheese White 160 Slice',
+  '671 Cream Cheese Tub 5lb',
+  // Cheese (Portion Cut)
+  '15011 PC Vermont Cheddar Yellow',
+  '15012 PC Vermont Cheddar White',
+  '15022 PC Asiago',
+  '15038 PC French Brie',
+  '15041 PC Chevre',
+  '15062 PC Smoked Gouda',
+  '15070 PC Chipotle Gouda',
+  '15071 PC 3 Pepper Colby Jack',
+  '15161 PC Parmesan Reggiano',
+  '15164 PC Manchego',
+  '15167 PC Aged Gouda',
+  '15181 PC Caramella',
+  '15212 Irish Cheddar 7oz',
+  '15213 French Brie Round 250g',
+  '15216 PC Sriracha Gouda',
+  '859 Grated Parmesan',
+  '930 Blue Cheese Crumbles 6oz',
+  '931 Gorgonzola Crumbles 6oz',
+  '932 Feta Cheese Crumbles 6oz',
+  '961 PC Butterkase',
+  '966 PC Horseradish Cheddar',
+  '971 PC Feta',
+  '972 PC Fontina',
+  '973 PC Gouda',
+  '974 PC Gruyere',
+  '975 PC Hickory Smoked Gruyere',
+  '976 PC Cream Havarti',
+  '977 PC Cream Havarti Dill',
+  '978 PC Havarti Jalapeno',
+  '980 PC Pepper Jack',
+  '985 PC Imported Swiss',
+  // Pre-Sliced
+  '50001 Pre-Sliced American Yellow',
+  '50002 Pre-Sliced Hard Salami',
+  '50003 Pre-Sliced Imported Swiss',
+  '50007 Pre-Sliced LS Provolone',
+  '50009 Pre-Sliced Vermont Cheddar White',
+  '50010 Pre-Sliced Muenster',
+  '50011 Pre-Sliced Pepper Jack',
+  '50012 Pre-Sliced American White',
+  '50013 Pre-Sliced Colby Jack',
+  '50015 Pre-Sliced Genoa Salami',
+  '50016 Pre-Sliced Sopressata',
+  '50017 Pre-Sliced Pepperoni',
+  '50019 Pre-Sliced Prosciutto',
+  '50021 Pre-Sliced Capocollo Hot',
+  '50024 Pre-Sliced Honey Smoked Turkey',
+  '50026 Pre-Sliced Smoked Ham',
+  '50087 Pre-Sliced Canadian Style Bacon',
+  '50037 Pre-Sliced Prosciutto Di Parma',
+  '50039 Pre-Sliced Smoked Gouda',
+  '50063 Ham Steak',
+  '50071 Pre-Sliced 3 Pepper Colby Jack',
+  '50073 Pre-Sliced Applewood Turkey',
+  '50074 Pre-Sliced Roasted Turkey',
+  '50076 Pre-Sliced Organic Cheddar',
+  '50083 Pre-Sliced Organic Roasted Turkey',
+  '50084 Pre-Sliced Rotisserie Chicken',
+  // Pork / Other
+  '11034 Refrigerated Sausage Patties',
+  '569 Trenton Pork Roll',
+  '572 Taylor Pork Roll 1lb',
+  // Hummus
+  '16159 Traditional Hummus 10oz',
+  '16160 Pine Nut Hummus 10oz',
+  '16161 Garlic Hummus 10oz',
+  '16162 Red Pepper Hummus 10oz',
+  '16196 Kalamata Olive Hummus 10oz',
+  '16237 Everything Bagel Hummus 10oz',
+  '16246 Sweet Chili Garlic Hummus 10oz',
+  '16288 Pepperhouse Hummus',
+  '16299 Meyer Lemon Hummus 10oz',
+  '16301 Dark Chocolate Dessert Hummus 10oz',
+  '16312 Dill Pickle Hummus 10oz',
+  '16313 Mango Jalapeno Hummus',
+  '16158 Traditional Hummus & Pretzels',
+  '16167 Red Pepper Hummus & Pretzels',
+  // Dips
+  '16260 Tzatziki 12oz',
+  '16276 French Onion Dip 12oz',
+  '16282 Spinach Dip 12oz',
+  '16294 Garden Ranch Greek Yogurt Dip',
+  '16298 Key Lime Pie Greek Yogurt Dip',
+  '16311 Espresso Chocolate Greek Yogurt Dip',
+  '16354 Churro Greek Yogurt Dip',
+  // Pickles & Olives
+  '16031 Sauerkraut 5 Gallon',
+  '16224 Bread & Butter Pickles 26oz',
+  '16261 Dill Pickle Chips 26oz',
+  '485 Horseradish Pickle Chips 15.5oz',
+  '486 Dill Pickle Spears 26oz',
+  '487 Dill Pickle Whole 26oz',
+  '488 Dill Pickle 1/2 Cut 26oz',
+  '791 HJ Pickles Whole 5 Gallon',
+  '796 HJ Pickles Spears 5 Gallon',
+  '813 HJ Pickle Sandwich Chips',
+  '16333 Jubilee Olives',
+  '16335 Kalamata Olives',
+  '16342 Mediterranean Feta Salad',
+  // Condiments (Squeeze)
+  '16001 Deli Mustard 9.5oz',
+  '16002 Honey Mustard 10.5oz',
+  '16003 Horseradish Sauce 9.5oz',
+  '788 Deli Dressing 8.5oz',
+  '16087 Mayonnaise 9oz',
+  '16132 Chipotle Gourmaise 8.5oz',
+  '16135 Pepperhouse Gourmaise 8.5oz',
+  '16202 Low Sodium Yellow Mustard 9oz',
+  '16203 Low Sodium Yellow Mustard PC',
+  '731 Sauerkraut 1lb',
+  '896 Jalapeno Pepper Sauce',
+  '16296 Garlic Aioli Gourmaise',
+  // Condiments (Bulk)
+  '16058 Mayonnaise 1 Gallon',
+  '16204 Low Sodium Yellow Mustard 1 Gallon',
+  '16257 Chipotle Gourmaise 16oz',
+  '16264 Honey Mustard (Bulk)',
+  '16249 Deli Dressing 16oz',
+  '740 Deli Mustard 1 Gallon',
+  '16267 PC Real Mayonnaise',
+  '737 Honey Mustard PC',
+  '743 Deli Mustard PC',
+  '785 Horseradish Sauce PC',
+  '16268 PC Chipotle Gourmaise',
+  '8779 Horseradish Sauce 1/2 Gallon',
+  '16252 Pepperhouse Gourmaise 16oz',
+];
+
 let fuseInstance = null;
+let donationFuse = null;
 let creditItemCounter = 0;
 
 function searchStores(query) {
@@ -507,6 +781,15 @@ function searchStores(query) {
   }
   const q = query.toLowerCase();
   return STORES.filter(s => s.toLowerCase().includes(q)).slice(0, 8);
+}
+
+function searchDonationItems(query) {
+  if (typeof Fuse !== 'undefined') {
+    if (!donationFuse) donationFuse = new Fuse(DONATION_ITEMS, { threshold: 0.4, minMatchCharLength: 2 });
+    return donationFuse.search(query).map(r => r.item).slice(0, 8);
+  }
+  const q = query.toLowerCase();
+  return DONATION_ITEMS.filter(s => s.toLowerCase().includes(q)).slice(0, 8);
 }
 
 function initStoreSearch() {
@@ -944,11 +1227,406 @@ function initCredits() {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   10. BOOTSTRAP
+   10. DONATIONS FEATURE
+═══════════════════════════════════════════════════════════ */
+
+const DONATION_NAME_KEY        = 'rc_donation_name';
+const DONATION_REMEMBER_KEY    = 'rc_donation_remember';
+const DONATION_LAST_TYPE_KEY   = 'rc_donation_last_type';
+const DONATION_LAST_REASON_KEY = 'rc_donation_last_reason';
+
+const DONATION_KNOWN_NAMES = ['Nick', 'Steve', 'Ian', 'David', 'Syreese', 'Kaleb', 'Tyler', 'Tagen'];
+
+let donationItemCounter  = 0;
+let isDonationSubmitting = false;
+
+function createDonationItemHTML(id, isFirst, defaultType, defaultReason) {
+  const removeClass = isFirst ? 'credit-item__remove credit-item__remove--hidden' : 'credit-item__remove';
+  const chubClass   = defaultType !== 'retail' ? 'pill-toggle__btn--active' : '';
+  const retailClass = defaultType === 'retail'  ? 'pill-toggle__btn--active' : '';
+  const reasons     = ['Out of Date', 'Damaged Packaging', 'Bad Seal', 'Other'];
+  const reasonOptions = reasons.map(r =>
+    `<option value="${r}"${r === defaultReason ? ' selected' : ''}>${r}</option>`
+  ).join('');
+  return `
+    <div class="donation-item" data-id="${id}">
+      <div class="credit-item__header">
+        <div class="pill-toggle">
+          <button type="button" class="pill-toggle__btn ${chubClass}" data-ditem="${id}" data-dtype-btn="chub">Chub</button>
+          <button type="button" class="pill-toggle__btn ${retailClass}" data-ditem="${id}" data-dtype-btn="retail">Retail</button>
+        </div>
+        <button type="button" class="${removeClass}" data-dremove="${id}" aria-label="Remove item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="store-search-wrap">
+        <input type="text" class="form-input" placeholder="Search item or UPC…" autocomplete="off" autocorrect="off" spellcheck="false" inputmode="search" data-dfid="${id}" data-dfname="name" />
+        <div class="store-suggestions hidden" data-dsuggestions="${id}" role="listbox" aria-label="Item suggestions"></div>
+      </div>
+      <div class="donation-item__row">
+        <div class="donation-item__field">
+          <span class="donation-item__label">Qty</span>
+          <div class="qty-stepper">
+            <button type="button" class="qty-stepper__btn" data-dfid="${id}" data-dir="-1">−</button>
+            <input type="number" class="qty-stepper__input" value="1" min="1" inputmode="numeric" data-dfid="${id}" data-dfname="qty" />
+            <button type="button" class="qty-stepper__btn" data-dfid="${id}" data-dir="1">+</button>
+          </div>
+        </div>
+        <div class="donation-item__field">
+          <span class="donation-item__label">Sell-By Date</span>
+          <input type="date" class="form-input" data-dfid="${id}" data-dfname="sellby" />
+        </div>
+      </div>
+      <select class="form-select" data-dfid="${id}" data-dfname="reason">
+        ${reasonOptions}
+      </select>
+    </div>`;
+}
+
+function addDonationItem() {
+  donationItemCounter++;
+  const list      = document.getElementById('donation-items-list');
+  const isFirst   = list && list.children.length === 0;
+  const lastType  = localStorage.getItem(DONATION_LAST_TYPE_KEY)   || 'chub';
+  const lastReason = localStorage.getItem(DONATION_LAST_REASON_KEY) || 'Out of Date';
+  if (list) list.insertAdjacentHTML('beforeend', createDonationItemHTML(donationItemCounter, isFirst, lastType, lastReason));
+  updateDonationRemoveButtons();
+  updateDonationItemsCount();
+}
+
+function removeDonationItem(id) {
+  const el = document.querySelector(`.donation-item[data-id="${id}"]`);
+  if (el) el.remove();
+  updateDonationRemoveButtons();
+  updateDonationItemsCount();
+}
+
+function switchDonationItemType(id, type) {
+  const item = document.querySelector(`.donation-item[data-id="${id}"]`);
+  if (!item) return;
+  item.querySelectorAll('[data-dtype-btn]').forEach(btn => {
+    btn.classList.toggle('pill-toggle__btn--active', btn.dataset.dtypeBtn === type);
+  });
+  localStorage.setItem(DONATION_LAST_TYPE_KEY, type);
+}
+
+function updateDonationRemoveButtons() {
+  const items = document.querySelectorAll('.donation-item');
+  const hide  = items.length <= 1;
+  document.querySelectorAll('.donation-item .credit-item__remove').forEach(btn => {
+    btn.classList.toggle('credit-item__remove--hidden', hide);
+  });
+}
+
+function updateDonationItemsCount() {
+  const el    = document.getElementById('donation-items-count');
+  const count = document.querySelectorAll('.donation-item').length;
+  if (el) el.textContent = `${count} item${count !== 1 ? 's' : ''}`;
+}
+
+function collectDonationItems() {
+  const items = [];
+  document.querySelectorAll('.donation-item').forEach(itemEl => {
+    const id        = itemEl.dataset.id;
+    const activeBtn = itemEl.querySelector('.pill-toggle__btn--active[data-dtype-btn]');
+    const type      = activeBtn ? activeBtn.dataset.dtypeBtn : 'chub';
+    const nameEl    = itemEl.querySelector(`[data-dfid="${id}"][data-dfname="name"]`);
+    const qtyEl     = itemEl.querySelector(`[data-dfid="${id}"][data-dfname="qty"]`);
+    const sellbyEl  = itemEl.querySelector(`[data-dfid="${id}"][data-dfname="sellby"]`);
+    const reasonEl  = itemEl.querySelector(`[data-dfid="${id}"][data-dfname="reason"]`);
+    const raw       = nameEl ? nameEl.value.trim() : '';
+    const spaceIdx  = raw.indexOf(' ');
+    const upc       = spaceIdx > -1 ? raw.slice(0, spaceIdx) : '';
+    const itemName  = spaceIdx > -1 ? raw.slice(spaceIdx + 1) : raw;
+    items.push({
+      type:   type === 'chub' ? 'Chub' : 'Retail',
+      upc:    upc,
+      name:   itemName,
+      qty:    qtyEl    ? (parseInt(qtyEl.value, 10) || 1) : 1,
+      sellBy: sellbyEl ? sellbyEl.value                    : '',
+      reason: reasonEl ? reasonEl.value                    : 'Out of Date',
+    });
+  });
+  return items;
+}
+
+function buildDonationSuccessSummary(items) {
+  return items.map(item => {
+    const fmt = item.sellBy
+      ? new Date(item.sellBy + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+      : '—';
+    const productLine = [item.upc, item.name || '—'].filter(Boolean).join(' — ');
+    return `
+      <div class="credit-success-item">
+        <span class="credit-success-item__type">${item.type}</span>
+        <span class="credit-success-item__product">${productLine}</span>
+        <span class="credit-success-item__qty">x${item.qty} &middot; ${fmt}</span>
+        <span class="credit-success-item__reason">${item.reason}</span>
+      </div>`;
+  }).join('');
+}
+
+function handleDonationSubmit(e) {
+  e.preventDefault();
+  if (isDonationSubmitting) return;
+
+  const nameSelect = document.getElementById('donation-employee');
+  const otherInput = document.getElementById('donation-employee-other');
+  const submitBtn  = document.getElementById('donation-submit-btn');
+  const notes      = document.getElementById('donation-notes').value.trim();
+
+  let employee = nameSelect.value;
+  let valid    = true;
+
+  if (!employee) {
+    nameSelect.style.borderColor = 'var(--color-error)';
+    nameSelect.addEventListener('change', () => { nameSelect.style.borderColor = ''; }, { once: true });
+    valid = false;
+  } else if (employee === 'Other') {
+    const otherVal = otherInput.value.trim();
+    if (!otherVal) {
+      otherInput.style.borderColor = 'var(--color-error)';
+      otherInput.addEventListener('input', () => { otherInput.style.borderColor = ''; }, { once: true });
+      valid = false;
+    } else {
+      employee = otherVal;
+    }
+  }
+
+  document.querySelectorAll('.donation-item').forEach(itemEl => {
+    const id       = itemEl.dataset.id;
+    const nameInput  = itemEl.querySelector(`[data-dfid="${id}"][data-dfname="name"]`);
+    const sellbyInput = itemEl.querySelector(`[data-dfid="${id}"][data-dfname="sellby"]`);
+    if (nameInput && !nameInput.value.trim()) {
+      nameInput.style.borderColor = 'var(--color-error)';
+      nameInput.addEventListener('input', () => { nameInput.style.borderColor = ''; }, { once: true });
+      valid = false;
+    }
+    if (sellbyInput && !sellbyInput.value) {
+      sellbyInput.style.borderColor = 'var(--color-error)';
+      sellbyInput.addEventListener('change', () => { sellbyInput.style.borderColor = ''; }, { once: true });
+      valid = false;
+    }
+  });
+
+  if (!valid) return;
+
+  const rememberEl = document.getElementById('donation-remember-me');
+  if (rememberEl && rememberEl.checked) {
+    localStorage.setItem(DONATION_NAME_KEY, employee);
+  }
+
+  isDonationSubmitting    = true;
+  submitBtn.disabled      = true;
+  submitBtn.textContent   = 'Submitting…';
+  window.addEventListener('beforeunload', beforeUnloadHandler);
+
+  const items   = collectDonationItems();
+  const payload = { employee, notes, items, timestamp: new Date().toISOString() };
+
+  fetch('/api/submit-donation', {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify(payload),
+  })
+    .then(r => r.json())
+    .then(data => {
+      if (data.status === 'success') {
+        const summary = document.getElementById('donation-success-summary');
+        if (summary) summary.innerHTML = buildDonationSuccessSummary(items);
+        document.getElementById('donation-form').classList.add('hidden');
+        document.getElementById('donation-success-state').classList.remove('hidden');
+      } else {
+        throw new Error(data.message || 'Server error');
+      }
+    })
+    .catch(err => {
+      let errEl = document.getElementById('donation-submit-error');
+      if (!errEl) {
+        errEl = document.createElement('p');
+        errEl.id = 'donation-submit-error';
+        errEl.style.cssText = 'color:var(--color-error);font-size:0.875rem;margin-top:0.5rem;text-align:center;';
+        submitBtn.insertAdjacentElement('afterend', errEl);
+      }
+      errEl.textContent = err.message || 'Network error. Please check your connection and try again.';
+    })
+    .finally(() => {
+      window.removeEventListener('beforeunload', beforeUnloadHandler);
+      isDonationSubmitting  = false;
+      submitBtn.disabled    = false;
+      submitBtn.textContent = 'Submit Donation Log';
+    });
+}
+
+function resetDonationForm() {
+  const nameSelect = document.getElementById('donation-employee');
+  const otherInput = document.getElementById('donation-employee-other');
+  const savedName  = localStorage.getItem(DONATION_NAME_KEY);
+
+  if (savedName) {
+    if (DONATION_KNOWN_NAMES.includes(savedName)) {
+      nameSelect.value = savedName;
+      otherInput.classList.add('hidden');
+      otherInput.value = '';
+    } else {
+      nameSelect.value = 'Other';
+      otherInput.value = savedName;
+      otherInput.classList.remove('hidden');
+    }
+  } else {
+    nameSelect.value = '';
+    otherInput.classList.add('hidden');
+    otherInput.value = '';
+  }
+
+  document.getElementById('donation-notes').value = '';
+
+  const list = document.getElementById('donation-items-list');
+  if (list) list.innerHTML = '';
+  donationItemCounter = 0;
+  addDonationItem();
+
+  const errEl = document.getElementById('donation-submit-error');
+  if (errEl) errEl.textContent = '';
+
+  document.getElementById('donation-success-state').classList.add('hidden');
+  document.getElementById('donation-form').classList.remove('hidden');
+}
+
+function initDonations() {
+  const nameSelect = document.getElementById('donation-employee');
+  const otherInput = document.getElementById('donation-employee-other');
+  const rememberEl = document.getElementById('donation-remember-me');
+
+  /* Restore saved name */
+  const savedName = localStorage.getItem(DONATION_NAME_KEY);
+  if (savedName) {
+    if (DONATION_KNOWN_NAMES.includes(savedName)) {
+      nameSelect.value = savedName;
+    } else {
+      nameSelect.value = 'Other';
+      otherInput.value = savedName;
+      otherInput.classList.remove('hidden');
+    }
+  }
+
+  /* Remember me */
+  if (rememberEl) {
+    rememberEl.checked = localStorage.getItem(DONATION_REMEMBER_KEY) !== 'false';
+    rememberEl.addEventListener('change', () => {
+      localStorage.setItem(DONATION_REMEMBER_KEY, rememberEl.checked ? 'true' : 'false');
+    });
+  }
+
+  /* Name select: show/hide Other input */
+  if (nameSelect) {
+    nameSelect.addEventListener('change', () => {
+      if (nameSelect.value === 'Other') {
+        otherInput.classList.remove('hidden');
+        otherInput.focus();
+      } else {
+        otherInput.classList.add('hidden');
+        otherInput.value = '';
+        if (rememberEl && rememberEl.checked) {
+          localStorage.setItem(DONATION_NAME_KEY, nameSelect.value);
+        }
+      }
+    });
+  }
+
+  /* Other input: save on type */
+  if (otherInput) {
+    otherInput.addEventListener('input', () => {
+      if (rememberEl && rememberEl.checked && otherInput.value.trim()) {
+        localStorage.setItem(DONATION_NAME_KEY, otherInput.value.trim());
+      }
+    });
+  }
+
+  /* First item */
+  addDonationItem();
+
+  /* Item list event delegation */
+  const itemsList = document.getElementById('donation-items-list');
+  if (itemsList) {
+    itemsList.addEventListener('input', (e) => {
+      const nameInput = e.target.closest('[data-dfname="name"]');
+      if (!nameInput) return;
+      const id     = nameInput.dataset.dfid;
+      const q      = nameInput.value.trim();
+      const suggEl = itemsList.querySelector(`[data-dsuggestions="${id}"]`);
+      if (!suggEl) return;
+      if (!q) { suggEl.classList.add('hidden'); return; }
+      const results = searchDonationItems(q);
+      if (!results.length) { suggEl.classList.add('hidden'); return; }
+      suggEl.innerHTML = results.map(s => `<div class="store-suggestion" role="option" tabindex="-1">${s}</div>`).join('');
+      suggEl.classList.remove('hidden');
+    });
+
+    itemsList.addEventListener('click', (e) => {
+      const suggHit = e.target.closest('.store-suggestion');
+      if (suggHit) {
+        const suggEl  = suggHit.closest('[data-dsuggestions]');
+        const id      = suggEl?.dataset.dsuggestions;
+        const nameInput = id ? itemsList.querySelector(`[data-dfid="${id}"][data-dfname="name"]`) : null;
+        if (nameInput) { nameInput.value = suggHit.textContent; nameInput.style.borderColor = ''; }
+        suggEl?.classList.add('hidden');
+        return;
+      }
+      const typeBtn = e.target.closest('[data-dtype-btn]');
+      if (typeBtn) {
+        switchDonationItemType(typeBtn.dataset.ditem, typeBtn.dataset.dtypeBtn);
+        return;
+      }
+      const removeBtn = e.target.closest('[data-dremove]');
+      if (removeBtn) {
+        removeDonationItem(removeBtn.dataset.dremove);
+        return;
+      }
+      const stepperBtn = e.target.closest('.qty-stepper__btn');
+      if (stepperBtn) {
+        const dfid     = stepperBtn.dataset.dfid;
+        const dir      = parseInt(stepperBtn.dataset.dir, 10);
+        const qtyInput = itemsList.querySelector(`[data-dfid="${dfid}"][data-dfname="qty"]`);
+        if (qtyInput) qtyInput.value = Math.max(1, (parseInt(qtyInput.value, 10) || 1) + dir);
+        return;
+      }
+    });
+
+    itemsList.addEventListener('change', (e) => {
+      const reasonSel = e.target.closest('[data-dfname="reason"]');
+      if (reasonSel) {
+        localStorage.setItem(DONATION_LAST_REASON_KEY, reasonSel.value);
+        return;
+      }
+      const qtyInput = e.target.closest('[data-dfname="qty"]');
+      if (qtyInput) {
+        const val = parseInt(qtyInput.value, 10);
+        if (!val || val < 1) qtyInput.value = 1;
+      }
+    });
+  }
+
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.store-search-wrap')) {
+      document.querySelectorAll('#donation-items-list [data-dsuggestions]').forEach(el => el.classList.add('hidden'));
+    }
+  });
+
+  document.getElementById('add-donation-item-btn')?.addEventListener('click', addDonationItem);
+  document.getElementById('donation-form')?.addEventListener('submit', handleDonationSubmit);
+  document.getElementById('donation-submit-another-btn')?.addEventListener('click', resetDonationForm);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   11. BOOTSTRAP
 ═══════════════════════════════════════════════════════════ */
 function onAppReady() {
   loadPersistedData();
   initCredits();
+  initDonations();
   navigateTo('receipts');
 }
 

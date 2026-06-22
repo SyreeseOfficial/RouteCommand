@@ -1972,3 +1972,101 @@ img, svg { display: block; }
   color: var(--color-text);
   font-weight: 600;
 }
+
+/* ── 32. DONATIONS ─────────────────────────────────────────── */
+
+.donation-item {
+  background: rgba(255,255,255,0.025);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 0.875rem;
+  margin-top: 0.625rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.donation-item__row {
+  display: grid;
+  grid-template-columns: 148px 1fr;
+  gap: 0.5rem;
+  align-items: start;
+}
+
+.donation-item__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.donation-item__label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-subtext);
+}
+
+.qty-stepper {
+  display: flex;
+  align-items: center;
+  height: 48px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.qty-stepper:focus-within {
+  border-color: var(--color-red);
+  box-shadow: 0 0 0 3px rgba(132,27,42,0.2);
+}
+
+.qty-stepper__btn {
+  width: 44px;
+  min-width: 44px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  color: var(--color-subtext);
+  background: transparent;
+  transition: background var(--transition), color var(--transition);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.qty-stepper__btn:hover {
+  background: rgba(255,255,255,0.06);
+  color: var(--color-text);
+}
+
+.qty-stepper__btn:active {
+  background: rgba(255,255,255,0.1);
+}
+
+.qty-stepper__input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  text-align: center;
+  border: none;
+  border-left: 1px solid var(--color-border);
+  border-right: 1px solid var(--color-border);
+  border-radius: 0;
+  background: transparent;
+  color: var(--color-text);
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: inherit;
+  padding: 0;
+  outline: none;
+  -moz-appearance: textfield;
+}
+
+.qty-stepper__input::-webkit-outer-spin-button,
+.qty-stepper__input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}

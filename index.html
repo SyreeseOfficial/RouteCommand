@@ -66,6 +66,12 @@
           </span>
           <span class="nav-item__label">Credits</span>
         </button>
+        <button class="nav-item" data-view="donations">
+          <span class="nav-item__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </span>
+          <span class="nav-item__label">Donations</span>
+        </button>
         <button class="nav-item" data-view="settings">
           <span class="nav-item__icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
@@ -322,6 +328,74 @@
 
       </section>
 
+      <!-- DONATIONS VIEW -->
+      <section id="donations-view" class="view" aria-label="Donations">
+        <div class="view__header">
+          <h2 class="view__title">Donations</h2>
+          <p class="view__sub">Log items going into the donation pile.</p>
+        </div>
+
+        <div class="form-card" id="donation-form-card">
+          <form id="donation-form" novalidate>
+
+            <!-- Employee Name -->
+            <div class="form-group">
+              <label class="form-label" for="donation-employee">Your Name</label>
+              <select class="form-select" id="donation-employee" required>
+                <option value="" disabled selected>Select your name</option>
+                <option value="Nick">Nick</option>
+                <option value="Steve">Steve</option>
+                <option value="Ian">Ian</option>
+                <option value="David">David</option>
+                <option value="Syreese">Syreese</option>
+                <option value="Kaleb">Kaleb</option>
+                <option value="Tyler">Tyler</option>
+                <option value="Tagen">Tagen</option>
+                <option value="Other">Other</option>
+              </select>
+              <input type="text" class="form-input hidden" id="donation-employee-other" placeholder="Enter your name" autocomplete="off" style="margin-top:0.5rem;" />
+              <label class="remember-row" for="donation-remember-me">
+                <input type="checkbox" id="donation-remember-me" checked />
+                <span>Remember me on this device</span>
+              </label>
+            </div>
+
+            <!-- Donation Items -->
+            <div class="form-group">
+              <div class="credit-items-label">
+                <span class="form-label">Donation Items</span>
+                <span class="credit-items-count" id="donation-items-count">1 item</span>
+              </div>
+              <div id="donation-items-list"></div>
+              <button type="button" class="btn btn--outline btn--full" id="add-donation-item-btn" style="margin-top:0.75rem;">+ Add Another Item</button>
+            </div>
+
+            <!-- Notes -->
+            <div class="form-group">
+              <label class="form-label" for="donation-notes">Notes <span class="form-label--optional">(Optional)</span></label>
+              <textarea class="form-textarea" id="donation-notes" placeholder="Any extra context…" rows="2"></textarea>
+            </div>
+
+            <button type="submit" class="btn btn--red btn--full" id="donation-submit-btn">Submit Donation Log</button>
+
+          </form>
+
+          <!-- SUCCESS STATE -->
+          <div id="donation-success-state" class="success-state hidden" aria-live="polite">
+            <div class="success-state__icon" aria-hidden="true">
+              <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="40" cy="40" r="38" stroke="#841b2a" stroke-width="2"/>
+                <polyline points="22,40 35,53 58,28" stroke="#625636" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <h3 class="success-state__title">Donation Logged!</h3>
+            <p class="success-state__msg">The donation pile has been recorded.</p>
+            <div class="credit-success-summary" id="donation-success-summary"></div>
+            <button class="btn btn--outline btn--full" id="donation-submit-another-btn">Log Another Donation</button>
+          </div>
+        </div>
+      </section>
+
       <!-- SETTINGS VIEW -->
       <section id="settings-view" class="view" aria-label="Settings">
         <div class="view__header">
@@ -425,6 +499,12 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
         </span>
         <span class="bottom-nav__label">Credits</span>
+      </button>
+      <button class="bottom-nav__item" data-view="donations" aria-label="Donations">
+        <span class="bottom-nav__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </span>
+        <span class="bottom-nav__label">Donations</span>
       </button>
       <button class="bottom-nav__item" data-view="settings" aria-label="Settings">
         <span class="bottom-nav__icon" aria-hidden="true">
