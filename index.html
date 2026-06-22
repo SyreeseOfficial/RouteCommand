@@ -103,21 +103,6 @@
           <p class="view__sub">Submit a new expense receipt.</p>
         </div>
 
-        <!-- STAT CARDS -->
-        <div class="stat-cards">
-          <div class="stat-card">
-            <span class="stat-card__label">Recent Activity</span>
-            <span class="stat-card__value" id="last-submission">No submissions yet</span>
-          </div>
-          <div class="stat-card">
-            <span class="stat-card__label">System Status</span>
-            <span class="stat-card__value">
-              <span class="status-dot status-dot--online" aria-hidden="true"></span>
-              System Online
-            </span>
-          </div>
-        </div>
-
         <!-- EXPENSE FORM -->
         <div class="form-card" id="expense-form-card">
           <form id="expense-form" novalidate>
@@ -433,22 +418,10 @@
           </div>
         </div>
 
-        <!-- STATS & INFO -->
+        <!-- RECENT SUBMISSIONS -->
         <div class="settings-section">
-          <h3 class="settings-section__title">Quick Stats</h3>
-          <div class="stat-cards">
-            <div class="stat-card">
-              <span class="stat-card__label">Usage</span>
-              <span class="stat-card__value" id="submission-count">0 submissions</span>
-            </div>
-            <div class="stat-card">
-              <span class="stat-card__label">Storage</span>
-              <span class="stat-card__value">
-                <span class="status-dot status-dot--online" aria-hidden="true"></span>
-                2TB Connected
-              </span>
-            </div>
-          </div>
+          <h3 class="settings-section__title">Recent Submissions</h3>
+          <div id="submission-history"></div>
         </div>
 
         <!-- APPEARANCE -->
@@ -470,18 +443,6 @@
           <p class="settings-hint">Clears all saved data and returns to the passcode screen.</p>
         </div>
 
-        <!-- HOW IT WORKS + BRANDING -->
-        <div class="settings-section">
-          <h3 class="settings-section__title">How It Works</h3>
-          <div class="settings-card">
-            <ul class="how-it-works">
-              <li>Fill out the expense form and attach a photo of your receipt.</li>
-              <li>Your submission is securely logged to the company's shared Google Sheet and Drive folder.</li>
-              <li>Ian reviews and approves reimbursements — no paperwork required.</li>
-            </ul>
-          </div>
-          <p class="settings-branding">Developed by Syreese &amp; Realyfe Ventures LLC</p>
-        </div>
       </section>
 
     </main>
