@@ -27,11 +27,6 @@ const sidebarNavItems  = document.querySelectorAll('.sidebar .nav-item[data-view
 const bottomNavItems   = document.querySelectorAll('.bottom-nav .bottom-nav__item[data-view]');
 const views            = document.querySelectorAll('.view');
 
-const moreBtn          = document.getElementById('more-btn');
-const drawerOverlay    = document.getElementById('drawer-overlay');
-const moreDrawer       = document.getElementById('more-drawer');
-const drawerItems      = document.querySelectorAll('.drawer__item[data-view]');
-
 const expenseForm      = document.getElementById('expense-form');
 const submitBtn        = document.getElementById('submit-btn');
 const successState     = document.getElementById('success-state');
@@ -135,44 +130,7 @@ bottomNavItems.forEach(item => {
 });
 
 /* ═══════════════════════════════════════════════════════════
-   3. MORE DRAWER
-═══════════════════════════════════════════════════════════ */
-function openDrawer() {
-  drawerOverlay.classList.remove('hidden');
-  moreDrawer.classList.remove('hidden');
-  moreDrawer.classList.remove('slide-down');
-  moreBtn.setAttribute('aria-expanded', 'true');
-  document.body.style.overflow = 'hidden';
-}
-
-function closeDrawer() {
-  moreDrawer.classList.add('slide-down');
-  moreBtn.setAttribute('aria-expanded', 'false');
-  document.body.style.overflow = '';
-  setTimeout(() => {
-    drawerOverlay.classList.add('hidden');
-    moreDrawer.classList.add('hidden');
-    moreDrawer.classList.remove('slide-down');
-  }, 300);
-}
-
-moreBtn.addEventListener('click', openDrawer);
-drawerOverlay.addEventListener('click', closeDrawer);
-
-drawerItems.forEach(item => {
-  item.addEventListener('click', () => {
-    closeDrawer();
-    setTimeout(() => navigateTo(item.dataset.view), 60);
-  });
-});
-
-/* Coming Soon banner roadmap buttons */
-document.querySelectorAll('.coming-soon-banner__btn[data-view]').forEach(btn => {
-  btn.addEventListener('click', () => navigateTo(btn.dataset.view));
-});
-
-/* ═══════════════════════════════════════════════════════════
-   4. LOCALSTORAGE PERSISTENCE
+   3. LOCALSTORAGE PERSISTENCE
 ═══════════════════════════════════════════════════════════ */
 function loadPersistedData() {
   /* Auto-fill employee name */
@@ -487,7 +445,7 @@ let observer = null;
 
 function observeAnimatables() {
   const animatables = document.querySelectorAll(
-    '.stat-card:not(.visible), .form-card:not(.visible), .placeholder-card:not(.visible), .section-card:not(.visible), .roadmap-item:not(.visible), .coming-soon-banner:not(.visible), .map-placeholder:not(.visible), .video-grid:not(.visible), .leaderboard:not(.visible), .view-copy-card:not(.visible)'
+    '.stat-card:not(.visible), .form-card:not(.visible), .placeholder-card:not(.visible), .section-card:not(.visible), .view-copy-card:not(.visible)'
   );
 
   if (!animatables.length) return;
