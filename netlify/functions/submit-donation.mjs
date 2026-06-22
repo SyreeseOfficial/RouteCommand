@@ -24,7 +24,12 @@ export default async (req) => {
 
     const redirectUrl = gasRes.headers.get('location');
     if (!redirectUrl) {
-      return new Response(JSON.stringify({ status: 'error', message: 'No redirect from GAS' }), {
+      const debugBody = await gasRes.text().catch(() => '(unreadable)');
+      return new Response(JSON.stringify({
+        status: 'error',
+        message: 'No redirect from GAS',
+        debug: { httpStatus: gasRes.status, gasBody: debugBody.slice(0, 500) },
+      }), {
         status: 502,
         headers: { 'Content-Type': 'application/json' },
       });
