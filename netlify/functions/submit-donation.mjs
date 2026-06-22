@@ -2,7 +2,7 @@
  * After deploying DonationCode.gs as a Google Apps Script web app,
  * paste the web app URL below to replace the placeholder.
  */
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbxaF3bYkGbU742GNy3VjlhBe76GBE6Fu0XDvW88scj7w-s3OkkiLwCcfgF-ZsOIHyCLWg/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbzOkVZCAmk0MDVPq_7Wf7N3K3WXg1AhoCxyin_IFa9TzslGDVmq-3R4rpjO5sFDPJl8kA/exec';
 
 export default async (req) => {
   if (req.method !== 'POST') {
@@ -24,12 +24,7 @@ export default async (req) => {
 
     const redirectUrl = gasRes.headers.get('location');
     if (!redirectUrl) {
-      const debugBody = await gasRes.text().catch(() => '(unreadable)');
-      return new Response(JSON.stringify({
-        status: 'error',
-        message: 'No redirect from GAS',
-        debug: { httpStatus: gasRes.status, gasBody: debugBody.slice(0, 500) },
-      }), {
+      return new Response(JSON.stringify({ status: 'error', message: 'No redirect from GAS' }), {
         status: 502,
         headers: { 'Content-Type': 'application/json' },
       });
