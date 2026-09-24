@@ -40,6 +40,18 @@
     </div>
   </div>
 
+  <!-- ===================== NAME GATE (first run) ===================== -->
+  <div id="name-gate" class="gatekeeper hidden">
+    <div class="gatekeeper__inner">
+      <h1 class="gatekeeper__title">Who are you?</h1>
+      <p class="gatekeeper__sub">Used on every submission.</p>
+      <div class="gatekeeper__input-wrap">
+        <select class="form-select" id="name-gate-select"></select>
+      </div>
+      <button id="name-gate-submit" class="btn btn--red btn--full">Continue</button>
+    </div>
+  </div>
+
   <!-- ===================== APP SHELL ===================== -->
   <div id="app" class="app hidden">
 
@@ -108,23 +120,6 @@
           <form id="expense-form" novalidate>
 
             <div class="form-group">
-              <label class="form-label" for="employee-name">Employee Name</label>
-              <select class="form-select" id="employee-name" name="employee-name" required>
-                <option value="" disabled selected>Select your name</option>
-                <option value="David Lindholm">David Lindholm</option>
-                <option value="Hannah">Hannah</option>
-                <option value="Ian Aps">Ian Aps</option>
-                <option value="Kaleb">Kaleb</option>
-                <option value="Nick">Nick</option>
-                <option value="Steve">Steve</option>
-                <option value="Syreese Delos Santos">Syreese Delos Santos</option>
-                <option value="Tagen Garris">Tagen Garris</option>
-                <option value="Teresa">Teresa</option>
-                <option value="Tyler Sharpe">Tyler Sharpe</option>
-              </select>
-            </div>
-
-            <div class="form-group">
               <label class="form-label" for="receipt-date">Date on Receipt</label>
               <input class="form-input" type="date" id="receipt-date" name="receipt-date" required />
             </div>
@@ -169,14 +164,23 @@
 
             <div class="form-group">
               <label class="form-label">Receipt Photo</label>
-              <label class="upload-btn" for="receipt-photo" id="upload-label">
-                <span class="upload-btn__icon" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-                </span>
-                <span id="upload-label-text">Attach Photo</span>
-              </label>
+              <div class="photo-actions">
+                <label class="upload-btn" for="receipt-photo" id="upload-label">
+                  <span class="upload-btn__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                  </span>
+                  <span id="upload-label-text">Take Photo</span>
+                </label>
+                <label class="upload-btn" for="receipt-library">
+                  <span id="library-label-text">Choose from Library</span>
+                </label>
+              </div>
               <input type="file" id="receipt-photo" name="receipt-photo" accept="image/*" capture="environment" class="sr-only" />
-              <p class="upload-confirm hidden" id="upload-confirm" aria-live="polite">Receipt attached.</p>
+              <input type="file" id="receipt-library" accept="image/*" class="sr-only" />
+              <div class="photo-preview hidden" id="photo-preview">
+                <img id="photo-thumb" alt="Receipt preview" />
+                <button type="button" class="btn btn--outline" id="photo-retake">Retake</button>
+              </div>
             </div>
 
             <button type="submit" class="btn btn--red btn--full" id="submit-btn">Submit Expense</button>
@@ -192,7 +196,7 @@
               </svg>
             </div>
             <h3 class="success-state__title">Upload Successful!</h3>
-            <p class="success-state__msg">Ian has your receipt.</p>
+            <p class="success-state__msg"><span data-recipient></span> has your receipt.</p>
             <button class="btn btn--outline btn--full" id="submit-another-btn">Submit Another Expense</button>
           </div>
         </div>
@@ -202,31 +206,11 @@
       <section id="credits-view" class="view" aria-label="Credits">
         <div class="view__header">
           <h2 class="view__title">Credits</h2>
-          <p class="view__sub">Submit a store credit request to Ian.</p>
+          <p class="view__sub">Submit a store credit request to <span data-recipient></span>.</p>
         </div>
 
         <div class="form-card" id="credit-form-card">
           <form id="credit-form" novalidate>
-
-            <!-- Salesperson -->
-            <div class="form-group">
-              <label class="form-label" for="credit-salesperson">Your Name</label>
-              <select class="form-select" id="credit-salesperson" required>
-                <option value="" disabled selected>Select your name</option>
-                <option value="David">David</option>
-                <option value="Hannah">Hannah</option>
-                <option value="Ian">Ian</option>
-                <option value="Kaleb">Kaleb</option>
-                <option value="Syreese">Syreese</option>
-                <option value="Tagen">Tagen</option>
-                <option value="Teresa">Teresa</option>
-                <option value="Tyler">Tyler</option>
-              </select>
-              <label class="remember-row" for="credit-remember-me">
-                <input type="checkbox" id="credit-remember-me" checked />
-                <span>Remember me on this device</span>
-              </label>
-            </div>
 
             <!-- Store -->
             <div class="form-group">
@@ -265,7 +249,7 @@
             <!-- Notes -->
             <div class="form-group">
               <label class="form-label" for="credit-notes">Notes <span class="form-label--optional">(Optional)</span></label>
-              <textarea class="form-textarea" id="credit-notes" placeholder="Any extra context for Ian…" rows="2"></textarea>
+              <textarea class="form-textarea" id="credit-notes" placeholder="Any extra context…" rows="2"></textarea>
             </div>
 
             <button type="submit" class="btn btn--red btn--full" id="credit-submit-btn">Submit Credits</button>
@@ -281,7 +265,7 @@
               </svg>
             </div>
             <h3 class="success-state__title">Credits Submitted!</h3>
-            <p class="success-state__msg">Ian has your credit request.</p>
+            <p class="success-state__msg"><span data-recipient></span> has your credit request.</p>
             <div class="credit-success-summary" id="credit-success-summary"></div>
             <button class="btn btn--outline btn--full" id="credit-submit-another-btn">Submit Another Credit</button>
           </div>
@@ -322,28 +306,6 @@
 
         <div class="form-card" id="donation-form-card">
           <form id="donation-form" novalidate>
-
-            <!-- Employee Name -->
-            <div class="form-group">
-              <label class="form-label" for="donation-employee">Your Name</label>
-              <select class="form-select" id="donation-employee" required>
-                <option value="" disabled selected>Select your name</option>
-                <option value="Nick">Nick</option>
-                <option value="Steve">Steve</option>
-                <option value="Ian">Ian</option>
-                <option value="David">David</option>
-                <option value="Syreese">Syreese</option>
-                <option value="Kaleb">Kaleb</option>
-                <option value="Tyler">Tyler</option>
-                <option value="Tagen">Tagen</option>
-                <option value="Other">Other</option>
-              </select>
-              <input type="text" class="form-input hidden" id="donation-employee-other" placeholder="Enter your name" autocomplete="off" style="margin-top:0.5rem;" />
-              <label class="remember-row" for="donation-remember-me">
-                <input type="checkbox" id="donation-remember-me" checked />
-                <span>Remember me on this device</span>
-              </label>
-            </div>
 
             <!-- Donation Items -->
             <div class="form-group">
@@ -391,9 +353,9 @@
         <!-- USER PROFILE -->
         <div class="settings-section">
           <h3 class="settings-section__title">User Profile</h3>
-          <div class="settings-card">
-            <span class="settings-card__label">Active Profile</span>
-            <span class="settings-card__value" id="active-identity">Not set</span>
+          <div class="settings-card settings-card--field">
+            <label class="settings-card__label" for="identity-select">Your Name</label>
+            <select class="form-select settings-select" id="identity-select"></select>
           </div>
           <div class="settings-card settings-card--field">
             <label class="settings-card__label" for="default-vehicle">Default Vehicle</label>

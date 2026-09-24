@@ -10,6 +10,9 @@
 ═══════════════════════════════════════════════════════════ */
 const AUTH_KEY             = 'rc_auth';
 const NAME_KEY             = 'rc_employee_name';
+const RECIPIENT            = 'Ian';   // who receives receipts and credit requests
+const NAMES = ['David Lindholm', 'Hannah', 'Ian Aps', 'Kaleb', 'Nick', 'Steve', 'Syreese Delos Santos', 'Tagen Garris', 'Teresa', 'Tyler Sharpe'];
+const getName = () => localStorage.getItem(NAME_KEY) || '';
 const DEFAULT_VEHICLE_KEY  = 'rc_default_vehicle';
 const HISTORY_KEY          = 'rc_history';
 
@@ -30,11 +33,6 @@ const expenseForm      = document.getElementById('expense-form');
 const submitBtn        = document.getElementById('submit-btn');
 const successState     = document.getElementById('success-state');
 const submitAnotherBtn = document.getElementById('submit-another-btn');
-const employeeSelect   = document.getElementById('employee-name');
-const activeIdentityEl = document.getElementById('active-identity');
-const uploadLabel      = document.getElementById('upload-label');
-const uploadLabelText  = document.getElementById('upload-label-text');
-const uploadConfirm    = document.getElementById('upload-confirm');
 const receiptPhotoInput = document.getElementById('receipt-photo');
 const resetBtn         = document.getElementById('reset-btn');
 const darkModeToggle   = document.getElementById('dark-mode-toggle');
@@ -142,17 +140,6 @@ bottomNavItems.forEach(item => {
    3. LOCALSTORAGE PERSISTENCE
 ═══════════════════════════════════════════════════════════ */
 function loadPersistedData() {
-  /* Auto-fill employee name */
-  const savedName = localStorage.getItem(NAME_KEY);
-  if (savedName && employeeSelect) {
-    employeeSelect.value = savedName;
-  }
-
-  /* Active identity in settings */
-  if (activeIdentityEl) {
-    activeIdentityEl.textContent = savedName ? savedName : 'Not set';
-  }
-
   /* Default vehicle */
   const savedVehicle = localStorage.getItem(DEFAULT_VEHICLE_KEY);
   if (savedVehicle && defaultVehicleEl) {
@@ -174,17 +161,25 @@ function loadPersistedData() {
   renderHistory();
 }
 
-function saveEmployeeName() {
-  if (employeeSelect && employeeSelect.value) {
-    localStorage.setItem(NAME_KEY, employeeSelect.value);
-  }
-}
+function initIdentity() {
+  const opts = NAMES.map(n => `<option value="${n}">${n}</option>`).join('');
+  const gate = document.getElementById('name-gate');
+  const gateSel = document.getElementById('name-gate-select');
+  const settingsSel = document.getElementById('identity-select');
+  gateSel.innerHTML = '<option value="" disabled selected>Select your name</option>' + opts;
+  settingsSel.innerHTML = opts;
+  document.querySelectorAll('[data-recipient]').forEach(el => { el.textContent = RECIPIENT; });
 
-if (employeeSelect) {
-  employeeSelect.addEventListener('change', () => {
-    saveEmployeeName();
-    if (activeIdentityEl) activeIdentityEl.textContent = employeeSelect.value;
+  const sync = () => { settingsSel.value = getName(); };
+  if (NAMES.includes(getName())) sync(); else gate.classList.remove('hidden');
+
+  document.getElementById('name-gate-submit').addEventListener('click', () => {
+    if (!gateSel.value) return;
+    localStorage.setItem(NAME_KEY, gateSel.value);
+    sync();
+    gate.classList.add('hidden');
   });
+  settingsSel.addEventListener('change', () => localStorage.setItem(NAME_KEY, settingsSel.value));
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -216,23 +211,35 @@ function handleImageUpload(file) {
 
       compressedImageData = canvas.toDataURL('image/jpeg', QUALITY);
 
-      /* Visual confirmation */
-      if (uploadLabelText)  uploadLabelText.textContent  = 'Receipt Attached ✓';
-      if (uploadLabel)      uploadLabel.style.borderColor = 'var(--color-success)';
-      if (uploadLabel)      uploadLabel.style.color       = 'var(--color-success)';
-      if (uploadConfirm)    uploadConfirm.classList.remove('hidden');
+      showPhotoPreview(compressedImageData);
     };
     img.src = e.target.result;
   };
   reader.readAsDataURL(file);
 }
 
-if (receiptPhotoInput) {
-  receiptPhotoInput.addEventListener('change', (e) => {
+const photoActions = document.querySelector('.photo-actions');
+const photoPreview = document.getElementById('photo-preview');
+
+function showPhotoPreview(src) {
+  document.getElementById('photo-thumb').src = src || '';
+  photoPreview.classList.toggle('hidden', !src);
+  photoActions.classList.toggle('hidden', !!src);
+}
+
+/* Camera and library inputs both feed the same handler */
+[receiptPhotoInput, document.getElementById('receipt-library')].forEach(input => {
+  input.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (file) handleImageUpload(file);
+    e.target.value = '';
   });
-}
+});
+
+document.getElementById('photo-retake').addEventListener('click', () => {
+  compressedImageData = null;
+  showPhotoPreview(null);
+});
 
 /* ═══════════════════════════════════════════════════════════
    6. EXPENSE FORM SUBMISSION
@@ -244,7 +251,7 @@ if (expenseForm) {
     e.preventDefault();
     if (isSubmitting) return;
 
-    const name     = document.getElementById('employee-name').value;
+    const name     = getName();
     const date     = document.getElementById('receipt-date').value;
     const category = document.getElementById('expense-category').value;
     const amount   = document.getElementById('expense-amount').value;
@@ -254,7 +261,6 @@ if (expenseForm) {
     if (!name || !date || !category || !amount) {
       /* Basic validation — highlight empty required fields */
       [
-        { id: 'employee-name',    val: name     },
         { id: 'receipt-date',     val: date     },
         { id: 'expense-category', val: category },
         { id: 'expense-amount',   val: amount   },
@@ -269,8 +275,7 @@ if (expenseForm) {
       return;
     }
 
-    /* Save name for future visits */
-    saveEmployeeName();
+    if (!compressedImageData && !confirm('No receipt photo attached. Submit anyway?')) return;
 
     /* Lock UI */
     isSubmitting = true;
@@ -351,18 +356,10 @@ function beforeUnloadHandler(e) {
 /* Submit Another */
 if (submitAnotherBtn) {
   submitAnotherBtn.addEventListener('click', () => {
-    const savedName = employeeSelect ? employeeSelect.value : '';
-
     expenseForm.reset();
     compressedImageData = null;
 
-    if (savedName && employeeSelect) employeeSelect.value = savedName;
-    if (uploadLabelText)  uploadLabelText.textContent  = 'Attach Photo';
-    if (uploadLabel) {
-      uploadLabel.style.borderColor = '';
-      uploadLabel.style.color       = '';
-    }
-    if (uploadConfirm) uploadConfirm.classList.add('hidden');
+    showPhotoPreview(null);
 
     successState.classList.add('hidden');
     expenseForm.classList.remove('hidden');
@@ -462,8 +459,6 @@ function observeAnimatables() {
    9. CREDITS FEATURE
 ═══════════════════════════════════════════════════════════ */
 
-const CREDIT_NAME_KEY     = 'rc_credit_name';
-const CREDIT_REMEMBER_KEY = 'rc_credit_remember';
 
 const STORES = [
   'Air Culinaire Worldwide','Aldarra Golf Club','Alki Bakery','Bangor',
@@ -969,7 +964,7 @@ function handleCreditSubmit(e) {
   e.preventDefault();
   if (isCreditSubmitting) return;
 
-  const salesperson = document.getElementById('credit-salesperson').value;
+  const salesperson = getName();
   const store       = document.getElementById('credit-store-input').value.trim();
   const date        = document.getElementById('credit-date').value;
   const notes       = document.getElementById('credit-notes').value.trim();
@@ -978,7 +973,6 @@ function handleCreditSubmit(e) {
   /* Validate */
   let valid = true;
   [
-    { id: 'credit-salesperson', val: salesperson },
     { id: 'credit-date',        val: date },
   ].forEach(({ id, val }) => {
     const el = document.getElementById(id);
@@ -1010,16 +1004,16 @@ function handleCreditSubmit(e) {
       prodInput.addEventListener('input', () => { prodInput.style.borderColor = ''; }, { once: true });
       itemsValid = false;
     }
+    const qtyInput = itemEl.querySelector(`[data-fid="${id}"][data-fname="${type === 'retail' ? 'qty' : 'weight'}"]`);
+    if (qtyInput && !(parseFloat(qtyInput.value) > 0)) {
+      qtyInput.style.borderColor = 'var(--color-error)';
+      qtyInput.addEventListener('input', () => { qtyInput.style.borderColor = ''; }, { once: true });
+      itemsValid = false;
+    }
   });
   if (!itemsValid) valid = false;
 
   if (!valid) return;
-
-  /* Save name if remember me is on */
-  const rememberMe = document.getElementById('credit-remember-me');
-  if (rememberMe && rememberMe.checked) {
-    localStorage.setItem(CREDIT_NAME_KEY, salesperson);
-  }
 
   /* Lock UI */
   isCreditSubmitting  = true;
@@ -1069,10 +1063,6 @@ function resetCreditForm() {
   document.getElementById('credit-date').value = today;
   document.getElementById('credit-store-input').value = '';
   document.getElementById('credit-notes').value = '';
-
-  const savedName = localStorage.getItem(CREDIT_NAME_KEY);
-  const sel = document.getElementById('credit-salesperson');
-  if (sel) sel.value = savedName || '';
 
   /* Clear and re-seed items */
   const list = document.getElementById('credit-items-list');
@@ -1164,33 +1154,6 @@ function initCredits() {
   const dateEl  = document.getElementById('credit-date');
   if (dateEl) dateEl.value = today;
 
-  /* Load saved salesperson */
-  const savedName  = localStorage.getItem(CREDIT_NAME_KEY);
-  const nameSelect = document.getElementById('credit-salesperson');
-  if (savedName && nameSelect) nameSelect.value = savedName;
-
-  /* Remember me default (true unless explicitly set to false) */
-  const rememberEl = document.getElementById('credit-remember-me');
-  if (rememberEl) {
-    rememberEl.checked = localStorage.getItem(CREDIT_REMEMBER_KEY) !== 'false';
-    rememberEl.addEventListener('change', () => {
-      localStorage.setItem(CREDIT_REMEMBER_KEY, rememberEl.checked ? 'true' : 'false');
-      if (rememberEl.checked) {
-        const n = document.getElementById('credit-salesperson')?.value;
-        if (n) localStorage.setItem(CREDIT_NAME_KEY, n);
-      }
-    });
-  }
-
-  /* Save name on change */
-  if (nameSelect) {
-    nameSelect.addEventListener('change', () => {
-      if (rememberEl && rememberEl.checked) {
-        localStorage.setItem(CREDIT_NAME_KEY, nameSelect.value);
-      }
-    });
-  }
-
   /* First credit item */
   addCreditItem();
 
@@ -1254,12 +1217,9 @@ function initCredits() {
    10. DONATIONS FEATURE
 ═══════════════════════════════════════════════════════════ */
 
-const DONATION_NAME_KEY        = 'rc_donation_name';
-const DONATION_REMEMBER_KEY    = 'rc_donation_remember';
 const DONATION_LAST_TYPE_KEY   = 'rc_donation_last_type';
 const DONATION_LAST_REASON_KEY = 'rc_donation_last_reason';
 
-const DONATION_KNOWN_NAMES = ['Nick', 'Steve', 'Ian', 'David', 'Syreese', 'Kaleb', 'Tyler', 'Tagen'];
 
 let donationItemCounter  = 0;
 let isDonationSubmitting = false;
@@ -1396,28 +1356,10 @@ function handleDonationSubmit(e) {
   e.preventDefault();
   if (isDonationSubmitting) return;
 
-  const nameSelect = document.getElementById('donation-employee');
-  const otherInput = document.getElementById('donation-employee-other');
   const submitBtn  = document.getElementById('donation-submit-btn');
   const notes      = document.getElementById('donation-notes').value.trim();
-
-  let employee = nameSelect.value;
-  let valid    = true;
-
-  if (!employee) {
-    nameSelect.style.borderColor = 'var(--color-error)';
-    nameSelect.addEventListener('change', () => { nameSelect.style.borderColor = ''; }, { once: true });
-    valid = false;
-  } else if (employee === 'Other') {
-    const otherVal = otherInput.value.trim();
-    if (!otherVal) {
-      otherInput.style.borderColor = 'var(--color-error)';
-      otherInput.addEventListener('input', () => { otherInput.style.borderColor = ''; }, { once: true });
-      valid = false;
-    } else {
-      employee = otherVal;
-    }
-  }
+  const employee   = getName();
+  let valid        = true;
 
   document.querySelectorAll('.donation-item').forEach(itemEl => {
     const id       = itemEl.dataset.id;
@@ -1436,11 +1378,6 @@ function handleDonationSubmit(e) {
   });
 
   if (!valid) return;
-
-  const rememberEl = document.getElementById('donation-remember-me');
-  if (rememberEl && rememberEl.checked) {
-    localStorage.setItem(DONATION_NAME_KEY, employee);
-  }
 
   isDonationSubmitting    = true;
   submitBtn.disabled      = true;
@@ -1486,26 +1423,6 @@ function handleDonationSubmit(e) {
 }
 
 function resetDonationForm() {
-  const nameSelect = document.getElementById('donation-employee');
-  const otherInput = document.getElementById('donation-employee-other');
-  const savedName  = localStorage.getItem(DONATION_NAME_KEY);
-
-  if (savedName) {
-    if (DONATION_KNOWN_NAMES.includes(savedName)) {
-      nameSelect.value = savedName;
-      otherInput.classList.add('hidden');
-      otherInput.value = '';
-    } else {
-      nameSelect.value = 'Other';
-      otherInput.value = savedName;
-      otherInput.classList.remove('hidden');
-    }
-  } else {
-    nameSelect.value = '';
-    otherInput.classList.add('hidden');
-    otherInput.value = '';
-  }
-
   document.getElementById('donation-notes').value = '';
 
   const list = document.getElementById('donation-items-list');
@@ -1521,55 +1438,6 @@ function resetDonationForm() {
 }
 
 function initDonations() {
-  const nameSelect = document.getElementById('donation-employee');
-  const otherInput = document.getElementById('donation-employee-other');
-  const rememberEl = document.getElementById('donation-remember-me');
-
-  /* Restore saved name */
-  const savedName = localStorage.getItem(DONATION_NAME_KEY);
-  if (savedName) {
-    if (DONATION_KNOWN_NAMES.includes(savedName)) {
-      nameSelect.value = savedName;
-    } else {
-      nameSelect.value = 'Other';
-      otherInput.value = savedName;
-      otherInput.classList.remove('hidden');
-    }
-  }
-
-  /* Remember me */
-  if (rememberEl) {
-    rememberEl.checked = localStorage.getItem(DONATION_REMEMBER_KEY) !== 'false';
-    rememberEl.addEventListener('change', () => {
-      localStorage.setItem(DONATION_REMEMBER_KEY, rememberEl.checked ? 'true' : 'false');
-    });
-  }
-
-  /* Name select: show/hide Other input */
-  if (nameSelect) {
-    nameSelect.addEventListener('change', () => {
-      if (nameSelect.value === 'Other') {
-        otherInput.classList.remove('hidden');
-        otherInput.focus();
-      } else {
-        otherInput.classList.add('hidden');
-        otherInput.value = '';
-        if (rememberEl && rememberEl.checked) {
-          localStorage.setItem(DONATION_NAME_KEY, nameSelect.value);
-        }
-      }
-    });
-  }
-
-  /* Other input: save on type */
-  if (otherInput) {
-    otherInput.addEventListener('input', () => {
-      if (rememberEl && rememberEl.checked && otherInput.value.trim()) {
-        localStorage.setItem(DONATION_NAME_KEY, otherInput.value.trim());
-      }
-    });
-  }
-
   /* First item */
   addDonationItem();
 
@@ -1682,6 +1550,7 @@ function renderHistory() {
    12. BOOTSTRAP
 ═══════════════════════════════════════════════════════════ */
 function onAppReady() {
+  initIdentity();
   loadPersistedData();
   initCredits();
   initDonations();
