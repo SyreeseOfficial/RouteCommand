@@ -93,6 +93,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           </span>
           <span class="nav-item__label">History</span>
+          <span class="nav-badge hidden" aria-hidden="true"></span>
         </button>
         <button class="nav-item" data-view="settings">
           <span class="nav-item__icon" aria-hidden="true">
@@ -117,6 +118,8 @@
 
     <!-- MAIN CONTENT -->
     <main class="main-content" role="main">
+
+      <div class="offline-banner hidden" id="offline-banner" role="status">You're offline. Submissions will be saved and sent later.</div>
 
       <!-- RECEIPTS VIEW -->
       <section id="receipts-view" class="view active" aria-label="Receipts">
@@ -450,6 +453,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         </span>
         <span class="bottom-nav__label">History</span>
+        <span class="nav-badge hidden" aria-hidden="true"></span>
       </button>
       <button class="bottom-nav__item" data-view="settings" aria-label="Settings">
         <span class="bottom-nav__icon" aria-hidden="true">

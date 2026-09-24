@@ -2,31 +2,8 @@
 
 Found by reading `index.html`, `app.js`, `style.css`, the Netlify functions, and the `.gs` scripts.
 
-Sections: **UI/UX ideas** (next up), **Later** (parked on purpose), **Completed**.
+Sections: **Later** (parked on purpose), **Completed**.
 Sizes: **S** = under an hour, **M** = a few hours.
-
-## UI/UX ideas
-
-### Data safety
-- **S** Undo for "remove item" on credit and donation lists. Removing an item with typed data is instant, and the autosaved draft forgets it too. Show a toast with Undo for a few seconds.
-
-### Forms and validation
-- **S** Donations: a new item copies the previous item's sell-by date (items in one pile usually share it). Credits: use the same − / + qty stepper as donations.
-
-### Feedback and flow
-- **M** Offline banner ("You're offline. Submissions will be saved and sent later.") and a badge on the History tab for items waiting to send. Today the only sign is inside History.
-- **M** Sticky submit button on long credit and donation forms, above the bottom nav, so you don't scroll past a long list to submit.
-
-### History
-
-### Settings and onboarding
-- **S** Passcode screen: add a Show/Hide toggle. The field is masked, so a typo on a phone keyboard is easy.
-- **S** Theme: make it Auto / Light / Dark. The toggle stops following the system setting after the first flip.
-
-### Accessibility and polish
-- **S** Contrast in dark mode: history type labels are `#841b2a` (1.9:1), `#625636` (2.5:1) and `#2a6084` (2.7:1) on the card, and the gold "Take Photo" text is 2.5:1. WCAG AA needs 4.5:1. Use lighter variants in dark mode.
-- **S** Touch targets: the remove-item button is 36px. Make it 44px like the other controls.
-- **S** Give the submit error text `role="alert"` so screen readers announce a failed submit.
 
 ## Later
 
@@ -48,8 +25,14 @@ Parked on purpose. Not planned for now.
 - No duplicate protection: if GAS saves but the response times out, retrying (or the offline queue) creates a duplicate row. Add a client-generated submission ID and skip repeats in the `.gs` files.
 
 ### Form UX
+- **S** Undo for "remove item" on credit and donation lists. Removing an item with typed data is instant, and the autosaved draft forgets it too. Show a toast with Undo for a few seconds.
+- **M** Sticky submit button on long credit and donation forms, above the bottom nav, so you don't scroll past a long list to submit.
 - Credits should remember the last reason and type, like donations already do.
 - "Duplicate last item" button on credit and donation lists.
+
+### Settings and onboarding
+- **S** Passcode screen: add a Show/Hide toggle. The field is masked, so a typo on a phone keyboard is easy.
+- **S** Theme: make it Auto / Light / Dark. The toggle stops following the system setting after the first flip.
 
 ### Code cleanup
 - Three near-identical Netlify functions. Merge into one function that takes a route and reads the target URL from an env var.
@@ -112,3 +95,8 @@ Parked on purpose. Not planned for now.
 - [x] Group rows by day (Today, Yesterday), add "Clear history", and add a Retry button on failed rows (needs the payload stored with the row).
 - [x] Tap a history row to expand it and see what was submitted (items, quantities). Rows now only show a one-line label.
 - [x] Install: hide the install button when the app is already installed (`display-mode: standalone`), and drop the "(Mobile)" label. Move the "Save to Your Phone" guide from the bottom of Credits into Settings > App Setup, next to the install button. Also add a concise tooltip on user first login mentioning they can install the app to their phone by visiting the settings page or something like that.
+- [x] Donations: a new item copies the previous item's sell-by date (items in one pile usually share it). Credits: use the same − / + qty stepper as donations.
+- [x] Offline banner ("You're offline. Submissions will be saved and sent later.") and a badge on the History tab for items waiting to send. Today the only sign is inside History.
+- [x] Contrast in dark mode: history type labels are `#841b2a` (1.9:1), `#625636` (2.5:1) and `#2a6084` (2.7:1) on the card, and the gold "Take Photo" text is 2.5:1. WCAG AA needs 4.5:1. Use lighter variants in dark mode.
+- [x] Touch targets: the remove-item button is 36px. Make it 44px like the other controls.
+- [x] Give the submit error text `role="alert"` so screen readers announce a failed submit.

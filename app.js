@@ -303,7 +303,7 @@ function markInvalid(el, message) {
   el.setAttribute('aria-invalid', 'true');
 
   /* Put the message after the whole control, and after the row when two fields share one */
-  let anchor = el.closest('.store-search-wrap, .input-prefix') || el;
+  let anchor = el.closest('.store-search-wrap, .input-prefix, .qty-stepper') || el;
   if (anchor.parentElement.matches('.credit-item__row')) anchor = anchor.parentElement;
   const err = document.createElement('p');
   err.className = 'field-error';
@@ -352,10 +352,22 @@ const isNetworkError = (err) => err.name === 'TypeError' || err.name === 'AbortE
 const QUEUE_KEY = 'rc_queue';
 const loadQueue = () => { try { return JSON.parse(localStorage.getItem(QUEUE_KEY)) || []; } catch { return []; } };
 
+/* Badge on the History tab: how many submissions are waiting to send */
+function updateQueueBadge() {
+  const n = loadQueue().length;
+  document.querySelectorAll('[data-view="history"]').forEach(nav => {
+    const badge = nav.querySelector('.nav-badge');
+    badge.textContent = n;
+    badge.classList.toggle('hidden', !n);
+    if (nav.hasAttribute('aria-label')) nav.setAttribute('aria-label', n ? `History, ${n} waiting to send` : 'History');
+  });
+}
+
 /* Returns false if the item couldn't be stored (e.g. storage full), so the caller can show the error instead */
 function enqueue(item) {
   try {
     localStorage.setItem(QUEUE_KEY, JSON.stringify([...loadQueue(), item]));
+    updateQueueBadge();
     return true;
   } catch { return false; }
 }
@@ -375,10 +387,15 @@ async function flushQueue() {
     }
     setHistoryStatus(item.historyId, status, status === 'failed' ? { endpoint: item.endpoint, payload: item.payload } : undefined);
     localStorage.setItem(QUEUE_KEY, JSON.stringify(loadQueue().filter(q => q.historyId !== item.historyId)));
+    updateQueueBadge();
   }
   flushing = false;
 }
 window.addEventListener('online', flushQueue);
+
+function updateOnlineState() { $('offline-banner').classList.toggle('hidden', navigator.onLine); }
+window.addEventListener('online', updateOnlineState);
+window.addEventListener('offline', updateOnlineState);
 setInterval(flushQueue, 30000);
 
 /* Save `snapshot()` to localStorage on every edit, so a reload doesn't lose a long list */
@@ -400,6 +417,7 @@ async function submitForm({ draftKey, endpoint, payload, btn, label, type, histL
   if (!errEl) {
     errEl = document.createElement('p');
     errEl.className = 'submit-error';
+    errEl.setAttribute('role', 'alert');
     btn.insertAdjacentElement('afterend', errEl);
   }
   errEl.textContent = '';
@@ -507,8 +525,18 @@ function createItemList({ listId, countId, buildHTML, onType }) {
       if (onType) onType(typeBtn.dataset.typeBtn);
       return;
     }
+    const step = e.target.closest('.qty-stepper__btn');
+    if (step) {
+      const qty = step.closest('.qty-stepper').querySelector('[data-fname="qty"]');
+      qty.value = Math.max(1, (parseInt(qty.value, 10) || 1) + parseInt(step.dataset.dir, 10));
+      return;
+    }
     const rm = e.target.closest('[data-remove]');
     if (rm) { rm.closest('[data-id]').remove(); refresh(); }
+  });
+
+  el.addEventListener('change', (e) => {
+    if (e.target.matches('[data-fname="qty"]') && !(parseInt(e.target.value, 10) >= 1)) e.target.value = 1;
   });
 
   document.addEventListener('click', (e) => {
@@ -802,7 +830,11 @@ function createCreditItemHTML(id) {
       <div data-fields-type="retail">
         <div class="credit-item__row">
           <input type="text" class="form-input" placeholder="UPC / Item #" inputmode="numeric" autocomplete="off" data-fname="upc" />
-          <input type="number" class="form-input" placeholder="Qty" inputmode="numeric" min="1" data-fname="qty" />
+          <div class="qty-stepper">
+            <button type="button" class="qty-stepper__btn" data-dir="-1" aria-label="Decrease quantity">−</button>
+            <input type="number" class="qty-stepper__input" value="1" min="1" inputmode="numeric" aria-label="Quantity" data-fname="qty" />
+            <button type="button" class="qty-stepper__btn" data-dir="1" aria-label="Increase quantity">+</button>
+          </div>
         </div>
       </div>
       <div class="hidden" data-fields-type="chub">
@@ -1113,22 +1145,16 @@ function initDonations() {
     items: donationList.serialize(),
   }));
 
-  donationList.el.addEventListener('click', (e) => {
-    const btn = e.target.closest('.qty-stepper__btn');
-    if (!btn) return;
-    const qty = btn.closest('.qty-stepper').querySelector('[data-fname="qty"]');
-    qty.value = Math.max(1, (parseInt(qty.value, 10) || 1) + parseInt(btn.dataset.dir, 10));
-  });
-
   donationList.el.addEventListener('change', (e) => {
-    if (e.target.matches('[data-fname="reason"]')) {
-      localStorage.setItem(DONATION_LAST_REASON_KEY, e.target.value);
-    } else if (e.target.matches('[data-fname="qty"]') && !(parseInt(e.target.value, 10) >= 1)) {
-      e.target.value = 1;
-    }
+    if (e.target.matches('[data-fname="reason"]')) localStorage.setItem(DONATION_LAST_REASON_KEY, e.target.value);
   });
 
-  $('add-donation-item-btn').addEventListener('click', donationList.add);
+  /* A new item starts with the previous item's sell-by date: one pile usually shares it */
+  $('add-donation-item-btn').addEventListener('click', () => {
+    const prev = donationList.el.lastElementChild?.querySelector('[data-fname="sellby"]').value;
+    donationList.add();
+    if (prev) donationList.el.lastElementChild.querySelector('[data-fname="sellby"]').value = prev;
+  });
   $('donation-form').addEventListener('submit', handleDonationSubmit);
   $('donation-submit-another-btn').addEventListener('click', () => {
     localStorage.removeItem(DONATION_DRAFT_KEY);
@@ -1183,6 +1209,8 @@ function retryHistoryRow(id) {
   if (!entry || !entry.retry || !enqueue({ ...entry.retry, historyId: id })) return;
   setHistoryStatus(id, 'queued');
   flushQueue();
+  updateQueueBadge();
+  updateOnlineState();
   initBookmarkGuide();
 }
 

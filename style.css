@@ -21,6 +21,13 @@
 
   /* Interactive */
   --color-focus:     #841b2a;
+
+  /* Text-safe variants (WCAG AA, 4.5:1) of the brand colors, for text on the dark surfaces */
+  --color-gold-text:    #b8a06a;
+  --color-red-text:     #e0707f;
+  --color-blue-text:    #6fb0e0;
+  --color-error-text:   #e06666;
+  --color-success-text: #2d9e5f;
   --color-success:   #2d9e5f;
   --color-error:     #cf4444;
 
@@ -51,6 +58,12 @@ html.light {
   --color-subtext: #555555;
   --color-muted:   #999999;
   --shadow-card:   0 4px 24px rgba(0,0,0,0.1);
+
+  --color-gold-text:    #625636;
+  --color-red-text:     #841b2a;
+  --color-blue-text:    #2a6084;
+  --color-error-text:   #b32d2d;
+  --color-success-text: #1a7040;
 }
 
 /* ── 2. GLOBAL RESET ───────────────────────────────────────── */
@@ -172,7 +185,7 @@ img, svg { display: block; }
 
 .gatekeeper__error {
   font-size: 0.8125rem;
-  color: var(--color-error);
+  color: var(--color-error-text);
   min-height: 1.2em;
   text-align: center;
 }
@@ -266,7 +279,7 @@ img, svg { display: block; }
 
 .nav-item.active {
   background: rgba(132, 27, 42, 0.15);
-  color: var(--color-red);
+  color: var(--color-red-text);
 }
 
 .nav-item__icon {
@@ -468,7 +481,7 @@ img, svg { display: block; }
   background: transparent;
   border: 1px dashed var(--color-gold);
   border-radius: var(--radius-sm);
-  color: var(--color-gold);
+  color: var(--color-gold-text);
   font-size: 0.9375rem;
   font-weight: 500;
   cursor: pointer;
@@ -478,7 +491,7 @@ img, svg { display: block; }
 .upload-btn:hover {
   background: rgba(98, 86, 54, 0.12);
   border-color: var(--color-gold-light);
-  color: var(--color-gold-light);
+  color: var(--color-gold-text);
 }
 
 .upload-btn:active {
@@ -545,7 +558,7 @@ img, svg { display: block; }
 
 .btn--outline:hover {
   border-color: var(--color-red);
-  color: var(--color-red);
+  color: var(--color-red-text);
   transform: scale(1.02);
 }
 
@@ -999,7 +1012,7 @@ img, svg { display: block; }
 
 .bottom-nav__item:hover { color: var(--color-text); }
 
-.bottom-nav__item.active { color: var(--color-red); }
+.bottom-nav__item.active { color: var(--color-red-text); }
 
 .bottom-nav__item:active { transform: scale(0.92); }
 
@@ -1156,7 +1169,7 @@ img, svg { display: block; }
 .modal__title {
   font-size: 1.125rem;
   font-weight: 700;
-  color: var(--color-gold-light);
+  color: var(--color-gold-text);
 }
 
 .modal__close {
@@ -1202,7 +1215,7 @@ img, svg { display: block; }
   border-radius: 50%;
   background: rgba(98,86,54,0.2);
   border: 1px solid var(--color-gold);
-  color: var(--color-gold-light);
+  color: var(--color-gold-text);
   font-size: 0.8125rem;
   font-weight: 700;
 }
@@ -1630,9 +1643,9 @@ img, svg { display: block; }
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
-  min-width: 36px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
   border-radius: var(--radius-sm);
   color: var(--color-subtext);
   transition: color var(--transition), background var(--transition);
@@ -1646,13 +1659,13 @@ img, svg { display: block; }
 }
 
 .credit-item__remove:hover {
-  color: var(--color-error);
+  color: var(--color-error-text);
   background: rgba(207,68,68,0.1);
 }
 
 .credit-item__row {
   display: grid;
-  grid-template-columns: 1fr 90px;
+  grid-template-columns: 1fr 132px;
   gap: 0.5rem;
 }
 
@@ -1714,7 +1727,7 @@ img, svg { display: block; }
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: var(--color-gold-light);
+  color: var(--color-gold-text);
   flex-shrink: 0;
 }
 
@@ -1927,7 +1940,7 @@ details[open] > .bookmark-guide__title::after { transform: rotate(180deg); }
 @keyframes spin { to { transform: rotate(360deg); } }
 
 .submit-error {
-  color: var(--color-error);
+  color: var(--color-error-text);
   font-size: 0.875rem;
   margin-top: 0.5rem;
   text-align: center;
@@ -1938,10 +1951,10 @@ details[open] > .bookmark-guide__title::after { transform: rotate(180deg); }
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: var(--color-success);
+  color: var(--color-success-text);
 }
-.history-status--sending { color: var(--color-gold-light); }
-.history-status--failed  { color: var(--color-error); }
+.history-status--sending { color: var(--color-gold-text); }
+.history-status--failed  { color: var(--color-error-text); }
 
 /* ── Accessibility ─────────────────────────────────────────── */
 :focus-visible {
@@ -1970,14 +1983,14 @@ details[open] > .bookmark-guide__title::after { transform: rotate(180deg); }
 .history-card { gap: 0.25rem; }
 .history-label { font-size: 0.9rem; }
 .history-date { margin: 0; font-size: 0.75rem; }
-.history-type--receipt  { color: #625636; }
-.history-type--credit   { color: #841b2a; }
-.history-type--donation { color: #2a6084; }
-.history-status--queued { color: var(--color-gold-light); }
+.history-type--receipt  { color: var(--color-gold-text); }
+.history-type--credit   { color: var(--color-red-text); }
+.history-type--donation { color: var(--color-blue-text); }
+.history-status--queued { color: var(--color-gold-text); }
 
 /* ── Inline errors, amount prefix, history rows, install tip ── */
 .field-error {
-  color: var(--color-error);
+  color: var(--color-error-text);
   font-size: 0.8125rem;
   margin-top: 0.375rem;
 }
@@ -2037,5 +2050,41 @@ details.history-card[open] .history-date::after { content: ' ▴'; }
   font-size: 0.875rem;
 }
 .tip p { flex: 1; line-height: 1.5; }
-.tip__link { color: var(--color-gold-light); font-weight: 600; text-decoration: underline; }
+.tip__link { color: var(--color-gold-text); font-weight: 600; text-decoration: underline; }
 .tip__close { font-size: 1.25rem; line-height: 1; color: var(--color-subtext); min-width: 32px; min-height: 32px; }
+
+/* ── Offline banner and History badge ──────────────────────── */
+.offline-banner {
+  position: sticky;
+  top: var(--mobile-header-h);
+  z-index: 90;
+  margin-bottom: 1rem;
+  padding: 0.625rem 1rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-gold-light);
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+}
+@media (min-width: 1024px) {
+  .offline-banner { top: 0; }
+}
+
+.nav-badge {
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: var(--color-red);
+  color: #fff;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+}
+.nav-item .nav-badge { margin-left: auto; }
+.bottom-nav__item { position: relative; }
+.bottom-nav__item .nav-badge {
+  position: absolute;
+  top: 2px;
+  left: calc(50% + 6px);
+}
