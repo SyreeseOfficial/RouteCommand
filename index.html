@@ -152,10 +152,10 @@
 
             <div class="form-group">
               <label class="form-label" for="expense-amount">Expense Amount</label>
-              <input class="form-input" type="number" id="expense-amount" name="expense-amount" placeholder="0.00" inputmode="decimal" step="0.01" min="0" required />
+              <div class="input-prefix"><span aria-hidden="true">$</span><input class="form-input" type="number" id="expense-amount" name="expense-amount" placeholder="0.00" inputmode="decimal" step="0.01" min="0" required /></div>
             </div>
 
-            <div class="form-group">
+            <div class="form-group hidden" id="vehicle-group">
               <label class="form-label" for="vehicle-tag">Vehicle Tag</label>
               <select class="form-select" id="vehicle-tag" name="vehicle-tag">
                 <option value="N/A" selected>N/A</option>
@@ -284,30 +284,6 @@
           </div>
         </div>
 
-        <!-- BOOKMARK GUIDE -->
-        <details class="form-card form-card--spaced" id="bookmark-guide-card">
-          <summary class="bookmark-guide__title">Save to Your Phone</summary>
-          <p class="bookmark-guide__sub">Add Route Command to your home screen or bookmarks for one-tap access — no typing the URL every time.</p>
-
-          <div class="form-group">
-            <label class="form-label">Your Device</label>
-            <div class="pill-toggle" id="bookmark-os-toggle">
-              <button type="button" class="pill-toggle__btn pill-toggle__btn--active" data-os="ios">iPhone / iOS</button>
-              <button type="button" class="pill-toggle__btn" data-os="android">Android</button>
-            </div>
-          </div>
-
-          <div class="form-group form-group--flush">
-            <label class="form-label">What to Add</label>
-            <div class="pill-toggle" id="bookmark-type-toggle">
-              <button type="button" class="pill-toggle__btn pill-toggle__btn--active" data-btype="homescreen">Home Screen Icon</button>
-              <button type="button" class="pill-toggle__btn" data-btype="bookmark">Browser Bookmark</button>
-            </div>
-          </div>
-
-          <div class="bookmark-instructions" id="bookmark-instructions"></div>
-        </details>
-
       </section>
 
       <!-- DONATIONS VIEW -->
@@ -364,6 +340,7 @@
           <p class="view__sub">Recent submissions from this device.</p>
         </div>
         <div id="submission-history"></div>
+        <button type="button" class="btn btn--outline btn--full btn--add-item hidden" id="clear-history-btn">Clear history</button>
       </section>
 
       <!-- SETTINGS VIEW -->
@@ -394,13 +371,35 @@
         </div>
 
         <!-- APP SETUP -->
-        <div class="settings-section">
+        <div class="settings-section" id="app-setup-section">
           <h3 class="settings-section__title">App Setup</h3>
           <div class="settings-card">
             <span class="settings-card__label">Installation</span>
             <p class="settings-card__desc">Add Route Command to your device's home screen for fast, offline-ready access.</p>
-            <button class="btn btn--gold btn--full" id="install-pwa-btn">Install to Home Screen (Mobile)</button>
+            <button class="btn btn--gold btn--full" id="install-pwa-btn">Install to Home Screen</button>
           </div>
+        <details class="form-card form-card--spaced" id="bookmark-guide-card">
+          <summary class="bookmark-guide__title">Save to Your Phone</summary>
+          <p class="bookmark-guide__sub">Add Route Command to your home screen or bookmarks for one-tap access — no typing the URL every time.</p>
+
+          <div class="form-group">
+            <label class="form-label">Your Device</label>
+            <div class="pill-toggle" id="bookmark-os-toggle">
+              <button type="button" class="pill-toggle__btn pill-toggle__btn--active" data-os="ios">iPhone / iOS</button>
+              <button type="button" class="pill-toggle__btn" data-os="android">Android</button>
+            </div>
+          </div>
+
+          <div class="form-group form-group--flush">
+            <label class="form-label">What to Add</label>
+            <div class="pill-toggle" id="bookmark-type-toggle">
+              <button type="button" class="pill-toggle__btn pill-toggle__btn--active" data-btype="homescreen">Home Screen Icon</button>
+              <button type="button" class="pill-toggle__btn" data-btype="bookmark">Browser Bookmark</button>
+            </div>
+          </div>
+
+          <div class="bookmark-instructions" id="bookmark-instructions"></div>
+        </details>
         </div>
 
         <!-- APPEARANCE -->

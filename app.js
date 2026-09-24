@@ -193,13 +193,14 @@ async function initIdentity() {
   document.querySelectorAll('[data-recipient]').forEach(el => { el.textContent = RECIPIENT; });
 
   const sync = () => { settingsSel.value = getName(); };
-  if (NAMES.includes(getName())) sync(); else gate.classList.remove('hidden');
+  if (NAMES.includes(getName())) { sync(); showInstallTip(); } else gate.classList.remove('hidden');
 
   document.getElementById('name-gate-submit').addEventListener('click', () => {
     if (!gateSel.value) return;
     localStorage.setItem(NAME_KEY, gateSel.value);
     sync();
     gate.classList.add('hidden');
+    showInstallTip();
   });
   settingsSel.addEventListener('change', () => localStorage.setItem(NAME_KEY, settingsSel.value));
 }
@@ -283,11 +284,46 @@ const fmtDate = (d) => d ? new Date(d + 'T12:00:00').toLocaleDateString('en-US',
 const today = () => new Date().toLocaleDateString('en-CA');
 const plural = (n, word) => `${n} ${word}${n !== 1 ? 's' : ''}`;
 
-/* Red border until the user edits the field. Returns false so callers can do `valid = markInvalid(el)`. */
-function markInvalid(el) {
+/* Inline field errors: red border, message under the field, aria-invalid. Cleared when the user edits the field.
+   Returns false so callers can do `valid = markInvalid(el, 'message')`. */
+let errorSeq = 0;
+
+function clearInvalid(el) {
+  el.classList.remove('is-invalid');
+  el.removeAttribute('aria-invalid');
+  el.removeAttribute('aria-describedby');
+  if (el._err) el._err.remove();
+  if (el._onEdit) ['input', 'change'].forEach(ev => el.removeEventListener(ev, el._onEdit));
+  el._err = el._onEdit = null;
+}
+
+function markInvalid(el, message) {
+  clearInvalid(el);
   el.classList.add('is-invalid');
-  ['input', 'change'].forEach(ev => el.addEventListener(ev, () => el.classList.remove('is-invalid'), { once: true }));
+  el.setAttribute('aria-invalid', 'true');
+
+  /* Put the message after the whole control, and after the row when two fields share one */
+  let anchor = el.closest('.store-search-wrap, .input-prefix') || el;
+  if (anchor.parentElement.matches('.credit-item__row')) anchor = anchor.parentElement;
+  const err = document.createElement('p');
+  err.className = 'field-error';
+  err.id = `field-error-${++errorSeq}`;
+  err.textContent = message;
+  anchor.insertAdjacentElement('afterend', err);
+  el.setAttribute('aria-describedby', err.id);
+
+  el._err = err;
+  el._onEdit = () => clearInvalid(el);
+  ['input', 'change'].forEach(ev => el.addEventListener(ev, el._onEdit));
   return false;
+}
+
+/* After a failed validation, take the user to the first problem (it may be off-screen on a phone) */
+function focusFirstInvalid(formEl) {
+  const el = formEl.querySelector('.is-invalid');
+  if (!el) return;
+  el.scrollIntoView({ block: 'center' });
+  el.focus({ preventScroll: true });
 }
 
 /* POST JSON with a timeout, so a stalled server call can't hang the button forever */
@@ -337,7 +373,7 @@ async function flushQueue() {
       if (isNetworkError(err)) break;   // still offline; try again on the next tick
       status = 'failed';                // any other reply ends the item: a retry would just fail again
     }
-    setHistoryStatus(item.historyId, status);
+    setHistoryStatus(item.historyId, status, status === 'failed' ? { endpoint: item.endpoint, payload: item.payload } : undefined);
     localStorage.setItem(QUEUE_KEY, JSON.stringify(loadQueue().filter(q => q.historyId !== item.historyId)));
   }
   flushing = false;
@@ -379,9 +415,10 @@ async function submitForm({ draftKey, endpoint, payload, btn, label, type, histL
     summaryEl.innerHTML = summaryHTML;
     formEl.classList.add('hidden');
     successEl.classList.remove('hidden');
+    successEl.scrollIntoView({ block: 'center' });
   };
 
-  const historyId = saveToHistory({ type, label: histLabel, status: 'sending' });
+  const historyId = saveToHistory({ type, label: histLabel, status: 'sending', summary: summaryHTML });
   try {
     const data = await postJSON(endpoint, payload);
     if (data.status !== 'success') throw new Error(data.message || 'Server error');
@@ -395,7 +432,7 @@ async function submitForm({ draftKey, endpoint, payload, btn, label, type, histL
       if (draftKey) localStorage.removeItem(draftKey);
       showSuccess(true);
     } else {
-      setHistoryStatus(historyId, 'failed');
+      setHistoryStatus(historyId, 'failed', { endpoint, payload });
       errEl.textContent = isNetworkError(err)
         ? 'Network error. Please check your connection and try again.'
         : err.message;
@@ -488,6 +525,13 @@ const REMOVE_BTN_HTML = `
     </svg>
   </button>`;
 
+/* Vehicle Tag only matters for these categories */
+const VEHICLE_CATEGORIES = ['Fuel', 'Vehicle Maintenance', 'Tolls / Parking'];
+function syncVehicleField() {
+  $('vehicle-group').classList.toggle('hidden', !VEHICLE_CATEGORIES.includes($('expense-category').value));
+}
+$('expense-category').addEventListener('change', syncVehicleField);
+
 /* ═══════════════════════════════════════════════════════════
    6. EXPENSE FORM SUBMISSION
 ═══════════════════════════════════════════════════════════ */
@@ -500,21 +544,20 @@ if (expenseForm) {
     const date     = document.getElementById('receipt-date').value;
     const category = document.getElementById('expense-category').value;
     const amount   = document.getElementById('expense-amount').value;
-    const vehicle  = document.getElementById('vehicle-tag').value;
+    /* The vehicle field is hidden for categories that don't involve a vehicle */
+    const vehicle  = $('vehicle-group').classList.contains('hidden') ? 'N/A' : $('vehicle-tag').value;
     const notes    = document.getElementById('notes').value;
 
-    if (!name || !date || !category || !(parseFloat(amount) > 0)) {
-      /* Basic validation — highlight empty required fields */
-      [
-        { id: 'receipt-date',     val: date     },
-        { id: 'expense-category', val: category },
-        { id: 'expense-amount',   val: parseFloat(amount) > 0 },
-      ].forEach(({ id, val }) => {
-        const el = document.getElementById(id);
-        if (el && !val) markInvalid(el);
-      });
-      return;
-    }
+    let valid = true;
+    if (!date)                     valid = markInvalid($('receipt-date'), 'Enter the date on the receipt');
+    if (!category)                 valid = markInvalid($('expense-category'), 'Choose a category');
+    if (!(parseFloat(amount) > 0)) valid = markInvalid($('expense-amount'), 'Enter an amount above $0');
+    if (!name || !valid) { focusFirstInvalid(expenseForm); return; }
+
+    /* Unusual dates are usually typos */
+    const ageDays = (Date.parse(today()) - Date.parse(date)) / 864e5;
+    if (ageDays < 0  && !confirm('This receipt is dated in the future. Submit anyway?')) return;
+    if (ageDays > 60 && !confirm(`This receipt is ${Math.round(ageDays)} days old. Submit anyway?`)) return;
 
     if (!compressedImageData && !confirm('No receipt photo attached. Submit anyway?')) return;
 
@@ -550,6 +593,7 @@ if (submitAnotherBtn) {
     compressedImageData = null;
 
     showPhotoPreview(null);
+    syncVehicleField();
 
     successState.classList.add('hidden');
     expenseForm.classList.remove('hidden');
@@ -583,12 +627,36 @@ function closePwaModal() {
 }
 
 if (installPwaBtn)   installPwaBtn.addEventListener('click', openPwaModal);
+
+/* Already installed: the install help has nothing left to offer */
+const isStandalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+if (isStandalone()) $('app-setup-section').classList.add('hidden');
+
+/* One-time hint for phone users, shown the first time they get into the app */
+const INSTALL_TIP_KEY = 'rc_install_tip_seen';
+function showInstallTip() {
+  if (isStandalone() || !matchMedia('(pointer: coarse)').matches || localStorage.getItem(INSTALL_TIP_KEY)) return;
+  localStorage.setItem(INSTALL_TIP_KEY, '1');
+
+  const tip = document.createElement('div');
+  tip.className = 'tip';
+  tip.setAttribute('role', 'status');
+  tip.innerHTML = `<p>Tip: install Route Command on your phone. Open <button type="button" class="tip__link">Settings → App Setup</button>.</p>
+    <button type="button" class="tip__close" aria-label="Dismiss">×</button>`;
+  tip.querySelector('.tip__link').addEventListener('click', () => { navigateTo('settings'); tip.remove(); });
+  tip.querySelector('.tip__close').addEventListener('click', () => tip.remove());
+  document.body.appendChild(tip);
+}
 if (pwaModalOverlay) pwaModalOverlay.addEventListener('click', closePwaModal);
 if (pwaModalClose)   pwaModalClose.addEventListener('click', closePwaModal);
 
 if (resetBtn) {
   resetBtn.addEventListener('click', () => {
-    if (!confirm('Reset Route Command? This will clear all saved data and return to the login screen.')) return;
+    const unsent = loadQueue().length;
+    const warning = unsent
+      ? `${plural(unsent, 'submission')} ${unsent === 1 ? "hasn't" : "haven't"} sent yet and will be lost. Reset anyway?`
+      : 'Reset Route Command? This will clear all saved data and return to the login screen.';
+    if (!confirm(warning)) return;
     localStorage.clear();
     location.reload();
   });
@@ -676,7 +744,7 @@ function hideSuggestions(box) {
 
 function pickSuggestion(input, box, text) {
   input.value = text;
-  input.classList.remove('is-invalid');
+  clearInvalid(input);
   hideSuggestions(box);
   input.dispatchEvent(new Event('change', { bubbles: true }));   // lets draft autosave see keyboard picks
 }
@@ -767,8 +835,8 @@ function collectCreditItems() {
     const f      = (n) => itemEl.querySelector(`[data-fname="${n}"]`);
     const prod   = f(retail ? 'upc' : 'name');
     const qty    = f(retail ? 'qty' : 'weight');
-    if (!prod.value.trim()) valid = markInvalid(prod);
-    if (!(parseFloat(qty.value) > 0)) valid = markInvalid(qty);
+    if (!prod.value.trim()) valid = markInvalid(prod, retail ? 'Enter a UPC or item number' : 'Search for an item');
+    if (!(parseFloat(qty.value) > 0)) valid = markInvalid(qty, retail ? 'Enter a quantity' : 'Enter the weight in lbs');
     return {
       type:    retail ? 'Retail' : 'Chub / Deli',
       product: prod.value.trim(),
@@ -795,10 +863,10 @@ function handleCreditSubmit(e) {
   const dateEl     = $('credit-date');
   const storeInput = $('credit-store-input');
   let valid = true;
-  if (!dateEl.value) valid = markInvalid(dateEl);
-  if (!storeInput.value.trim()) valid = markInvalid(storeInput);
+  if (!dateEl.value) valid = markInvalid(dateEl, 'Pick a date');
+  if (!storeInput.value.trim()) valid = markInvalid(storeInput, 'Choose or type a store');
   const items = collectCreditItems();
-  if (!valid || !items) return;
+  if (!valid || !items) { focusFirstInvalid($('credit-form')); return; }
 
   const store = storeInput.value.trim();
   const date  = dateEl.value;
@@ -921,7 +989,6 @@ function initCredits() {
   $('credit-submit-another-btn').addEventListener('click', resetCreditForm);
 
   initStoreSearch();
-  initBookmarkGuide();
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -982,8 +1049,8 @@ function collectDonationItems() {
     const type   = itemEl.querySelector('.pill-toggle__btn--active')?.dataset.typeBtn || 'chub';
     const raw    = f('name').value.trim();
     const space  = raw.indexOf(' ');
-    if (!raw) valid = markInvalid(f('name'));
-    if (!f('sellby').value) valid = markInvalid(f('sellby'));
+    if (!raw) valid = markInvalid(f('name'), 'Search for an item');
+    if (!f('sellby').value) valid = markInvalid(f('sellby'), 'Pick a sell-by date');
     return {
       type:   type === 'chub' ? 'Chub' : 'Retail',
       upc:    space > -1 ? raw.slice(0, space) : '',
@@ -1009,7 +1076,7 @@ function buildDonationSuccessSummary(items) {
 function handleDonationSubmit(e) {
   e.preventDefault();
   const items = collectDonationItems();
-  if (!items) return;
+  if (!items) { focusFirstInvalid($('donation-form')); return; }
 
   const employee = getName();
   submitForm({
@@ -1076,6 +1143,17 @@ function initDonations() {
    11. SUBMISSION HISTORY
 ═══════════════════════════════════════════════════════════ */
 const loadHistory = () => JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+const openHistoryRows = new Set();   // rows the user expanded; survives re-renders
+
+function saveHistory(history) {
+  try {
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+  } catch {
+    /* Storage full: keep the rows but drop the (large) retry payloads */
+    try { localStorage.setItem(HISTORY_KEY, JSON.stringify(history.map(({ retry, ...h }) => h))); } catch { /* give up quietly */ }
+  }
+  renderHistory();
+}
 
 /* Returns the new entry's id so the caller can update its status later. */
 function saveToHistory(entry) {
@@ -1084,40 +1162,81 @@ function saveToHistory(entry) {
   const history = loadHistory().filter(h => !(h.status === 'failed' && h.type === entry.type && h.label === entry.label));
   history.unshift({ ...entry, id, timestamp: new Date().toISOString() });
   history.length = Math.min(history.length, 15);
-  localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
-  renderHistory();
+  saveHistory(history);
   return id;
 }
 
-function setHistoryStatus(id, status) {
+/* `retry` ({endpoint, payload}) is kept on failed rows so they can be sent again */
+function setHistoryStatus(id, status, retry) {
   const history = loadHistory();
   const entry = history.find(h => h.id === id);
-  if (entry) entry.status = status;
-  localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
-  renderHistory();
+  if (entry) {
+    entry.status = status;
+    if (retry) entry.retry = retry; else delete entry.retry;
+  }
+  saveHistory(history);
+}
+
+/* Failed rows go back through the offline queue, so they also wait for a connection */
+function retryHistoryRow(id) {
+  const entry = loadHistory().find(h => h.id === id);
+  if (!entry || !entry.retry || !enqueue({ ...entry.retry, historyId: id })) return;
+  setHistoryStatus(id, 'queued');
+  flushQueue();
+  initBookmarkGuide();
+}
+
+function dayLabel(iso) {
+  const day = new Date(iso).toLocaleDateString('en-CA');
+  if (day === today()) return 'Today';
+  if (day === new Date(Date.now() - 864e5).toLocaleDateString('en-CA')) return 'Yesterday';
+  return new Date(iso).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 }
 
 function renderHistory() {
   if (!submissionHistoryEl) return;
   const history = loadHistory();
+  $('clear-history-btn').classList.toggle('hidden', !history.length);
   if (!history.length) {
     submissionHistoryEl.innerHTML = '<p class="settings-hint">No submissions yet on this device.</p>';
     return;
   }
+  let lastDay = '';
   submissionHistoryEl.innerHTML = history.map(entry => {
-    const date = new Date(entry.timestamp).toLocaleDateString('en-US', {
-      month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit',
-    });
+    const day    = dayLabel(entry.timestamp);
+    const time   = new Date(entry.timestamp).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
     const status = entry.status || 'saved';   // rows from before statuses existed were all saved
-    return `
-      <div class="settings-card history-card">
+    const heading = day !== lastDay ? `<h4 class="history-day">${esc(day)}</h4>` : '';
+    lastDay = day;
+
+    const head = `
         <span class="settings-card__label history-type history-type--${esc(entry.type.toLowerCase())}">${esc(entry.type)}
           <span class="history-status history-status--${status}">${status}</span></span>
         <span class="settings-card__value history-label">${esc(entry.label)}</span>
-        <span class="settings-hint history-date">${date}</span>
-      </div>`;
+        <span class="settings-hint history-date">${time}</span>`;
+    const retry = entry.retry ? `<button type="button" class="btn btn--outline history-retry" data-retry="${entry.id}">Retry</button>` : '';
+
+    /* Rows saved before details were stored have nothing to expand */
+    if (!entry.summary) return `${heading}<div class="settings-card history-card">${head}${retry}</div>`;
+    const open = openHistoryRows.has(String(entry.id)) ? ' open' : '';
+    return `${heading}<details class="settings-card history-card" data-id="${entry.id}"${open}>
+        <summary>${head}</summary>
+        <div class="history-body">${entry.summary}</div>${retry}
+      </details>`;
   }).join('');
 }
+
+submissionHistoryEl.addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-retry]');
+  if (btn) retryHistoryRow(Number(btn.dataset.retry));
+});
+submissionHistoryEl.addEventListener('toggle', (e) => {
+  const row = e.target.closest('details[data-id]');
+  if (row) openHistoryRows[row.open ? 'add' : 'delete'](row.dataset.id);
+}, true);
+$('clear-history-btn').addEventListener('click', () => {
+  if (confirm('Clear submission history on this device?')) saveHistory([]);
+});
 
 /* ═══════════════════════════════════════════════════════════
    12. BOOTSTRAP

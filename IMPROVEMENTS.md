@@ -2,52 +2,75 @@
 
 Found by reading `index.html`, `app.js`, `style.css`, the Netlify functions, and the `.gs` scripts.
 
-## Top 3 (do these first)
+Sections: **UI/UX ideas** (next up), **Later** (parked on purpose), **Completed**.
+Sizes: **S** = under an hour, **M** = a few hours.
 
-1. **Stop serving your whole repo publicly.** There is no `netlify.toml`, so the site root is the repo root. `/Code.gs`, `/PRD.md`, `/CHANGELOG.md` etc. are probably downloadable, and `Code.gs` contains your Drive folder ID and Sheet ID. Move the site files into `public/` and set `publish = "public"`.
-2. **Lock down the backend.** The passcode `boarshead` is in the client JS, and the `/api/*` functions and the GAS web apps accept anyone. Have the Netlify function check a secret (env var) before forwarding, and send the passcode with each request.
-3. **Real PWA.** README says "Offline-capable PWA" but there is no `manifest.json` and no service worker. Add both (about 30 lines total) plus icons.
+## UI/UX ideas
 
-## Bugs
+### Data safety
+- **S** Undo for "remove item" on credit and donation lists. Removing an item with typed data is instant, and the autosaved draft forgets it too. Show a toast with Undo for a few seconds.
 
-- "Submit Another Expense" calls `form.reset()`, which clears the auto-filled date and the default vehicle. Re-apply them after reset.
-- No duplicate protection: if GAS saves but the response times out, retrying creates a duplicate row. Add a client-generated submission ID and skip repeats in the `.gs` files.
+### Forms and validation
+- **S** Donations: a new item copies the previous item's sell-by date (items in one pile usually share it). Credits: use the same − / + qty stepper as donations.
 
-## Security
+### Feedback and flow
+- **M** Offline banner ("You're offline. Submissions will be saved and sent later.") and a badge on the History tab for items waiting to send. Today the only sign is inside History.
+- **M** Sticky submit button on long credit and donation forms, above the bottom nav, so you don't scroll past a long list to submit.
 
-- User-typed text goes into `innerHTML` (`renderHistory`, `buildCreditSuccessSummary`, `buildDonationSuccessSummary`, the suggestions lists). The "Other" name field on donations is free text. Use `textContent` or escape.
+### History
+
+### Settings and onboarding
+- **S** Passcode screen: add a Show/Hide toggle. The field is masked, so a typo on a phone keyboard is easy.
+- **S** Theme: make it Auto / Light / Dark. The toggle stops following the system setting after the first flip.
+
+### Accessibility and polish
+- **S** Contrast in dark mode: history type labels are `#841b2a` (1.9:1), `#625636` (2.5:1) and `#2a6084` (2.7:1) on the card, and the gold "Take Photo" text is 2.5:1. WCAG AA needs 4.5:1. Use lighter variants in dark mode.
+- **S** Touch targets: the remove-item button is 36px. Make it 44px like the other controls.
+- **S** Give the submit error text `role="alert"` so screen readers announce a failed submit.
+
+## Later
+
+Parked on purpose. Not planned for now.
+
+### Security and access
+- **Stop serving your whole repo publicly.** `netlify.toml` now exists, but it publishes the repo root. `/Code.gs`, `/PRD.md`, `/CHANGELOG.md` etc. are probably downloadable, and `Code.gs` contains your Drive folder ID and Sheet ID. Move the site files into `public/` and set `publish = "public"`.
+- **Lock down the backend.** The passcode `boarshead` is in the client JS, and the `/api/*` functions and the GAS web apps accept anyone. Have the Netlify function check a secret (env var) before forwarding, and send the passcode with each request.
+- User-typed text goes into `innerHTML` in some places (`buildCreditSuccessSummary` and `buildDonationSuccessSummary` are escaped now, but check every template). Use `textContent` or escape.
 - Sheet formula injection: a value starting with `=`, `+`, `-`, or `@` becomes a formula in Google Sheets. Prefix such values with `'` in `sanitize()`.
 - Receipt images are set to "anyone with the link". Fine for a small team, but consider restricting to your domain.
 - GAS URLs are hardcoded in the Netlify functions. Move them to Netlify env vars.
 
-## UX
+### PWA
+- **Real PWA.** `sw.js` now caches the app for offline use, but there is still no `manifest.json` and no icons, so "Add to Home Screen" is not a proper install. Add both (about 20 lines) plus icons.
 
+### Bugs
+- "Submit Another Expense" calls `form.reset()`, which clears the auto-filled date and the default vehicle. Re-apply them after reset.
+- No duplicate protection: if GAS saves but the response times out, retrying (or the offline queue) creates a duplicate row. Add a client-generated submission ID and skip repeats in the `.gs` files.
+
+### Form UX
 - Credits should remember the last reason and type, like donations already do.
 - "Duplicate last item" button on credit and donation lists.
 
-## Bloat and cleanup
-
+### Code cleanup
 - Three near-identical Netlify functions. Merge into one function that takes a route and reads the target URL from an env var.
 - Docs: `PRD.md`, `PROMPTS.md`, `RULES.md`, `TODO.md`, `CHANGELOG.md` are stale (TODO mentions a "More Menu" and pages that no longer exist). Move to `docs/` or delete.
 - Split `app.js` into ES modules: `data.js`, `auth.js`, `receipts.js`, `credits.js`, `donations.js`, `history.js`.
 - `CreditCode.gs` still has `PASTE_YOUR_CREDIT_SHEET_ID_HERE`. Confirm the deployed script matches the repo.
 
-## New feature ideas
-
-Cheap:
+### New features: cheap
 - Email Ian on every submission (`MailApp.sendEmail` in each `.gs`, ~3 lines).
 - Barcode scan for UPC entry on credits (`BarcodeDetector`, works on Android Chrome).
 - Store list: show recent and favorite stores first.
 - Per-person PINs instead of one shared passcode, so you know who submitted.
 - Edit catalogs (stores, items, names) from a Google Sheet tab instead of redeploying code.
 
-Medium:
+### New features: medium
 - Show Ian's "Done" status back to reps (read the sheet by name).
 - Multiple photos per receipt.
 - Mileage/odometer field when category is Fuel, tied to the vehicle tag.
 - Monthly expense totals per employee (Sheet pivot, no code).
 
-Big:
+### New features: big
 - Receipt OCR: auto-fill amount, date, and category from the photo (Netlify function calling a vision model).
 - Admin view for Ian: filter, approve, and export submissions.
 
@@ -81,3 +104,11 @@ Big:
 - [x] Move `STORES`, `DONATION_ITEMS`, and name lists out of `app.js` (about 300 lines of the 1,700) into a JSON file. Load it lazily, and cache it in the service worker.
 - [x] Add cache headers for `style.css` and `app.js` in `netlify.toml`, and minify both.
 - [x] Add a timeout to `fetch` (AbortController, ~20s) so a stalled GAS call doesn't hang the button.
+- [x] Warn before "Reset Application" if unsent items exist. It runs `localStorage.clear()`, which silently deletes queued submissions (`rc_queue`) and drafts. Show "2 submissions haven't sent yet. Reset anyway?".
+- [x] Inline error text under invalid fields, plus focus and scroll to the first one. Today a bad field only gets a red border, so on a phone the field can be off-screen and nothing says what is wrong. Add `aria-invalid` too.
+- [x] Check the receipt date: warn if it is in the future or more than ~60 days old.
+- [x] Amount field: add a `$` prefix. Show "Vehicle Tag" only for categories where it matters (Fuel, Vehicle Maintenance, Tolls / Parking).
+- [x] Scroll to the success card after submit. The form is replaced by a shorter card, but the page stays at the old scroll position, so the checkmark can be off-screen.
+- [x] Group rows by day (Today, Yesterday), add "Clear history", and add a Retry button on failed rows (needs the payload stored with the row).
+- [x] Tap a history row to expand it and see what was submitted (items, quantities). Rows now only show a one-line label.
+- [x] Install: hide the install button when the app is already installed (`display-mode: standalone`), and drop the "(Mobile)" label. Move the "Save to Your Phone" guide from the bottom of Credits into Settings > App Setup, next to the install button. Also add a concise tooltip on user first login mentioning they can install the app to their phone by visiting the settings page or something like that.
