@@ -92,7 +92,7 @@ passcodeInput.addEventListener('keydown', (e) => {
 ═══════════════════════════════════════════════════════════ */
 const VALID_VIEWS = new Set(['receipts', 'credits', 'donations', 'settings']);
 
-function navigateTo(viewId, updateHistory = true) {
+function navigateTo(viewId, updateHistory = true, moveFocus = true) {
   /* Hide all views */
   views.forEach(v => v.classList.remove('active'));
 
@@ -110,6 +110,14 @@ function navigateTo(viewId, updateHistory = true) {
     item.classList.toggle('active', item.dataset.view === viewId);
   });
 
+  /* Title and focus for screen readers / keyboard users */
+  document.title = `${viewId[0].toUpperCase()}${viewId.slice(1)} · Route Command`;
+  const heading = target && target.querySelector('.view__title');
+  if (heading && moveFocus) {
+    heading.tabIndex = -1;
+    heading.focus({ preventScroll: true });
+  }
+
   /* Scroll to top of new view */
   window.scrollTo(0, 0);
 
@@ -124,6 +132,13 @@ function navigateTo(viewId, updateHistory = true) {
 window.addEventListener('popstate', () => {
   const seg = window.location.pathname.slice(1);
   navigateTo(VALID_VIEWS.has(seg) ? seg : 'receipts', false);
+});
+
+/* "View in history" links on success screens */
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('[data-goto-history]')) return;
+  navigateTo('settings');
+  submissionHistoryEl.scrollIntoView();
 });
 
 /* Sidebar nav */
@@ -242,14 +257,125 @@ document.getElementById('photo-retake').addEventListener('click', () => {
 });
 
 /* ═══════════════════════════════════════════════════════════
+   SHARED HELPERS
+═══════════════════════════════════════════════════════════ */
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const fmtDate = (d) => d ? new Date(d + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
+const plural = (n, word) => `${n} ${word}${n !== 1 ? 's' : ''}`;
+
+/* Red border until the user edits the field. Returns false so callers can do `valid = markInvalid(el)`. */
+function markInvalid(el) {
+  el.style.borderColor = 'var(--color-error)';
+  ['input', 'change'].forEach(ev => el.addEventListener(ev, () => { el.style.borderColor = ''; }, { once: true }));
+  return false;
+}
+
+/* POST a form, drive the button spinner, error text, history status, and success screen. */
+async function submitForm({ endpoint, payload, btn, label, type, histLabel, formEl, successEl, summaryEl, summaryHTML }) {
+  if (btn.disabled) return;
+  btn.disabled  = true;
+  btn.innerHTML = '<span class="spinner" aria-hidden="true"></span>Submitting…';
+  window.addEventListener('beforeunload', beforeUnloadHandler);
+
+  let errEl = btn.parentElement.querySelector('.submit-error');
+  if (!errEl) {
+    errEl = document.createElement('p');
+    errEl.className = 'submit-error';
+    btn.insertAdjacentElement('afterend', errEl);
+  }
+  errEl.textContent = '';
+
+  const historyId = saveToHistory({ type, label: histLabel, status: 'sending' });
+  try {
+    const res  = await fetch(endpoint, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(payload),
+    });
+    const data = await res.json();
+    if (data.status !== 'success') throw new Error(data.message || 'Server error');
+
+    setHistoryStatus(historyId, 'saved');
+    summaryEl.innerHTML = summaryHTML;
+    formEl.classList.add('hidden');
+    successEl.classList.remove('hidden');
+  } catch (err) {
+    setHistoryStatus(historyId, 'failed');
+    errEl.textContent = err.message || 'Network error. Please check your connection and try again.';
+  } finally {
+    window.removeEventListener('beforeunload', beforeUnloadHandler);
+    btn.disabled    = false;
+    btn.textContent = label;
+  }
+}
+
+/* One add/remove/count/suggest/type-toggle implementation for the credit and donation item lists. */
+function createItemList({ listId, countId, buildHTML, onType }) {
+  const el = $(listId);
+  let counter = 0;
+
+  const refresh = () => {
+    const n = el.children.length;
+    $(countId).textContent = plural(n, 'item');
+    el.querySelectorAll('.credit-item__remove').forEach(b => b.classList.toggle('credit-item__remove--hidden', n <= 1));
+  };
+  const add   = () => { el.insertAdjacentHTML('beforeend', buildHTML(++counter)); refresh(); };
+  const reset = () => { el.innerHTML = ''; counter = 0; add(); };
+
+  el.addEventListener('input', (e) => {
+    const input = e.target.closest('[data-fname="name"]');
+    if (!input) return;
+    const box = input.closest('.store-search-wrap').querySelector('.store-suggestions');
+    const q   = input.value.trim();
+    const results = q ? searchDonationItems(q) : [];
+    box.innerHTML = results.map(s => `<div class="store-suggestion" role="option" tabindex="-1">${esc(s)}</div>`).join('');
+    box.classList.toggle('hidden', !results.length);
+  });
+
+  el.addEventListener('click', (e) => {
+    const hit = e.target.closest('.store-suggestion');
+    if (hit) {
+      const input = hit.closest('.store-search-wrap').querySelector('input');
+      input.value = hit.textContent;
+      input.style.borderColor = '';
+      hit.parentElement.classList.add('hidden');
+      return;
+    }
+    const typeBtn = e.target.closest('[data-type-btn]');
+    if (typeBtn) {
+      const item = typeBtn.closest('[data-id]');
+      const type = typeBtn.dataset.typeBtn;
+      item.querySelectorAll('[data-type-btn]').forEach(b => b.classList.toggle('pill-toggle__btn--active', b === typeBtn));
+      item.querySelectorAll('[data-fields-type]').forEach(f => f.classList.toggle('hidden', f.dataset.fieldsType !== type));
+      if (onType) onType(type);
+      return;
+    }
+    const rm = e.target.closest('[data-remove]');
+    if (rm) { rm.closest('[data-id]').remove(); refresh(); }
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.store-search-wrap')) el.querySelectorAll('.store-suggestions').forEach(b => b.classList.add('hidden'));
+  });
+
+  return { el, add, reset };
+}
+
+const REMOVE_BTN_HTML = `
+  <button type="button" class="credit-item__remove" data-remove aria-label="Remove item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+      <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+    </svg>
+  </button>`;
+
+/* ═══════════════════════════════════════════════════════════
    6. EXPENSE FORM SUBMISSION
 ═══════════════════════════════════════════════════════════ */
-let isSubmitting = false;
 
 if (expenseForm) {
   expenseForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (isSubmitting) return;
 
     const name     = getName();
     const date     = document.getElementById('receipt-date').value;
@@ -277,75 +403,24 @@ if (expenseForm) {
 
     if (!compressedImageData && !confirm('No receipt photo attached. Submit anyway?')) return;
 
-    /* Lock UI */
-    isSubmitting = true;
-    submitBtn.disabled    = true;
-    submitBtn.textContent = 'Uploading…';
-
-    /* Unload guard */
-    window.addEventListener('beforeunload', beforeUnloadHandler);
-
-    const payload = {
-      employeeName: name,
-      receiptDate:  date,
-      category,
-      amount,
-      vehicleTag:   vehicle,
-      notes,
-      imageData:    compressedImageData || null,
-      timestamp:    new Date().toISOString(),
-    };
-
-    try {
-      const API_URL = '/api/submit-receipt';
-
-      const res = await fetch(API_URL, {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify(payload),
-      });
-
-      const data = await res.json();
-
-      if (data.status === 'success') {
-        handleSuccess();
-      } else {
-        throw new Error(data.message || 'Server error');
-      }
-    } catch (err) {
-      handleError(err.message);
-    } finally {
-      window.removeEventListener('beforeunload', beforeUnloadHandler);
-      isSubmitting = false;
-    }
+    const photoNote = compressedImageData ? 'Photo attached' : 'No photo';
+    const veh       = vehicle && vehicle !== 'N/A' ? ` · ${vehicle}` : '';
+    submitForm({
+      endpoint:    '/api/submit-receipt',
+      payload:     { employeeName: name, receiptDate: date, category, amount, vehicleTag: vehicle, notes,
+                     imageData: compressedImageData || null, timestamp: new Date().toISOString() },
+      btn:         submitBtn,
+      label:       'Submit Expense',
+      type:        'Receipt',
+      histLabel:   `$${parseFloat(amount).toFixed(2)} · ${category}`,
+      formEl:      expenseForm,
+      successEl:   successState,
+      summaryEl:   document.getElementById('receipt-success-summary'),
+      summaryHTML: `<div class="credit-success-meta">$${parseFloat(amount).toFixed(2)} &middot; ${esc(category)}</div>
+        <div class="credit-success-item"><span class="credit-success-item__product">${fmtDate(date)}${esc(veh)}</span>
+        <span class="credit-success-item__reason">${photoNote}</span></div>`,
+    });
   });
-}
-
-function handleSuccess() {
-  const category = document.getElementById('expense-category')?.value || '';
-  const amount   = document.getElementById('expense-amount')?.value   || '0';
-  saveToHistory({ type: 'Receipt', label: `$${parseFloat(amount).toFixed(2)} · ${category}` });
-
-  expenseForm.classList.add('hidden');
-  successState.classList.remove('hidden');
-
-  submitBtn.disabled    = false;
-  submitBtn.textContent = 'Submit Expense';
-}
-
-function handleError(msg) {
-  submitBtn.disabled    = false;
-  submitBtn.textContent = 'Submit Expense';
-
-  /* Show error message below submit button */
-  let errEl = document.getElementById('submit-error');
-  if (!errEl) {
-    errEl = document.createElement('p');
-    errEl.id        = 'submit-error';
-    errEl.style.cssText = 'color:var(--color-error);font-size:0.875rem;margin-top:0.5rem;text-align:center;';
-    submitBtn.insertAdjacentElement('afterend', errEl);
-  }
-  errEl.textContent = msg || 'Network error. Please check your connection and try again.';
 }
 
 function beforeUnloadHandler(e) {
@@ -363,10 +438,6 @@ if (submitAnotherBtn) {
 
     successState.classList.add('hidden');
     expenseForm.classList.remove('hidden');
-
-    /* Clear any error */
-    const errEl = document.getElementById('submit-error');
-    if (errEl) errEl.textContent = '';
   });
 }
 
@@ -836,35 +907,29 @@ function initStoreSearch() {
   });
 }
 
-function createCreditItemHTML(id, isFirst) {
-  const removeClass = isFirst ? 'credit-item__remove credit-item__remove--hidden' : 'credit-item__remove';
+function createCreditItemHTML(id) {
   return `
     <div class="credit-item" data-id="${id}">
       <div class="credit-item__header">
         <div class="pill-toggle">
-          <button type="button" class="pill-toggle__btn pill-toggle__btn--active" data-item="${id}" data-type-btn="retail">Retail</button>
-          <button type="button" class="pill-toggle__btn" data-item="${id}" data-type-btn="chub">Chub / Deli</button>
-        </div>
-        <button type="button" class="${removeClass}" data-remove="${id}" aria-label="Remove item">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
-            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-          </svg>
-        </button>
+          <button type="button" class="pill-toggle__btn pill-toggle__btn--active" data-type-btn="retail">Retail</button>
+          <button type="button" class="pill-toggle__btn" data-type-btn="chub">Chub / Deli</button>
+        </div>${REMOVE_BTN_HTML}
       </div>
-      <div data-fields="${id}" data-fields-type="retail">
+      <div data-fields-type="retail">
         <div class="credit-item__row">
-          <input type="text" class="form-input" placeholder="UPC / Item #" inputmode="numeric" autocomplete="off" data-fid="${id}" data-fname="upc" />
-          <input type="number" class="form-input" placeholder="Qty" inputmode="numeric" min="1" data-fid="${id}" data-fname="qty" />
+          <input type="text" class="form-input" placeholder="UPC / Item #" inputmode="numeric" autocomplete="off" data-fname="upc" />
+          <input type="number" class="form-input" placeholder="Qty" inputmode="numeric" min="1" data-fname="qty" />
         </div>
       </div>
-      <div class="hidden" data-fields="${id}" data-fields-type="chub">
+      <div class="hidden" data-fields-type="chub">
         <div class="store-search-wrap" style="margin-bottom:0.5rem;">
-          <input type="text" class="form-input" placeholder="Search item or UPC…" autocomplete="off" autocorrect="off" spellcheck="false" inputmode="search" data-fid="${id}" data-fname="name" />
-          <div class="store-suggestions hidden" data-csuggestions="${id}" role="listbox" aria-label="Item suggestions"></div>
+          <input type="text" class="form-input" placeholder="Search item or UPC…" autocomplete="off" autocorrect="off" spellcheck="false" inputmode="search" data-fname="name" />
+          <div class="store-suggestions hidden" role="listbox" aria-label="Item suggestions"></div>
         </div>
-        <input type="number" class="form-input" placeholder="Weight (lbs)" inputmode="decimal" step="0.01" min="0" data-fid="${id}" data-fname="weight" />
+        <input type="number" class="form-input" placeholder="Weight (lbs)" inputmode="decimal" step="0.01" min="0" data-fname="weight" />
       </div>
-      <select class="form-select" data-fid="${id}" data-fname="reason">
+      <select class="form-select" data-fname="reason">
         <option value="10-Day" selected>10-Day</option>
         <option value="Expired">Expired</option>
         <option value="Damaged Packaging">Damaged Packaging</option>
@@ -875,206 +940,73 @@ function createCreditItemHTML(id, isFirst) {
     </div>`;
 }
 
-function addCreditItem() {
-  creditItemCounter++;
-  const list    = document.getElementById('credit-items-list');
-  const isFirst = list && list.children.length === 0;
-  if (list) list.insertAdjacentHTML('beforeend', createCreditItemHTML(creditItemCounter, isFirst));
-  updateCreditRemoveButtons();
-  updateCreditItemsCount();
-}
+let creditList;
 
-function removeCreditItem(id) {
-  const el = document.querySelector(`.credit-item[data-id="${id}"]`);
-  if (el) el.remove();
-  updateCreditRemoveButtons();
-  updateCreditItemsCount();
-}
-
-function switchCreditItemType(id, type) {
-  const item = document.querySelector(`.credit-item[data-id="${id}"]`);
-  if (!item) return;
-  item.querySelectorAll('[data-type-btn]').forEach(btn => {
-    btn.classList.toggle('pill-toggle__btn--active', btn.dataset.typeBtn === type);
-  });
-  item.querySelectorAll(`[data-fields="${id}"]`).forEach(el => {
-    el.classList.toggle('hidden', el.dataset.fieldsType !== type);
-  });
-}
-
-function updateCreditRemoveButtons() {
-  const items   = document.querySelectorAll('.credit-item');
-  const btns    = document.querySelectorAll('.credit-item__remove');
-  const hide    = items.length <= 1;
-  btns.forEach(btn => btn.classList.toggle('credit-item__remove--hidden', hide));
-}
-
-function updateCreditItemsCount() {
-  const el    = document.getElementById('credit-items-count');
-  const count = document.querySelectorAll('.credit-item').length;
-  if (el) el.textContent = `${count} item${count !== 1 ? 's' : ''}`;
-}
-
+/* Returns the items, or null if any required field is empty (fields get highlighted). */
 function collectCreditItems() {
-  const items = [];
-  document.querySelectorAll('.credit-item').forEach(itemEl => {
-    const id          = itemEl.dataset.id;
-    const activeBtn   = itemEl.querySelector('.pill-toggle__btn--active[data-type-btn]');
-    const type        = activeBtn ? activeBtn.dataset.typeBtn : 'retail';
-    let product = '', qty = '';
-
-    if (type === 'retail') {
-      const upc = itemEl.querySelector(`[data-fid="${id}"][data-fname="upc"]`);
-      const q   = itemEl.querySelector(`[data-fid="${id}"][data-fname="qty"]`);
-      product = upc ? upc.value.trim() : '';
-      qty     = q && q.value.trim() ? `${q.value.trim()} units` : '';
-    } else {
-      const name   = itemEl.querySelector(`[data-fid="${id}"][data-fname="name"]`);
-      const weight = itemEl.querySelector(`[data-fid="${id}"][data-fname="weight"]`);
-      product = name   ? name.value.trim()   : '';
-      qty     = weight && weight.value.trim() ? `${weight.value.trim()} lbs` : '';
-    }
-
-    const reason = itemEl.querySelector(`[data-fid="${id}"][data-fname="reason"]`);
-    items.push({
-      type:    type === 'retail' ? 'Retail' : 'Chub / Deli',
-      product,
-      qty,
-      reason: reason ? reason.value : '10-Day',
-    });
+  let valid = true;
+  const items = [...creditList.el.children].map(itemEl => {
+    const type   = itemEl.querySelector('.pill-toggle__btn--active').dataset.typeBtn;
+    const retail = type === 'retail';
+    const f      = (n) => itemEl.querySelector(`[data-fname="${n}"]`);
+    const prod   = f(retail ? 'upc' : 'name');
+    const qty    = f(retail ? 'qty' : 'weight');
+    if (!prod.value.trim()) valid = markInvalid(prod);
+    if (!(parseFloat(qty.value) > 0)) valid = markInvalid(qty);
+    return {
+      type:    retail ? 'Retail' : 'Chub / Deli',
+      product: prod.value.trim(),
+      qty:     `${qty.value.trim()} ${retail ? 'units' : 'lbs'}`,
+      reason:  f('reason').value,
+    };
   });
-  return items;
+  return valid ? items : null;
 }
 
 function buildCreditSuccessSummary(store, date, items) {
-  const fmt = new Date(date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   const rows = items.map(item => `
     <div class="credit-success-item">
       <span class="credit-success-item__type">${item.type}</span>
-      <span class="credit-success-item__product">${item.product || '—'}</span>
-      ${item.qty ? `<span class="credit-success-item__qty">${item.qty}</span>` : ''}
-      <span class="credit-success-item__reason">${item.reason}</span>
+      <span class="credit-success-item__product">${esc(item.product)}</span>
+      <span class="credit-success-item__qty">${esc(item.qty)}</span>
+      <span class="credit-success-item__reason">${esc(item.reason)}</span>
     </div>`).join('');
-  return `<div class="credit-success-meta">${store} &middot; ${fmt}</div>${rows}`;
+  return `<div class="credit-success-meta">${esc(store)} &middot; ${fmtDate(date)}</div>${rows}`;
 }
-
-let isCreditSubmitting = false;
 
 function handleCreditSubmit(e) {
   e.preventDefault();
-  if (isCreditSubmitting) return;
-
-  const salesperson = getName();
-  const store       = document.getElementById('credit-store-input').value.trim();
-  const date        = document.getElementById('credit-date').value;
-  const notes       = document.getElementById('credit-notes').value.trim();
-  const submitBtn   = document.getElementById('credit-submit-btn');
-
-  /* Validate */
+  const dateEl     = $('credit-date');
+  const storeInput = $('credit-store-input');
   let valid = true;
-  [
-    { id: 'credit-date',        val: date },
-  ].forEach(({ id, val }) => {
-    const el = document.getElementById(id);
-    if (!val && el) {
-      el.style.borderColor = 'var(--color-error)';
-      el.addEventListener('change', () => { el.style.borderColor = ''; }, { once: true });
-      el.addEventListener('input',  () => { el.style.borderColor = ''; }, { once: true });
-      valid = false;
-    }
-  });
-
-  const storeInput = document.getElementById('credit-store-input');
-  if (!store && storeInput) {
-    storeInput.style.borderColor = 'var(--color-error)';
-    storeInput.addEventListener('input', () => { storeInput.style.borderColor = ''; }, { once: true });
-    valid = false;
-  }
-
+  if (!dateEl.value) valid = markInvalid(dateEl);
+  if (!storeInput.value.trim()) valid = markInvalid(storeInput);
   const items = collectCreditItems();
-  let itemsValid = true;
-  document.querySelectorAll('.credit-item').forEach(itemEl => {
-    const id        = itemEl.dataset.id;
-    const activeBtn = itemEl.querySelector('.pill-toggle__btn--active[data-type-btn]');
-    const type      = activeBtn ? activeBtn.dataset.typeBtn : 'retail';
-    const fieldName = type === 'retail' ? 'upc' : 'name';
-    const prodInput = itemEl.querySelector(`[data-fid="${id}"][data-fname="${fieldName}"]`);
-    if (prodInput && !prodInput.value.trim()) {
-      prodInput.style.borderColor = 'var(--color-error)';
-      prodInput.addEventListener('input', () => { prodInput.style.borderColor = ''; }, { once: true });
-      itemsValid = false;
-    }
-    const qtyInput = itemEl.querySelector(`[data-fid="${id}"][data-fname="${type === 'retail' ? 'qty' : 'weight'}"]`);
-    if (qtyInput && !(parseFloat(qtyInput.value) > 0)) {
-      qtyInput.style.borderColor = 'var(--color-error)';
-      qtyInput.addEventListener('input', () => { qtyInput.style.borderColor = ''; }, { once: true });
-      itemsValid = false;
-    }
+  if (!valid || !items) return;
+
+  const store = storeInput.value.trim();
+  const date  = dateEl.value;
+  submitForm({
+    endpoint:    '/api/submit-credit',
+    payload:     { salesperson: getName(), store, date, notes: $('credit-notes').value.trim(), items, timestamp: new Date().toISOString() },
+    btn:         $('credit-submit-btn'),
+    label:       'Submit Credits',
+    type:        'Credit',
+    histLabel:   `${store} · ${plural(items.length, 'item')}`,
+    formEl:      $('credit-form'),
+    successEl:   $('credit-success-state'),
+    summaryEl:   $('credit-success-summary'),
+    summaryHTML: buildCreditSuccessSummary(store, date, items),
   });
-  if (!itemsValid) valid = false;
-
-  if (!valid) return;
-
-  /* Lock UI */
-  isCreditSubmitting  = true;
-  submitBtn.disabled  = true;
-  submitBtn.textContent = 'Submitting…';
-  window.addEventListener('beforeunload', beforeUnloadHandler);
-
-  const payload = { salesperson, store, date, notes, items, timestamp: new Date().toISOString() };
-
-  fetch('/api/submit-credit', {
-    method:  'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body:    JSON.stringify(payload),
-  })
-    .then(r => r.json())
-    .then(data => {
-      if (data.status === 'success') {
-        const summary = document.getElementById('credit-success-summary');
-        if (summary) summary.innerHTML = buildCreditSuccessSummary(store, date, items);
-        saveToHistory({ type: 'Credit', label: `${store} · ${items.length} item${items.length !== 1 ? 's' : ''}` });
-        document.getElementById('credit-form').classList.add('hidden');
-        document.getElementById('credit-success-state').classList.remove('hidden');
-      } else {
-        throw new Error(data.message || 'Server error');
-      }
-    })
-    .catch(err => {
-      let errEl = document.getElementById('credit-submit-error');
-      if (!errEl) {
-        errEl = document.createElement('p');
-        errEl.id = 'credit-submit-error';
-        errEl.style.cssText = 'color:var(--color-error);font-size:0.875rem;margin-top:0.5rem;text-align:center;';
-        submitBtn.insertAdjacentElement('afterend', errEl);
-      }
-      errEl.textContent = err.message || 'Network error. Please check your connection and try again.';
-    })
-    .finally(() => {
-      window.removeEventListener('beforeunload', beforeUnloadHandler);
-      isCreditSubmitting    = false;
-      submitBtn.disabled    = false;
-      submitBtn.textContent = 'Submit Credits';
-    });
 }
 
 function resetCreditForm() {
-  const today = new Date().toISOString().split('T')[0];
-  document.getElementById('credit-date').value = today;
-  document.getElementById('credit-store-input').value = '';
-  document.getElementById('credit-notes').value = '';
-
-  /* Clear and re-seed items */
-  const list = document.getElementById('credit-items-list');
-  if (list) list.innerHTML = '';
-  creditItemCounter = 0;
-  addCreditItem();
-
-  const errEl = document.getElementById('credit-submit-error');
-  if (errEl) errEl.textContent = '';
-
-  document.getElementById('credit-success-state').classList.add('hidden');
-  document.getElementById('credit-form').classList.remove('hidden');
+  $('credit-date').value = new Date().toISOString().split('T')[0];
+  $('credit-store-input').value = '';
+  $('credit-notes').value = '';
+  creditList.reset();
+  $('credit-success-state').classList.add('hidden');
+  $('credit-form').classList.remove('hidden');
 }
 
 /* ── Bookmark guide ─── */
@@ -1149,67 +1081,16 @@ function initBookmarkGuide() {
 }
 
 function initCredits() {
-  /* Pre-fill date */
-  const today   = new Date().toISOString().split('T')[0];
-  const dateEl  = document.getElementById('credit-date');
-  if (dateEl) dateEl.value = today;
+  $('credit-date').value = new Date().toISOString().split('T')[0];
 
-  /* First credit item */
-  addCreditItem();
+  creditList = createItemList({ listId: 'credit-items-list', countId: 'credit-items-count', buildHTML: createCreditItemHTML });
+  creditList.add();
 
-  /* Item list event delegation */
-  const itemsList = document.getElementById('credit-items-list');
-  if (itemsList) {
-    itemsList.addEventListener('input', (e) => {
-      const nameInput = e.target.closest('[data-fname="name"]');
-      if (!nameInput) return;
-      const id     = nameInput.dataset.fid;
-      const q      = nameInput.value.trim();
-      const suggEl = itemsList.querySelector(`[data-csuggestions="${id}"]`);
-      if (!suggEl) return;
-      if (!q) { suggEl.classList.add('hidden'); return; }
-      const results = searchDonationItems(q);
-      if (!results.length) { suggEl.classList.add('hidden'); return; }
-      suggEl.innerHTML = results.map(s => `<div class="store-suggestion" role="option" tabindex="-1">${s}</div>`).join('');
-      suggEl.classList.remove('hidden');
-    });
+  $('add-credit-item-btn').addEventListener('click', creditList.add);
+  $('credit-form').addEventListener('submit', handleCreditSubmit);
+  $('credit-submit-another-btn').addEventListener('click', resetCreditForm);
 
-    itemsList.addEventListener('click', (e) => {
-      const suggHit = e.target.closest('.store-suggestion');
-      if (suggHit) {
-        const suggEl    = suggHit.closest('[data-csuggestions]');
-        const id        = suggEl?.dataset.csuggestions;
-        const nameInput = id ? itemsList.querySelector(`[data-fid="${id}"][data-fname="name"]`) : null;
-        if (nameInput) { nameInput.value = suggHit.textContent; nameInput.style.borderColor = ''; }
-        suggEl?.classList.add('hidden');
-        return;
-      }
-      const typeBtn  = e.target.closest('[data-type-btn]');
-      if (typeBtn) { switchCreditItemType(typeBtn.dataset.item, typeBtn.dataset.typeBtn); return; }
-      const removeBtn = e.target.closest('[data-remove]');
-      if (removeBtn) removeCreditItem(removeBtn.dataset.remove);
-    });
-
-    document.addEventListener('click', (e) => {
-      if (!e.target.closest('.store-search-wrap')) {
-        itemsList.querySelectorAll('[data-csuggestions]').forEach(el => el.classList.add('hidden'));
-      }
-    });
-  }
-
-  /* Add item button */
-  document.getElementById('add-credit-item-btn')?.addEventListener('click', addCreditItem);
-
-  /* Form submit */
-  document.getElementById('credit-form')?.addEventListener('submit', handleCreditSubmit);
-
-  /* Submit another */
-  document.getElementById('credit-submit-another-btn')?.addEventListener('click', resetCreditForm);
-
-  /* Store search */
   initStoreSearch();
-
-  /* Bookmark guide */
   initBookmarkGuide();
 }
 
@@ -1221,312 +1102,161 @@ const DONATION_LAST_TYPE_KEY   = 'rc_donation_last_type';
 const DONATION_LAST_REASON_KEY = 'rc_donation_last_reason';
 
 
-let donationItemCounter  = 0;
-let isDonationSubmitting = false;
+let donationList;
 
-function createDonationItemHTML(id, isFirst, defaultType, defaultReason) {
-  const removeClass = isFirst ? 'credit-item__remove credit-item__remove--hidden' : 'credit-item__remove';
-  const chubClass   = defaultType !== 'retail' ? 'pill-toggle__btn--active' : '';
-  const retailClass = defaultType === 'retail'  ? 'pill-toggle__btn--active' : '';
-  const reasons     = ['Out of Date', 'Damaged Packaging', 'Bad Seal', 'Other'];
-  const reasonOptions = reasons.map(r =>
+function createDonationItemHTML(id) {
+  const defaultType   = localStorage.getItem(DONATION_LAST_TYPE_KEY)   || 'chub';
+  const defaultReason = localStorage.getItem(DONATION_LAST_REASON_KEY) || 'Out of Date';
+  const active = (t) => defaultType === t ? 'pill-toggle__btn--active' : '';
+  const reasonOptions = ['Out of Date', 'Damaged Packaging', 'Bad Seal', 'Other'].map(r =>
     `<option value="${r}"${r === defaultReason ? ' selected' : ''}>${r}</option>`
   ).join('');
   return `
     <div class="donation-item" data-id="${id}">
       <div class="credit-item__header">
         <div class="pill-toggle">
-          <button type="button" class="pill-toggle__btn ${chubClass}" data-ditem="${id}" data-dtype-btn="chub">Chub</button>
-          <button type="button" class="pill-toggle__btn ${retailClass}" data-ditem="${id}" data-dtype-btn="retail">Retail</button>
-        </div>
-        <button type="button" class="${removeClass}" data-dremove="${id}" aria-label="Remove item">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
-            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-          </svg>
-        </button>
+          <button type="button" class="pill-toggle__btn ${active('chub')}" data-type-btn="chub">Chub</button>
+          <button type="button" class="pill-toggle__btn ${active('retail')}" data-type-btn="retail">Retail</button>
+        </div>${REMOVE_BTN_HTML}
       </div>
       <div class="store-search-wrap">
-        <input type="text" class="form-input" placeholder="Search item or UPC…" autocomplete="off" autocorrect="off" spellcheck="false" inputmode="search" data-dfid="${id}" data-dfname="name" />
-        <div class="store-suggestions hidden" data-dsuggestions="${id}" role="listbox" aria-label="Item suggestions"></div>
+        <input type="text" class="form-input" placeholder="Search item or UPC…" autocomplete="off" autocorrect="off" spellcheck="false" inputmode="search" data-fname="name" />
+        <div class="store-suggestions hidden" role="listbox" aria-label="Item suggestions"></div>
       </div>
       <div class="donation-item__row">
         <div class="donation-item__field">
           <span class="donation-item__label">Qty</span>
           <div class="qty-stepper">
-            <button type="button" class="qty-stepper__btn" data-dfid="${id}" data-dir="-1">−</button>
-            <input type="number" class="qty-stepper__input" value="1" min="1" inputmode="numeric" data-dfid="${id}" data-dfname="qty" />
-            <button type="button" class="qty-stepper__btn" data-dfid="${id}" data-dir="1">+</button>
+            <button type="button" class="qty-stepper__btn" data-dir="-1">−</button>
+            <input type="number" class="qty-stepper__input" value="1" min="1" inputmode="numeric" data-fname="qty" />
+            <button type="button" class="qty-stepper__btn" data-dir="1">+</button>
           </div>
         </div>
         <div class="donation-item__field">
           <span class="donation-item__label">Sell-By Date</span>
-          <input type="date" class="form-input" data-dfid="${id}" data-dfname="sellby" />
+          <input type="date" class="form-input" data-fname="sellby" />
         </div>
       </div>
-      <select class="form-select" data-dfid="${id}" data-dfname="reason">
+      <select class="form-select" data-fname="reason">
         ${reasonOptions}
       </select>
     </div>`;
 }
 
-function addDonationItem() {
-  donationItemCounter++;
-  const list      = document.getElementById('donation-items-list');
-  const isFirst   = list && list.children.length === 0;
-  const lastType  = localStorage.getItem(DONATION_LAST_TYPE_KEY)   || 'chub';
-  const lastReason = localStorage.getItem(DONATION_LAST_REASON_KEY) || 'Out of Date';
-  if (list) list.insertAdjacentHTML('beforeend', createDonationItemHTML(donationItemCounter, isFirst, lastType, lastReason));
-  updateDonationRemoveButtons();
-  updateDonationItemsCount();
-}
-
-function removeDonationItem(id) {
-  const el = document.querySelector(`.donation-item[data-id="${id}"]`);
-  if (el) el.remove();
-  updateDonationRemoveButtons();
-  updateDonationItemsCount();
-}
-
-function switchDonationItemType(id, type) {
-  const item = document.querySelector(`.donation-item[data-id="${id}"]`);
-  if (!item) return;
-  item.querySelectorAll('[data-dtype-btn]').forEach(btn => {
-    btn.classList.toggle('pill-toggle__btn--active', btn.dataset.dtypeBtn === type);
-  });
-  localStorage.setItem(DONATION_LAST_TYPE_KEY, type);
-}
-
-function updateDonationRemoveButtons() {
-  const items = document.querySelectorAll('.donation-item');
-  const hide  = items.length <= 1;
-  document.querySelectorAll('.donation-item .credit-item__remove').forEach(btn => {
-    btn.classList.toggle('credit-item__remove--hidden', hide);
-  });
-}
-
-function updateDonationItemsCount() {
-  const el    = document.getElementById('donation-items-count');
-  const count = document.querySelectorAll('.donation-item').length;
-  if (el) el.textContent = `${count} item${count !== 1 ? 's' : ''}`;
-}
-
+/* Returns the items, or null if any required field is empty (fields get highlighted). */
 function collectDonationItems() {
-  const items = [];
-  document.querySelectorAll('.donation-item').forEach(itemEl => {
-    const id        = itemEl.dataset.id;
-    const activeBtn = itemEl.querySelector('.pill-toggle__btn--active[data-dtype-btn]');
-    const type      = activeBtn ? activeBtn.dataset.dtypeBtn : 'chub';
-    const nameEl    = itemEl.querySelector(`[data-dfid="${id}"][data-dfname="name"]`);
-    const qtyEl     = itemEl.querySelector(`[data-dfid="${id}"][data-dfname="qty"]`);
-    const sellbyEl  = itemEl.querySelector(`[data-dfid="${id}"][data-dfname="sellby"]`);
-    const reasonEl  = itemEl.querySelector(`[data-dfid="${id}"][data-dfname="reason"]`);
-    const raw       = nameEl ? nameEl.value.trim() : '';
-    const spaceIdx  = raw.indexOf(' ');
-    const upc       = spaceIdx > -1 ? raw.slice(0, spaceIdx) : '';
-    const itemName  = spaceIdx > -1 ? raw.slice(spaceIdx + 1) : raw;
-    items.push({
+  let valid = true;
+  const items = [...donationList.el.children].map(itemEl => {
+    const f      = (n) => itemEl.querySelector(`[data-fname="${n}"]`);
+    const type   = itemEl.querySelector('.pill-toggle__btn--active')?.dataset.typeBtn || 'chub';
+    const raw    = f('name').value.trim();
+    const space  = raw.indexOf(' ');
+    if (!raw) valid = markInvalid(f('name'));
+    if (!f('sellby').value) valid = markInvalid(f('sellby'));
+    return {
       type:   type === 'chub' ? 'Chub' : 'Retail',
-      upc:    upc,
-      name:   itemName,
-      qty:    qtyEl    ? (parseInt(qtyEl.value, 10) || 1) : 1,
-      sellBy: sellbyEl ? sellbyEl.value                    : '',
-      reason: reasonEl ? reasonEl.value                    : 'Out of Date',
-    });
+      upc:    space > -1 ? raw.slice(0, space) : '',
+      name:   space > -1 ? raw.slice(space + 1) : raw,
+      qty:    parseInt(f('qty').value, 10) || 1,
+      sellBy: f('sellby').value,
+      reason: f('reason').value,
+    };
   });
-  return items;
+  return valid ? items : null;
 }
 
 function buildDonationSuccessSummary(items) {
-  return items.map(item => {
-    const fmt = item.sellBy
-      ? new Date(item.sellBy + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-      : '—';
-    const productLine = [item.upc, item.name || '—'].filter(Boolean).join(' — ');
-    return `
-      <div class="credit-success-item">
-        <span class="credit-success-item__type">${item.type}</span>
-        <span class="credit-success-item__product">${productLine}</span>
-        <span class="credit-success-item__qty">x${item.qty} &middot; ${fmt}</span>
-        <span class="credit-success-item__reason">${item.reason}</span>
-      </div>`;
-  }).join('');
+  return items.map(item => `
+    <div class="credit-success-item">
+      <span class="credit-success-item__type">${item.type}</span>
+      <span class="credit-success-item__product">${esc([item.upc, item.name || '—'].filter(Boolean).join(' — '))}</span>
+      <span class="credit-success-item__qty">x${item.qty} &middot; ${fmtDate(item.sellBy)}</span>
+      <span class="credit-success-item__reason">${esc(item.reason)}</span>
+    </div>`).join('');
 }
 
 function handleDonationSubmit(e) {
   e.preventDefault();
-  if (isDonationSubmitting) return;
+  const items = collectDonationItems();
+  if (!items) return;
 
-  const submitBtn  = document.getElementById('donation-submit-btn');
-  const notes      = document.getElementById('donation-notes').value.trim();
-  const employee   = getName();
-  let valid        = true;
-
-  document.querySelectorAll('.donation-item').forEach(itemEl => {
-    const id       = itemEl.dataset.id;
-    const nameInput  = itemEl.querySelector(`[data-dfid="${id}"][data-dfname="name"]`);
-    const sellbyInput = itemEl.querySelector(`[data-dfid="${id}"][data-dfname="sellby"]`);
-    if (nameInput && !nameInput.value.trim()) {
-      nameInput.style.borderColor = 'var(--color-error)';
-      nameInput.addEventListener('input', () => { nameInput.style.borderColor = ''; }, { once: true });
-      valid = false;
-    }
-    if (sellbyInput && !sellbyInput.value) {
-      sellbyInput.style.borderColor = 'var(--color-error)';
-      sellbyInput.addEventListener('change', () => { sellbyInput.style.borderColor = ''; }, { once: true });
-      valid = false;
-    }
+  const employee = getName();
+  submitForm({
+    endpoint:    '/api/submit-donation',
+    payload:     { employee, notes: $('donation-notes').value.trim(), items, timestamp: new Date().toISOString() },
+    btn:         $('donation-submit-btn'),
+    label:       'Submit Donation Log',
+    type:        'Donation',
+    histLabel:   `${employee} · ${plural(items.length, 'item')}`,
+    formEl:      $('donation-form'),
+    successEl:   $('donation-success-state'),
+    summaryEl:   $('donation-success-summary'),
+    summaryHTML: buildDonationSuccessSummary(items),
   });
-
-  if (!valid) return;
-
-  isDonationSubmitting    = true;
-  submitBtn.disabled      = true;
-  submitBtn.textContent   = 'Submitting…';
-  window.addEventListener('beforeunload', beforeUnloadHandler);
-
-  const items   = collectDonationItems();
-  const payload = { employee, notes, items, timestamp: new Date().toISOString() };
-
-  fetch('/api/submit-donation', {
-    method:  'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body:    JSON.stringify(payload),
-  })
-    .then(r => r.json())
-    .then(data => {
-      if (data.status === 'success') {
-        const summary = document.getElementById('donation-success-summary');
-        if (summary) summary.innerHTML = buildDonationSuccessSummary(items);
-        saveToHistory({ type: 'Donation', label: `${employee} · ${items.length} item${items.length !== 1 ? 's' : ''}` });
-        document.getElementById('donation-form').classList.add('hidden');
-        document.getElementById('donation-success-state').classList.remove('hidden');
-      } else {
-        throw new Error(data.message || 'Server error');
-      }
-    })
-    .catch(err => {
-      let errEl = document.getElementById('donation-submit-error');
-      if (!errEl) {
-        errEl = document.createElement('p');
-        errEl.id = 'donation-submit-error';
-        errEl.style.cssText = 'color:var(--color-error);font-size:0.875rem;margin-top:0.5rem;text-align:center;';
-        submitBtn.insertAdjacentElement('afterend', errEl);
-      }
-      errEl.textContent = err.message || 'Network error. Please check your connection and try again.';
-    })
-    .finally(() => {
-      window.removeEventListener('beforeunload', beforeUnloadHandler);
-      isDonationSubmitting  = false;
-      submitBtn.disabled    = false;
-      submitBtn.textContent = 'Submit Donation Log';
-    });
-}
-
-function resetDonationForm() {
-  document.getElementById('donation-notes').value = '';
-
-  const list = document.getElementById('donation-items-list');
-  if (list) list.innerHTML = '';
-  donationItemCounter = 0;
-  addDonationItem();
-
-  const errEl = document.getElementById('donation-submit-error');
-  if (errEl) errEl.textContent = '';
-
-  document.getElementById('donation-success-state').classList.add('hidden');
-  document.getElementById('donation-form').classList.remove('hidden');
 }
 
 function initDonations() {
-  /* First item */
-  addDonationItem();
+  donationList = createItemList({
+    listId: 'donation-items-list',
+    countId: 'donation-items-count',
+    buildHTML: createDonationItemHTML,
+    onType: (type) => localStorage.setItem(DONATION_LAST_TYPE_KEY, type),
+  });
+  donationList.add();
 
-  /* Item list event delegation */
-  const itemsList = document.getElementById('donation-items-list');
-  if (itemsList) {
-    itemsList.addEventListener('input', (e) => {
-      const nameInput = e.target.closest('[data-dfname="name"]');
-      if (!nameInput) return;
-      const id     = nameInput.dataset.dfid;
-      const q      = nameInput.value.trim();
-      const suggEl = itemsList.querySelector(`[data-dsuggestions="${id}"]`);
-      if (!suggEl) return;
-      if (!q) { suggEl.classList.add('hidden'); return; }
-      const results = searchDonationItems(q);
-      if (!results.length) { suggEl.classList.add('hidden'); return; }
-      suggEl.innerHTML = results.map(s => `<div class="store-suggestion" role="option" tabindex="-1">${s}</div>`).join('');
-      suggEl.classList.remove('hidden');
-    });
+  donationList.el.addEventListener('click', (e) => {
+    const btn = e.target.closest('.qty-stepper__btn');
+    if (!btn) return;
+    const qty = btn.closest('.qty-stepper').querySelector('[data-fname="qty"]');
+    qty.value = Math.max(1, (parseInt(qty.value, 10) || 1) + parseInt(btn.dataset.dir, 10));
+  });
 
-    itemsList.addEventListener('click', (e) => {
-      const suggHit = e.target.closest('.store-suggestion');
-      if (suggHit) {
-        const suggEl  = suggHit.closest('[data-dsuggestions]');
-        const id      = suggEl?.dataset.dsuggestions;
-        const nameInput = id ? itemsList.querySelector(`[data-dfid="${id}"][data-dfname="name"]`) : null;
-        if (nameInput) { nameInput.value = suggHit.textContent; nameInput.style.borderColor = ''; }
-        suggEl?.classList.add('hidden');
-        return;
-      }
-      const typeBtn = e.target.closest('[data-dtype-btn]');
-      if (typeBtn) {
-        switchDonationItemType(typeBtn.dataset.ditem, typeBtn.dataset.dtypeBtn);
-        return;
-      }
-      const removeBtn = e.target.closest('[data-dremove]');
-      if (removeBtn) {
-        removeDonationItem(removeBtn.dataset.dremove);
-        return;
-      }
-      const stepperBtn = e.target.closest('.qty-stepper__btn');
-      if (stepperBtn) {
-        const dfid     = stepperBtn.dataset.dfid;
-        const dir      = parseInt(stepperBtn.dataset.dir, 10);
-        const qtyInput = itemsList.querySelector(`[data-dfid="${dfid}"][data-dfname="qty"]`);
-        if (qtyInput) qtyInput.value = Math.max(1, (parseInt(qtyInput.value, 10) || 1) + dir);
-        return;
-      }
-    });
-
-    itemsList.addEventListener('change', (e) => {
-      const reasonSel = e.target.closest('[data-dfname="reason"]');
-      if (reasonSel) {
-        localStorage.setItem(DONATION_LAST_REASON_KEY, reasonSel.value);
-        return;
-      }
-      const qtyInput = e.target.closest('[data-dfname="qty"]');
-      if (qtyInput) {
-        const val = parseInt(qtyInput.value, 10);
-        if (!val || val < 1) qtyInput.value = 1;
-      }
-    });
-  }
-
-  document.addEventListener('click', (e) => {
-    if (!e.target.closest('.store-search-wrap')) {
-      document.querySelectorAll('#donation-items-list [data-dsuggestions]').forEach(el => el.classList.add('hidden'));
+  donationList.el.addEventListener('change', (e) => {
+    if (e.target.matches('[data-fname="reason"]')) {
+      localStorage.setItem(DONATION_LAST_REASON_KEY, e.target.value);
+    } else if (e.target.matches('[data-fname="qty"]') && !(parseInt(e.target.value, 10) >= 1)) {
+      e.target.value = 1;
     }
   });
 
-  document.getElementById('add-donation-item-btn')?.addEventListener('click', addDonationItem);
-  document.getElementById('donation-form')?.addEventListener('submit', handleDonationSubmit);
-  document.getElementById('donation-submit-another-btn')?.addEventListener('click', resetDonationForm);
+  $('add-donation-item-btn').addEventListener('click', donationList.add);
+  $('donation-form').addEventListener('submit', handleDonationSubmit);
+  $('donation-submit-another-btn').addEventListener('click', () => {
+    $('donation-notes').value = '';
+    donationList.reset();
+    $('donation-success-state').classList.add('hidden');
+    $('donation-form').classList.remove('hidden');
+  });
 }
 
 /* ═══════════════════════════════════════════════════════════
    11. SUBMISSION HISTORY
 ═══════════════════════════════════════════════════════════ */
+const loadHistory = () => JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+
+/* Returns the new entry's id so the caller can update its status later. */
 function saveToHistory(entry) {
-  const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
-  history.unshift({ ...entry, timestamp: new Date().toISOString() });
-  if (history.length > 15) history.length = 15;
+  const id = Date.now() + Math.random();
+  /* A retry of a failed submission replaces the old failed row */
+  const history = loadHistory().filter(h => !(h.status === 'failed' && h.type === entry.type && h.label === entry.label));
+  history.unshift({ ...entry, id, timestamp: new Date().toISOString() });
+  history.length = Math.min(history.length, 15);
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+  renderHistory();
+  return id;
+}
+
+function setHistoryStatus(id, status) {
+  const history = loadHistory();
+  const entry = history.find(h => h.id === id);
+  if (entry) entry.status = status;
   localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
   renderHistory();
 }
 
 function renderHistory() {
   if (!submissionHistoryEl) return;
-  const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+  const history = loadHistory();
   if (!history.length) {
     submissionHistoryEl.innerHTML = '<p class="settings-hint">No submissions yet on this device.</p>';
     return;
@@ -1536,11 +1266,13 @@ function renderHistory() {
     const date = new Date(entry.timestamp).toLocaleDateString('en-US', {
       month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit',
     });
-    const color = typeColors[entry.type] || '#555';
+    const color  = typeColors[entry.type] || '#555';
+    const status = entry.status || 'saved';   // rows from before statuses existed were all saved
     return `
       <div class="settings-card" style="gap:0.25rem;">
-        <span class="settings-card__label" style="color:${color};">${entry.type}</span>
-        <span class="settings-card__value" style="font-size:0.9rem;">${entry.label}</span>
+        <span class="settings-card__label" style="color:${color};">${esc(entry.type)}
+          <span class="history-status history-status--${status}">${status}</span></span>
+        <span class="settings-card__value" style="font-size:0.9rem;">${esc(entry.label)}</span>
         <span class="settings-hint" style="margin:0;font-size:0.75rem;">${date}</span>
       </div>`;
   }).join('');
@@ -1550,6 +1282,7 @@ function renderHistory() {
    12. BOOTSTRAP
 ═══════════════════════════════════════════════════════════ */
 function onAppReady() {
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(loadHistory().map(h => h.status === 'sending' ? { ...h, status: 'failed' } : h)));
   initIdentity();
   loadPersistedData();
   initCredits();
@@ -1557,7 +1290,7 @@ function onAppReady() {
   const seg = window.location.pathname.slice(1);
   const initial = VALID_VIEWS.has(seg) ? seg : 'receipts';
   history.replaceState(null, '', '/' + initial);
-  navigateTo(initial, false);
+  navigateTo(initial, false, false);
 }
 
 /* Kick off */

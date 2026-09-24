@@ -38,15 +38,15 @@ Found by reading `index.html`, `app.js`, `style.css`, the Netlify functions, and
 - Autosave drafts for the credit and donation forms so an accidental reload doesn't wipe a long list.
 - Credits should remember the last reason and type, like donations already do.
 - "Duplicate last item" button on credit and donation lists.
-- Update `document.title` and move focus to the view heading on navigation.
-- Add `:focus-visible` styles and a `prefers-reduced-motion` rule (neither exists in `style.css`).
+- [x] Update `document.title` and move focus to the view heading on navigation.
+- [x] Add `:focus-visible` styles and a `prefers-reduced-motion` rule (neither exists in `style.css`).
 - Follow the system light/dark preference on first visit.
 
 ## UI
 
-- Success screens are identical across all three flows. Make them show what was submitted and a "View in history" link.
-- Show submission status per row (sending, saved, failed, queued) in history.
-- Loading state on the submit button: add a spinner, not just "Uploading...".
+- [x] Success screens are identical across all three flows. Make them show what was submitted and a "View in history" link.
+- [x] Show submission status per row (sending, saved, failed, queued) in history.
+- [x] Loading state on the submit button: add a spinner, not just "Uploading...".
 - Replace inline `style="..."` in the HTML and `cssText` in JS with CSS classes (`.submit-error` is duplicated 3 times).
 
 ## Speed
@@ -60,7 +60,7 @@ Found by reading `index.html`, `app.js`, `style.css`, the Netlify functions, and
 ## Bloat and cleanup
 
 - Dead CSS: `.stat-card`, `.stat-cards`, `.placeholder-card`, `.section-card`, `.view-copy-card` are in `style.css` and in the `observeAnimatables` selector, but none appear in `index.html`. Probably left over from removed Vehicles, Short Dates, and Roadmap pages. `style.css` is 2,072 lines, so a pass will shrink it.
-- Duplicated code: the credit and donation forms are ~90% the same (add/remove/count items, suggestions, submit, error element, reset). One generic item-list helper would remove ~300 lines.
+- [x] Duplicated code: the credit and donation forms are ~90% the same (add/remove/count items, suggestions, submit, error element, reset). One generic item-list helper would remove ~300 lines.
 - Three near-identical Netlify functions. Merge into one function that takes a route and reads the target URL from an env var.
 - Docs: `PRD.md`, `PROMPTS.md`, `RULES.md`, `TODO.md`, `CHANGELOG.md` are stale (TODO mentions a "More Menu" and pages that no longer exist). Move to `docs/` or delete.
 - Split `app.js` into ES modules: `data.js`, `auth.js`, `receipts.js`, `credits.js`, `donations.js`, `history.js`.

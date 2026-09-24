@@ -2068,3 +2068,48 @@ img, svg { display: block; }
   -webkit-appearance: none;
   margin: 0;
 }
+
+/* ── Submit spinner, error text, history status ────────────── */
+.spinner {
+  width: 1em;
+  height: 1em;
+  margin-right: 0.5em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.submit-error {
+  color: var(--color-error);
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+.history-status {
+  margin-left: 0.5rem;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-success);
+}
+.history-status--sending { color: var(--color-gold-light); }
+.history-status--failed  { color: var(--color-error); }
+
+/* ── Accessibility ─────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--color-gold-light);
+  outline-offset: 2px;
+}
+.view__title:focus { outline: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  *:not(.spinner), *:not(.spinner)::before, *:not(.spinner)::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
