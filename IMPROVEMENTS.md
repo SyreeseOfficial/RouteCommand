@@ -25,14 +25,6 @@ Found by reading `index.html`, `app.js`, `style.css`, the Netlify functions, and
 - Credits should remember the last reason and type, like donations already do.
 - "Duplicate last item" button on credit and donation lists.
 
-## Speed
-
-- Drop Fuse.js (CDN script) and use `includes()` filtering, or self-host it. You have ~70 stores and ~250 items, so it is not needed, and it breaks offline.
-- Self-host Inter (woff2, 2 weights) or use the system font stack. The Google Fonts CSS blocks rendering and fails offline.
-- Move `STORES`, `DONATION_ITEMS`, and name lists out of `app.js` (about 300 lines of the 1,700) into a JSON file. Load it lazily, and cache it in the service worker.
-- Add cache headers for `style.css` and `app.js` in `netlify.toml`, and minify both.
-- Add a timeout to `fetch` (AbortController, ~20s) so a stalled GAS call doesn't hang the button.
-
 ## Bloat and cleanup
 
 - Three near-identical Netlify functions. Merge into one function that takes a route and reads the target URL from an env var.
@@ -84,3 +76,8 @@ Big:
 - [x] Suggestion dropdowns: only the store search has arrow-key support. Credits and donations item search have none. Add `role="combobox"` and `aria-activedescendant`.
 - [x] Replace inline `style="..."` in the HTML and `cssText` in JS with CSS classes (`.submit-error` is duplicated 3 times).
 - [x] Dead CSS: `.stat-card`, `.stat-cards`, `.placeholder-card`, `.section-card`, `.view-copy-card` are in `style.css` and in the `observeAnimatables` selector, but none appear in `index.html`. Probably left over from removed Vehicles, Short Dates, and Roadmap pages. `style.css` is 2,072 lines, so a pass will shrink it.
+- [x] Drop Fuse.js (CDN script) and use `includes()` filtering, or self-host it. You have ~70 stores and ~250 items, so it is not needed, and it breaks offline.
+- [x] Self-host Inter (woff2, 2 weights) or use the system font stack. The Google Fonts CSS blocks rendering and fails offline.
+- [x] Move `STORES`, `DONATION_ITEMS`, and name lists out of `app.js` (about 300 lines of the 1,700) into a JSON file. Load it lazily, and cache it in the service worker.
+- [x] Add cache headers for `style.css` and `app.js` in `netlify.toml`, and minify both.
+- [x] Add a timeout to `fetch` (AbortController, ~20s) so a stalled GAS call doesn't hang the button.

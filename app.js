@@ -11,7 +11,6 @@
 const AUTH_KEY             = 'rc_auth';
 const NAME_KEY             = 'rc_employee_name';
 const RECIPIENT            = 'Ian';   // who receives receipts and credit requests
-const NAMES = ['David Lindholm', 'Hannah', 'Ian Aps', 'Kaleb', 'Nick', 'Steve', 'Syreese Delos Santos', 'Tagen Garris', 'Teresa', 'Tyler Sharpe'];
 const getName = () => localStorage.getItem(NAME_KEY) || '';
 const DEFAULT_VEHICLE_KEY  = 'rc_default_vehicle';
 const HISTORY_KEY          = 'rc_history';
@@ -175,7 +174,16 @@ function loadPersistedData() {
   renderHistory();
 }
 
-function initIdentity() {
+/* Catalog (names, stores, donation items) lives in data.json; fetched on first use, then cached by the service worker */
+let dataPromise = null;
+function loadData() {
+  dataPromise = dataPromise || fetch('/data.json').then(r => r.json()).catch(err => { dataPromise = null; throw err; });
+  return dataPromise;
+}
+const catalog = (key) => loadData().then(d => d[key], () => []);
+
+async function initIdentity() {
+  const NAMES = await catalog('names');
   const opts = NAMES.map(n => `<option value="${n}">${n}</option>`).join('');
   const gate = document.getElementById('name-gate');
   const gateSel = document.getElementById('name-gate-select');
@@ -282,6 +290,27 @@ function markInvalid(el) {
   return false;
 }
 
+/* POST JSON with a timeout, so a stalled server call can't hang the button forever */
+const FETCH_TIMEOUT_MS = 20000;
+async function postJSON(endpoint, payload) {
+  const ctrl  = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), FETCH_TIMEOUT_MS);
+  try {
+    const res = await fetch(endpoint, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(payload),
+      signal:  ctrl.signal,
+    });
+    return await res.json();
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/* fetch() rejects with a TypeError ("Failed to fetch") when offline; a timeout aborts it */
+const isNetworkError = (err) => err.name === 'TypeError' || err.name === 'AbortError' || !navigator.onLine;
+
 /* POST a form, drive the button spinner, error text, history status, and success screen. */
 /* ── Offline queue: submissions that failed for lack of network wait here and retry ── */
 const QUEUE_KEY = 'rc_queue';
@@ -300,17 +329,16 @@ async function flushQueue() {
   if (flushing || !navigator.onLine) return;
   flushing = true;
   for (const item of loadQueue()) {
+    let status;
     try {
-      const res  = await fetch(item.endpoint, {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify(item.payload),
-      });
-      const data = await res.json();
-      /* Any server reply ends the item: retrying a rejected submission would just fail again */
-      setHistoryStatus(item.historyId, data.status === 'success' ? 'saved' : 'failed');
-      localStorage.setItem(QUEUE_KEY, JSON.stringify(loadQueue().filter(q => q.historyId !== item.historyId)));
-    } catch { break; }   // still offline; try again on the next tick
+      const data = await postJSON(item.endpoint, item.payload);
+      status = data.status === 'success' ? 'saved' : 'failed';
+    } catch (err) {
+      if (isNetworkError(err)) break;   // still offline; try again on the next tick
+      status = 'failed';                // any other reply ends the item: a retry would just fail again
+    }
+    setHistoryStatus(item.historyId, status);
+    localStorage.setItem(QUEUE_KEY, JSON.stringify(loadQueue().filter(q => q.historyId !== item.historyId)));
   }
   flushing = false;
 }
@@ -355,26 +383,20 @@ async function submitForm({ draftKey, endpoint, payload, btn, label, type, histL
 
   const historyId = saveToHistory({ type, label: histLabel, status: 'sending' });
   try {
-    const res  = await fetch(endpoint, {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify(payload),
-    });
-    const data = await res.json();
+    const data = await postJSON(endpoint, payload);
     if (data.status !== 'success') throw new Error(data.message || 'Server error');
 
     setHistoryStatus(historyId, 'saved');
     if (draftKey) localStorage.removeItem(draftKey);
     showSuccess(false);
   } catch (err) {
-    /* fetch() rejects with a TypeError ("Failed to fetch") when the network is down */
-    if ((err instanceof TypeError || !navigator.onLine) && enqueue({ endpoint, payload, historyId })) {
+    if (isNetworkError(err) && enqueue({ endpoint, payload, historyId })) {
       setHistoryStatus(historyId, 'queued');
       if (draftKey) localStorage.removeItem(draftKey);
       showSuccess(true);
     } else {
       setHistoryStatus(historyId, 'failed');
-      errEl.textContent = err instanceof TypeError || !navigator.onLine
+      errEl.textContent = isNetworkError(err)
         ? 'Network error. Please check your connection and try again.'
         : err.message;
     }
@@ -422,12 +444,13 @@ function createItemList({ listId, countId, buildHTML, onType }) {
     if (!el.children.length) add();
   };
 
-  el.addEventListener('input', (e) => {
+  el.addEventListener('input', async (e) => {
     const input = e.target.closest('[data-fname="name"]');
     if (!input) return;
     const box = input.closest('.store-search-wrap').querySelector('.store-suggestions');
     const q   = input.value.trim();
-    showSuggestions(input, box, q ? searchDonationItems(q) : []);
+    const results = q ? await searchDonationItems(q) : [];
+    if (input.value.trim() === q) showSuggestions(input, box, results);   // ignore stale results
   });
 
   el.addEventListener('keydown', (e) => {
@@ -620,323 +643,15 @@ function observeAnimatables() {
 ═══════════════════════════════════════════════════════════ */
 
 
-const STORES = [
-  'Air Culinaire Worldwide','Aldarra Golf Club','Alki Bakery','Bangor',
-  'Brownsville Deli','Cascade Valley Hospital','Chateau Bothell',
-  'Chateau Lynnwood','Chateau Valley Center','FB Crashpad','FB Homestead',
-  'FB-Like Place Market','Farmhouse Market','Fort Lewis','Fort Lewis North Express',
-  'Fred Meyer 210 Monroe','Fred Meyer 459 Renton','Freemann Foods',
-  'Graze Craze','Hansgrill','Highland Park Corner Store','Jake\'s Pickup',
-  'Ken\'s Market','Liberty Express','Lombardi Specialty FD','Longhouse Market',
-  'McChord','Meat the Live Butcher','Meta Grail Cafe','Mirabella Seattle',
-  'North Creek Chevron','North Point Markets','NYC Deli','OC Whole Enchilada',
-  'Overlake Country Club','Post Pike','Post Pike Georgetown',
-  'QFC 101 Belfair','QFC 105 Parkland','QFC 106 Port Townsend',
-  'QFC 126 Lacey','QFC 803 Kent','QFC 805 Manhattan','QFC 819 Bothell',
-  'QFC 821 Issaquah','QFC 824 Pine Lake','QFC 829 North Bend',
-  'QFC 831 Northshore','QFC 837 Maple Valley','QFC 839 Mercer Island',
-  'QFC 840 Klahanie','QFC 841 Sequim','QFC 850 Canyon Park',
-  'QFC 858 North Seattle','QFC 863 Enumclaw','QFC 869 Wallingford',
-  'QFC 870 Port Hadlock','QFC 871 Renton','Ridge NE','Ridge Pizza',
-  'Skagit Hospital','Skooders','Smoothie Shack','Spring Deli',
-  'Sprouts 458','The Salmeri','Tower 12 Deli','Volunteer Park Cafe',
-  'Walt\'s Market','Whidbey NAS Comm','Wing Point Golf Club','Yellow Deli',
-];
 
-const DONATION_ITEMS = [
-  // Ham
-  'Smokemaster Black Forest Ham Whole',
-  '11069 Bourbonridge Smoked Ham',
-  '102 Deluxe Ham Baby',
-  '150 Maple Honey Ham Whole',
-  '11018 Service Deli Sweet Slice',
-  '11082 Tavern Ham',
-  '159 Lower Sodium Ham Half',
-  '11093 Brown Sugar & Spice Deluxe Ham',
-  // Bologna
-  '358 Beef Bologna',
-  '354 Garlic Bologna',
-  '781 Lebanon Bologna',
-  // Beef
-  '12011 London Broil Roast Beef',
-  '197 Corned Beef Top Round',
-  '205 Pastrami Top Round',
-  '235 Deluxe Roast Beef Half',
-  '915 Londonport Roast Beef',
-  // Turkey
-  '13018 No Salt Added Turkey',
-  '13033 Blackened Turkey',
-  '13063 Pitcraft Smoked Turkey',
-  '270 Maple Honey Turkey',
-  '275 Pastrami Turkey',
-  '276 Cracked Peppermill Turkey',
-  '278 Ovengold Turkey',
-  '284 Salsalito Turkey',
-  '294 Mesquite Turkey',
-  '296 Cajun Turkey',
-  '297 Black Forest Turkey',
-  '326 Oven Roasted Turkey Breast',
-  '421 Lower Sodium Turkey',
-  // Chicken
-  '13014 Everroast Chicken',
-  '13034 Chipotle Chicken',
-  '13044 Ichiban Teriyaki Chicken',
-  '13086 Firesmith Grilled Chicken Breast',
-  '13096 Sweet Bourbon Honey BBQ Chicken Breast',
-  '437 Golden Classic Chicken',
-  '439 Lemon Pepper Chicken',
-  '440 Blazing Buffalo Chicken',
-  // Bacon
-  '480 Fully Cooked Bacon 2.29oz',
-  '533 Fully Cooked Bacon (300 Slices)',
-  '539 Domestic Layer Bacon 18/22',
-  '542 Imported Bacon 1lb',
-  '546 Imported Layer Bacon 12/14',
-  '11078 Extra Thick Smoked Bacon 20oz',
-  // Franks & Sausage
-  '14003 Beef Frank Skinless 12.5oz',
-  '14008 Beef Frank 8/1 14oz',
-  '14013 Italian Chicken Sausage',
-  '14014 Buffalo Chicken Sausage',
-  '14017 Bratwurst Chicken Sausage',
-  '14018 Apple Chicken Sausage',
-  '14025 Chorizo Andouille Chicken Sausage',
-  '14033 Andouille Chicken Sausage',
-  '399 Bratwurst 1lb',
-  '410 Beef Knockwurst 1lb',
-  '415 Beef Frank Skinless 4/1 8"',
-  // Italian / Specialty Meats (Bulk)
-  '16137 Mortadella',
-  '16146 Peppered Salame',
-  '16147 Prosciutto Di Parma',
-  '502 Capocollo Hot',
-  '527 Pepperoni 3lb',
-  '530 Prosciutto Piccolo Half',
-  '531 Prosciutto Skinless/Shankless',
-  '545 Pancetta',
-  '547 Genoa Salami Half',
-  '557 Hard Salami Half',
-  '558 Pepperoni Sandwich Style',
-  "568 Bianco D'Oro Salame",
-  '872 Capocollo Hot Half',
-  '873 Capocollo Sweet Half',
-  // Italian / Specialty Meats (Packaged)
-  '16307 Uncured Genoa & Mozzarella Cheese Tray',
-  '16308 Uncured Pepperoni & Vermont Cheddar',
-  "16030 Bianco D'Oro Salame 7oz",
-  '16057 Genoa Salami 9oz',
-  '16072 Rolled Mozzarella Prosciutto 8oz',
-  '16073 All Natural Salame',
-  '16078 Pepperoni Stick 6.5oz',
-  '16088 Diced Pancetta 4oz',
-  '16093 Peppered Salame 8oz',
-  '16154 Turkey Pepperoni Pouch',
-  '16188 Superiore Italian Dry Sausage Hot',
-  '16189 Superiore Italian Dry Sausage Sweet',
-  '16191 Superiore Sopressata Sweet',
-  '16206 Sliced Sopressata 4oz',
-  '16208 Genoa Salami Sliced 4oz',
-  '16209 Superiore Chorizo',
-  '16235 Hard Salami Pouch 5oz',
-  '16253 Pouch Genoa',
-  '595 Pouch Pepperoni 6oz',
-  '16271 PS Trio Sopressata Copa Genoa',
-  '16275 PS Duet Hard Salami Gouda',
-  '16279 PS Trio Prosciutto Genoa Sopressata',
-  '16321 Trio Milano Calabrese Fennel Tray',
-  '16328 UC Napoli Salame Tray',
-  '16329 UC Fennel Salame Tray',
-  '16330 UC Calabrese Salame Tray',
-  '16349 Speck Chiffonade Tray',
-  '16350 Speck Trio with Napoli Milano',
-  // Cheese (Bulk)
-  '15010 Asiago Cheese',
-  '15035 Smoked Gouda Cheese',
-  '15060 Chipotle Gouda Cheese',
-  '15061 3 Pepper Colby Jack',
-  '15179 Smoked Wisconsin Cheddar',
-  '15206 Cheddar Yellow Black Wax',
-  '15207 Cheddar White Red Wax',
-  '15217 Caramelized Onion Jack',
-  '620 Mozzarella Cheese',
-  '627 Horseradish Cheddar',
-  '628 Vermont Cheddar White',
-  '629 Vermont Cheddar Yellow',
-  '648 Picante Provolone',
-  '652 American Cheese Yellow',
-  '653 American Cheese White',
-  '654 Muenster Cheese',
-  '663 Mild Swiss Cheese',
-  '668 Low Sodium Provolone',
-  '670 Lacey Swiss Cheese',
-  '672 Baby Swiss Cheese',
-  '682 Imported Swiss Cheese',
-  '700 Colby Jack Cheese',
-  '725 Havarti Cheese',
-  '726 Havarti Dill Cheese',
-  '727 Havarti Jalapeno Cheese',
-  '751 Pepper Jack Cheese',
-  // Cheese (Sliced / Packaged)
-  '15118 Colby Jack Shreds',
-  '15121 Mozzarella & Provolone Shreds',
-  '15189 Provolone Sliced',
-  '15191 Pepper Jack Sliced',
-  '15192 Vermont Cheddar Sliced Yellow',
-  '15194 Mild Swiss Sliced',
-  '644 American Cheese Yellow 160 Slice',
-  '645 American Cheese Yellow 120 Slice',
-  '647 American Cheese White 160 Slice',
-  '671 Cream Cheese Tub 5lb',
-  // Cheese (Portion Cut)
-  '15011 PC Vermont Cheddar Yellow',
-  '15012 PC Vermont Cheddar White',
-  '15022 PC Asiago',
-  '15038 PC French Brie',
-  '15041 PC Chevre',
-  '15062 PC Smoked Gouda',
-  '15070 PC Chipotle Gouda',
-  '15071 PC 3 Pepper Colby Jack',
-  '15161 PC Parmesan Reggiano',
-  '15164 PC Manchego',
-  '15167 PC Aged Gouda',
-  '15181 PC Caramella',
-  '15212 Irish Cheddar 7oz',
-  '15213 French Brie Round 250g',
-  '15216 PC Sriracha Gouda',
-  '859 Grated Parmesan',
-  '930 Blue Cheese Crumbles 6oz',
-  '931 Gorgonzola Crumbles 6oz',
-  '932 Feta Cheese Crumbles 6oz',
-  '961 PC Butterkase',
-  '966 PC Horseradish Cheddar',
-  '971 PC Feta',
-  '972 PC Fontina',
-  '973 PC Gouda',
-  '974 PC Gruyere',
-  '975 PC Hickory Smoked Gruyere',
-  '976 PC Cream Havarti',
-  '977 PC Cream Havarti Dill',
-  '978 PC Havarti Jalapeno',
-  '980 PC Pepper Jack',
-  '985 PC Imported Swiss',
-  // Pre-Sliced
-  '50001 Pre-Sliced American Yellow',
-  '50002 Pre-Sliced Hard Salami',
-  '50003 Pre-Sliced Imported Swiss',
-  '50007 Pre-Sliced LS Provolone',
-  '50009 Pre-Sliced Vermont Cheddar White',
-  '50010 Pre-Sliced Muenster',
-  '50011 Pre-Sliced Pepper Jack',
-  '50012 Pre-Sliced American White',
-  '50013 Pre-Sliced Colby Jack',
-  '50015 Pre-Sliced Genoa Salami',
-  '50016 Pre-Sliced Sopressata',
-  '50017 Pre-Sliced Pepperoni',
-  '50019 Pre-Sliced Prosciutto',
-  '50021 Pre-Sliced Capocollo Hot',
-  '50024 Pre-Sliced Honey Smoked Turkey',
-  '50026 Pre-Sliced Smoked Ham',
-  '50087 Pre-Sliced Canadian Style Bacon',
-  '50037 Pre-Sliced Prosciutto Di Parma',
-  '50039 Pre-Sliced Smoked Gouda',
-  '50063 Ham Steak',
-  '50071 Pre-Sliced 3 Pepper Colby Jack',
-  '50073 Pre-Sliced Applewood Turkey',
-  '50074 Pre-Sliced Roasted Turkey',
-  '50076 Pre-Sliced Organic Cheddar',
-  '50083 Pre-Sliced Organic Roasted Turkey',
-  '50084 Pre-Sliced Rotisserie Chicken',
-  // Pork / Other
-  '11034 Refrigerated Sausage Patties',
-  '569 Trenton Pork Roll',
-  '572 Taylor Pork Roll 1lb',
-  // Hummus
-  '16159 Traditional Hummus 10oz',
-  '16160 Pine Nut Hummus 10oz',
-  '16161 Garlic Hummus 10oz',
-  '16162 Red Pepper Hummus 10oz',
-  '16196 Kalamata Olive Hummus 10oz',
-  '16237 Everything Bagel Hummus 10oz',
-  '16246 Sweet Chili Garlic Hummus 10oz',
-  '16288 Pepperhouse Hummus',
-  '16299 Meyer Lemon Hummus 10oz',
-  '16301 Dark Chocolate Dessert Hummus 10oz',
-  '16312 Dill Pickle Hummus 10oz',
-  '16313 Mango Jalapeno Hummus',
-  '16158 Traditional Hummus & Pretzels',
-  '16167 Red Pepper Hummus & Pretzels',
-  // Dips
-  '16260 Tzatziki 12oz',
-  '16276 French Onion Dip 12oz',
-  '16282 Spinach Dip 12oz',
-  '16294 Garden Ranch Greek Yogurt Dip',
-  '16298 Key Lime Pie Greek Yogurt Dip',
-  '16311 Espresso Chocolate Greek Yogurt Dip',
-  '16354 Churro Greek Yogurt Dip',
-  // Pickles & Olives
-  '16031 Sauerkraut 5 Gallon',
-  '16224 Bread & Butter Pickles 26oz',
-  '16261 Dill Pickle Chips 26oz',
-  '485 Horseradish Pickle Chips 15.5oz',
-  '486 Dill Pickle Spears 26oz',
-  '487 Dill Pickle Whole 26oz',
-  '488 Dill Pickle 1/2 Cut 26oz',
-  '791 HJ Pickles Whole 5 Gallon',
-  '796 HJ Pickles Spears 5 Gallon',
-  '813 HJ Pickle Sandwich Chips',
-  '16333 Jubilee Olives',
-  '16335 Kalamata Olives',
-  '16342 Mediterranean Feta Salad',
-  // Condiments (Squeeze)
-  '16001 Deli Mustard 9.5oz',
-  '16002 Honey Mustard 10.5oz',
-  '16003 Horseradish Sauce 9.5oz',
-  '788 Deli Dressing 8.5oz',
-  '16087 Mayonnaise 9oz',
-  '16132 Chipotle Gourmaise 8.5oz',
-  '16135 Pepperhouse Gourmaise 8.5oz',
-  '16202 Low Sodium Yellow Mustard 9oz',
-  '16203 Low Sodium Yellow Mustard PC',
-  '731 Sauerkraut 1lb',
-  '896 Jalapeno Pepper Sauce',
-  '16296 Garlic Aioli Gourmaise',
-  // Condiments (Bulk)
-  '16058 Mayonnaise 1 Gallon',
-  '16204 Low Sodium Yellow Mustard 1 Gallon',
-  '16257 Chipotle Gourmaise 16oz',
-  '16264 Honey Mustard (Bulk)',
-  '16249 Deli Dressing 16oz',
-  '740 Deli Mustard 1 Gallon',
-  '16267 PC Real Mayonnaise',
-  '737 Honey Mustard PC',
-  '743 Deli Mustard PC',
-  '785 Horseradish Sauce PC',
-  '16268 PC Chipotle Gourmaise',
-  '8779 Horseradish Sauce 1/2 Gallon',
-  '16252 Pepperhouse Gourmaise 16oz',
-];
 
-let fuseInstance = null;
-let donationFuse = null;
-let creditItemCounter = 0;
-
-function searchStores(query) {
-  if (typeof Fuse !== 'undefined') {
-    if (!fuseInstance) fuseInstance = new Fuse(STORES, { threshold: 0.4, minMatchCharLength: 1 });
-    return fuseInstance.search(query).map(r => r.item).slice(0, 8);
-  }
-  const q = query.toLowerCase();
-  return STORES.filter(s => s.toLowerCase().includes(q)).slice(0, 8);
+/* Every space-separated word must appear somewhere in the entry */
+function matchAll(list, query) {
+  const words = query.toLowerCase().split(/\s+/);
+  return list.filter(s => { const l = s.toLowerCase(); return words.every(w => l.includes(w)); }).slice(0, 8);
 }
-
-function searchDonationItems(query) {
-  if (typeof Fuse !== 'undefined') {
-    if (!donationFuse) donationFuse = new Fuse(DONATION_ITEMS, { threshold: 0.4, minMatchCharLength: 2 });
-    return donationFuse.search(query).map(r => r.item).slice(0, 8);
-  }
-  const q = query.toLowerCase();
-  return DONATION_ITEMS.filter(s => s.toLowerCase().includes(q)).slice(0, 8);
-}
+const searchStores        = async (q) => matchAll(await catalog('stores'), q);
+const searchDonationItems = async (q) => matchAll(await catalog('donationItems'), q);
 
 /* Combobox behaviour shared by the store search and the item search boxes */
 let suggestionSeq = 0;
@@ -990,9 +705,10 @@ function initStoreSearch() {
   const input = $('credit-store-input');
   const box   = $('store-suggestions');
 
-  input.addEventListener('input', () => {
+  input.addEventListener('input', async () => {
     const q = input.value.trim();
-    showSuggestions(input, box, q ? searchStores(q) : []);
+    const results = q ? await searchStores(q) : [];
+    if (input.value.trim() === q) showSuggestions(input, box, results);   // ignore stale results
   });
   box.addEventListener('click', (e) => {
     const hit = e.target.closest('.store-suggestion');
@@ -1421,3 +1137,5 @@ function onAppReady() {
 
 /* Kick off */
 initAuth();
+
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});

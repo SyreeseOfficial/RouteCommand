@@ -1,0 +1,25 @@
+# Minify the shipped JS/CSS at deploy time (source files stay readable in git)
+[build]
+  command = "npx -y esbuild app.js --minify --allow-overwrite --outfile=app.js && npx -y esbuild style.css --minify --allow-overwrite --outfile=style.css"
+
+# No filename hashing, so keep the cache short: fast repeat loads, updates within 5 minutes
+[[headers]]
+  for = "/app.js"
+  [headers.values]
+    Cache-Control = "public, max-age=300, stale-while-revalidate=86400"
+
+[[headers]]
+  for = "/style.css"
+  [headers.values]
+    Cache-Control = "public, max-age=300, stale-while-revalidate=86400"
+
+[[headers]]
+  for = "/data.json"
+  [headers.values]
+    Cache-Control = "public, max-age=300, stale-while-revalidate=86400"
+
+# The service worker must always be re-checked or updates never arrive
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"
