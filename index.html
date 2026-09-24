@@ -258,7 +258,7 @@
                 <span class="credit-items-count" id="credit-items-count">1 item</span>
               </div>
               <div id="credit-items-list"></div>
-              <button type="button" class="btn btn--outline btn--full" id="add-credit-item-btn" style="margin-top:0.75rem;">+ Add Another Item</button>
+              <button type="button" class="btn btn--outline btn--full btn--add-item" id="add-credit-item-btn">+ Add Another Item</button>
             </div>
 
             <!-- Notes -->
@@ -288,8 +288,8 @@
         </div>
 
         <!-- BOOKMARK GUIDE -->
-        <div class="form-card" id="bookmark-guide-card" style="margin-top:1.5rem;">
-          <h3 class="bookmark-guide__title">Save to Your Phone</h3>
+        <details class="form-card form-card--spaced" id="bookmark-guide-card">
+          <summary class="bookmark-guide__title">Save to Your Phone</summary>
           <p class="bookmark-guide__sub">Add Route Command to your home screen or bookmarks for one-tap access — no typing the URL every time.</p>
 
           <div class="form-group">
@@ -300,7 +300,7 @@
             </div>
           </div>
 
-          <div class="form-group" style="margin-bottom:0;">
+          <div class="form-group form-group--flush">
             <label class="form-label">What to Add</label>
             <div class="pill-toggle" id="bookmark-type-toggle">
               <button type="button" class="pill-toggle__btn pill-toggle__btn--active" data-btype="homescreen">Home Screen Icon</button>
@@ -309,7 +309,7 @@
           </div>
 
           <div class="bookmark-instructions" id="bookmark-instructions"></div>
-        </div>
+        </details>
 
       </section>
 
@@ -330,7 +330,7 @@
                 <span class="credit-items-count" id="donation-items-count">1 item</span>
               </div>
               <div id="donation-items-list"></div>
-              <button type="button" class="btn btn--outline btn--full" id="add-donation-item-btn" style="margin-top:0.75rem;">+ Add Another Item</button>
+              <button type="button" class="btn btn--outline btn--full btn--add-item" id="add-donation-item-btn">+ Add Another Item</button>
             </div>
 
             <!-- Notes -->

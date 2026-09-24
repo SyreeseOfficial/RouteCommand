@@ -168,7 +168,7 @@ function loadPersistedData() {
   /* Auto-fill today's date on receipt form */
   const receiptDateEl = document.getElementById('receipt-date');
   if (receiptDateEl && !receiptDateEl.value) {
-    receiptDateEl.value = new Date().toISOString().split('T')[0];
+    receiptDateEl.value = today();
   }
 
   /* Render submission history */
@@ -271,16 +271,52 @@ document.getElementById('photo-retake').addEventListener('click', () => {
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const fmtDate = (d) => d ? new Date(d + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
+/* Local YYYY-MM-DD (toISOString would give the UTC date, which is tomorrow after ~5pm Pacific) */
+const today = () => new Date().toLocaleDateString('en-CA');
 const plural = (n, word) => `${n} ${word}${n !== 1 ? 's' : ''}`;
 
 /* Red border until the user edits the field. Returns false so callers can do `valid = markInvalid(el)`. */
 function markInvalid(el) {
-  el.style.borderColor = 'var(--color-error)';
-  ['input', 'change'].forEach(ev => el.addEventListener(ev, () => { el.style.borderColor = ''; }, { once: true }));
+  el.classList.add('is-invalid');
+  ['input', 'change'].forEach(ev => el.addEventListener(ev, () => el.classList.remove('is-invalid'), { once: true }));
   return false;
 }
 
 /* POST a form, drive the button spinner, error text, history status, and success screen. */
+/* ── Offline queue: submissions that failed for lack of network wait here and retry ── */
+const QUEUE_KEY = 'rc_queue';
+const loadQueue = () => { try { return JSON.parse(localStorage.getItem(QUEUE_KEY)) || []; } catch { return []; } };
+
+/* Returns false if the item couldn't be stored (e.g. storage full), so the caller can show the error instead */
+function enqueue(item) {
+  try {
+    localStorage.setItem(QUEUE_KEY, JSON.stringify([...loadQueue(), item]));
+    return true;
+  } catch { return false; }
+}
+
+let flushing = false;
+async function flushQueue() {
+  if (flushing || !navigator.onLine) return;
+  flushing = true;
+  for (const item of loadQueue()) {
+    try {
+      const res  = await fetch(item.endpoint, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(item.payload),
+      });
+      const data = await res.json();
+      /* Any server reply ends the item: retrying a rejected submission would just fail again */
+      setHistoryStatus(item.historyId, data.status === 'success' ? 'saved' : 'failed');
+      localStorage.setItem(QUEUE_KEY, JSON.stringify(loadQueue().filter(q => q.historyId !== item.historyId)));
+    } catch { break; }   // still offline; try again on the next tick
+  }
+  flushing = false;
+}
+window.addEventListener('online', flushQueue);
+setInterval(flushQueue, 30000);
+
 /* Save `snapshot()` to localStorage on every edit, so a reload doesn't lose a long list */
 function autosaveDraft(key, formEl, snapshot) {
   const save = () => localStorage.setItem(key, JSON.stringify(snapshot()));
@@ -304,6 +340,19 @@ async function submitForm({ draftKey, endpoint, payload, btn, label, type, histL
   }
   errEl.textContent = '';
 
+  /* The success screen doubles as the "saved offline" screen */
+  const showSuccess = (queued) => {
+    const title = successEl.querySelector('.success-state__title');
+    const msg   = successEl.querySelector('.success-state__msg');
+    title.dataset.orig = title.dataset.orig || title.textContent;
+    msg.dataset.orig   = msg.dataset.orig   || msg.innerHTML;
+    title.textContent = queued ? 'Saved Offline' : title.dataset.orig;
+    msg.innerHTML     = queued ? 'It will send automatically when you\'re back online.' : msg.dataset.orig;
+    summaryEl.innerHTML = summaryHTML;
+    formEl.classList.add('hidden');
+    successEl.classList.remove('hidden');
+  };
+
   const historyId = saveToHistory({ type, label: histLabel, status: 'sending' });
   try {
     const res  = await fetch(endpoint, {
@@ -316,15 +365,19 @@ async function submitForm({ draftKey, endpoint, payload, btn, label, type, histL
 
     setHistoryStatus(historyId, 'saved');
     if (draftKey) localStorage.removeItem(draftKey);
-    summaryEl.innerHTML = summaryHTML;
-    formEl.classList.add('hidden');
-    successEl.classList.remove('hidden');
+    showSuccess(false);
   } catch (err) {
-    setHistoryStatus(historyId, 'failed');
     /* fetch() rejects with a TypeError ("Failed to fetch") when the network is down */
-    errEl.textContent = err instanceof TypeError || !navigator.onLine
-      ? 'Network error. Please check your connection and try again.'
-      : err.message;
+    if ((err instanceof TypeError || !navigator.onLine) && enqueue({ endpoint, payload, historyId })) {
+      setHistoryStatus(historyId, 'queued');
+      if (draftKey) localStorage.removeItem(draftKey);
+      showSuccess(true);
+    } else {
+      setHistoryStatus(historyId, 'failed');
+      errEl.textContent = err instanceof TypeError || !navigator.onLine
+        ? 'Network error. Please check your connection and try again.'
+        : err.message;
+    }
   } finally {
     window.removeEventListener('beforeunload', beforeUnloadHandler);
     btn.disabled    = false;
@@ -374,18 +427,18 @@ function createItemList({ listId, countId, buildHTML, onType }) {
     if (!input) return;
     const box = input.closest('.store-search-wrap').querySelector('.store-suggestions');
     const q   = input.value.trim();
-    const results = q ? searchDonationItems(q) : [];
-    box.innerHTML = results.map(s => `<div class="store-suggestion" role="option" tabindex="-1">${esc(s)}</div>`).join('');
-    box.classList.toggle('hidden', !results.length);
+    showSuggestions(input, box, q ? searchDonationItems(q) : []);
+  });
+
+  el.addEventListener('keydown', (e) => {
+    const input = e.target.closest('[data-fname="name"]');
+    if (input) suggestionKeydown(e, input, input.closest('.store-search-wrap').querySelector('.store-suggestions'));
   });
 
   el.addEventListener('click', (e) => {
     const hit = e.target.closest('.store-suggestion');
     if (hit) {
-      const input = hit.closest('.store-search-wrap').querySelector('input');
-      input.value = hit.textContent;
-      input.style.borderColor = '';
-      hit.parentElement.classList.add('hidden');
+      pickSuggestion(hit.closest('.store-search-wrap').querySelector('input'), hit.parentElement, hit.textContent);
       return;
     }
     const typeBtn = e.target.closest('[data-type-btn]');
@@ -399,7 +452,7 @@ function createItemList({ listId, countId, buildHTML, onType }) {
   });
 
   document.addEventListener('click', (e) => {
-    if (!e.target.closest('.store-search-wrap')) el.querySelectorAll('.store-suggestions').forEach(b => b.classList.add('hidden'));
+    if (!e.target.closest('.store-search-wrap')) el.querySelectorAll('.store-suggestions').forEach(hideSuggestions);
   });
 
   return { el, add, reset, serialize, restore };
@@ -435,11 +488,7 @@ if (expenseForm) {
         { id: 'expense-amount',   val: parseFloat(amount) > 0 },
       ].forEach(({ id, val }) => {
         const el = document.getElementById(id);
-        if (el && !val) {
-          el.style.borderColor = 'var(--color-error)';
-          el.addEventListener('input', () => el.style.borderColor = '', { once: true });
-          el.addEventListener('change', () => el.style.borderColor = '', { once: true });
-        }
+        if (el && !val) markInvalid(el);
       });
       return;
     }
@@ -889,61 +938,71 @@ function searchDonationItems(query) {
   return DONATION_ITEMS.filter(s => s.toLowerCase().includes(q)).slice(0, 8);
 }
 
+/* Combobox behaviour shared by the store search and the item search boxes */
+let suggestionSeq = 0;
+
+function showSuggestions(input, box, results) {
+  box.id = box.id || `suggestions-${++suggestionSeq}`;
+  input.setAttribute('role', 'combobox');
+  input.setAttribute('aria-autocomplete', 'list');
+  input.setAttribute('aria-controls', box.id);
+  box.innerHTML = results.map((s, i) => `<div class="store-suggestion" role="option" id="${box.id}-${i}" tabindex="-1">${esc(s)}</div>`).join('');
+  box.classList.toggle('hidden', !results.length);
+  input.setAttribute('aria-expanded', String(results.length > 0));
+  input.removeAttribute('aria-activedescendant');
+}
+
+function hideSuggestions(box) {
+  box.classList.add('hidden');
+  const input = box.parentElement.querySelector('input');
+  input.setAttribute('aria-expanded', 'false');
+  input.removeAttribute('aria-activedescendant');
+}
+
+function pickSuggestion(input, box, text) {
+  input.value = text;
+  input.classList.remove('is-invalid');
+  hideSuggestions(box);
+  input.dispatchEvent(new Event('change', { bubbles: true }));   // lets draft autosave see keyboard picks
+}
+
+/* Arrow keys move through the options, Enter picks, Escape closes */
+function suggestionKeydown(e, input, box) {
+  if (box.classList.contains('hidden')) return;
+  const opts = [...box.children];
+  const cur  = box.querySelector('.focused');
+  let idx    = opts.indexOf(cur);
+
+  if (e.key === 'ArrowDown')      idx = (idx + 1) % opts.length;
+  else if (e.key === 'ArrowUp')   idx = idx <= 0 ? opts.length - 1 : idx - 1;
+  else if (e.key === 'Enter' && cur) { e.preventDefault(); pickSuggestion(input, box, cur.textContent); return; }
+  else if (e.key === 'Escape')    { hideSuggestions(box); return; }
+  else return;
+
+  e.preventDefault();
+  cur?.classList.remove('focused');
+  opts[idx].classList.add('focused');
+  input.setAttribute('aria-activedescendant', opts[idx].id);
+  opts[idx].scrollIntoView({ block: 'nearest' });
+}
+
 function initStoreSearch() {
-  const input       = document.getElementById('credit-store-input');
-  const suggestions = document.getElementById('store-suggestions');
-  if (!input || !suggestions) return;
+  const input = $('credit-store-input');
+  const box   = $('store-suggestions');
 
   input.addEventListener('input', () => {
     const q = input.value.trim();
-    if (!q) { suggestions.classList.add('hidden'); return; }
-
-    const results = searchStores(q);
-    if (!results.length) { suggestions.classList.add('hidden'); return; }
-
-    suggestions.innerHTML = results
-      .map(s => `<div class="store-suggestion" role="option" tabindex="-1">${s}</div>`)
-      .join('');
-    suggestions.classList.remove('hidden');
+    showSuggestions(input, box, q ? searchStores(q) : []);
   });
-
-  suggestions.addEventListener('click', (e) => {
+  box.addEventListener('click', (e) => {
     const hit = e.target.closest('.store-suggestion');
     if (!hit) return;
-    input.value = hit.textContent;
-    suggestions.classList.add('hidden');
+    pickSuggestion(input, box, hit.textContent);
     input.blur();
-    input.style.borderColor = '';
   });
-
-  /* Keyboard navigation inside suggestions */
-  input.addEventListener('keydown', (e) => {
-    if (suggestions.classList.contains('hidden')) return;
-    const items = suggestions.querySelectorAll('.store-suggestion');
-    const focused = suggestions.querySelector('.focused');
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      const next = focused ? (focused.nextElementSibling || items[0]) : items[0];
-      focused?.classList.remove('focused');
-      next?.classList.add('focused');
-      next?.scrollIntoView({ block: 'nearest' });
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      const prev = focused ? (focused.previousElementSibling || items[items.length - 1]) : items[items.length - 1];
-      focused?.classList.remove('focused');
-      prev?.classList.add('focused');
-      prev?.scrollIntoView({ block: 'nearest' });
-    } else if (e.key === 'Enter' && focused) {
-      e.preventDefault();
-      input.value = focused.textContent;
-      suggestions.classList.add('hidden');
-    } else if (e.key === 'Escape') {
-      suggestions.classList.add('hidden');
-    }
-  });
-
+  input.addEventListener('keydown', (e) => suggestionKeydown(e, input, box));
   document.addEventListener('click', (e) => {
-    if (!e.target.closest('.store-search-wrap')) suggestions.classList.add('hidden');
+    if (!e.target.closest('.store-search-wrap')) hideSuggestions(box);
   });
 }
 
@@ -963,7 +1022,7 @@ function createCreditItemHTML(id) {
         </div>
       </div>
       <div class="hidden" data-fields-type="chub">
-        <div class="store-search-wrap" style="margin-bottom:0.5rem;">
+        <div class="store-search-wrap store-search-wrap--spaced">
           <input type="text" class="form-input" placeholder="Search item or UPC…" autocomplete="off" autocorrect="off" spellcheck="false" inputmode="search" data-fname="name" />
           <div class="store-suggestions hidden" role="listbox" aria-label="Item suggestions"></div>
         </div>
@@ -1044,7 +1103,7 @@ function handleCreditSubmit(e) {
 
 function resetCreditForm() {
   localStorage.removeItem(CREDIT_DRAFT_KEY);
-  $('credit-date').value = new Date().toISOString().split('T')[0];
+  $('credit-date').value = today();
   $('credit-store-input').value = '';
   $('credit-notes').value = '';
   creditList.reset();
@@ -1124,7 +1183,7 @@ function initBookmarkGuide() {
 }
 
 function initCredits() {
-  $('credit-date').value = new Date().toISOString().split('T')[0];
+  $('credit-date').value = today();
 
   creditList = createItemList({ listId: 'credit-items-list', countId: 'credit-items-count', buildHTML: createCreditItemHTML });
   const draft = loadDraft(CREDIT_DRAFT_KEY);
@@ -1329,19 +1388,17 @@ function renderHistory() {
     submissionHistoryEl.innerHTML = '<p class="settings-hint">No submissions yet on this device.</p>';
     return;
   }
-  const typeColors = { Receipt: '#625636', Credit: '#841b2a', Donation: '#2a6084' };
   submissionHistoryEl.innerHTML = history.map(entry => {
     const date = new Date(entry.timestamp).toLocaleDateString('en-US', {
       month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit',
     });
-    const color  = typeColors[entry.type] || '#555';
     const status = entry.status || 'saved';   // rows from before statuses existed were all saved
     return `
-      <div class="settings-card" style="gap:0.25rem;">
-        <span class="settings-card__label" style="color:${color};">${esc(entry.type)}
+      <div class="settings-card history-card">
+        <span class="settings-card__label history-type history-type--${esc(entry.type.toLowerCase())}">${esc(entry.type)}
           <span class="history-status history-status--${status}">${status}</span></span>
-        <span class="settings-card__value" style="font-size:0.9rem;">${esc(entry.label)}</span>
-        <span class="settings-hint" style="margin:0;font-size:0.75rem;">${date}</span>
+        <span class="settings-card__value history-label">${esc(entry.label)}</span>
+        <span class="settings-hint history-date">${date}</span>
       </div>`;
   }).join('');
 }
@@ -1350,6 +1407,7 @@ function renderHistory() {
    12. BOOTSTRAP
 ═══════════════════════════════════════════════════════════ */
 function onAppReady() {
+  flushQueue();
   localStorage.setItem(HISTORY_KEY, JSON.stringify(loadHistory().map(h => h.status === 'sending' ? { ...h, status: 'failed' } : h)));
   initIdentity();
   loadPersistedData();

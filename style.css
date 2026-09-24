@@ -214,6 +214,7 @@ img, svg { display: block; }
     padding: 1.5rem 1rem;
     gap: 2rem;
   }
+
 }
 
 .sidebar__brand {
@@ -316,6 +317,7 @@ img, svg { display: block; }
 
 @media (min-width: 1024px) {
   .mobile-header { display: none; }
+
 }
 
 /* ── 9. MAIN CONTENT ───────────────────────────────────────── */
@@ -333,6 +335,7 @@ img, svg { display: block; }
     padding: 2.5rem 3rem 3rem;
     max-width: calc(var(--sidebar-width) + 720px);
   }
+
 }
 
 /* ── 10. VIEWS ─────────────────────────────────────────────── */
@@ -359,60 +362,6 @@ img, svg { display: block; }
   font-size: 0.875rem;
   color: var(--color-subtext);
   margin-top: 0.25rem;
-}
-
-/* ── 11. STAT CARDS ────────────────────────────────────────── */
-.stat-cards {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  margin-bottom: 1.75rem;
-}
-
-@media (max-width: 400px) {
-  .stat-cards { grid-template-columns: 1fr; }
-}
-
-.stat-card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: 1.125rem 1.25rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.375rem;
-  transition: border-color var(--transition), box-shadow var(--transition);
-  opacity: 0;
-  transform: translateY(16px);
-}
-
-.stat-card.visible {
-  opacity: 1;
-  transform: translateY(0);
-  transition: opacity 0.4s ease-out, transform 0.4s ease-out,
-              border-color var(--transition), box-shadow var(--transition);
-}
-
-.stat-card:hover {
-  border-color: var(--color-red);
-  box-shadow: 0 0 0 1px rgba(132,27,42,0.3);
-}
-
-.stat-card__label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--color-subtext);
-}
-
-.stat-card__value {
-  font-size: 0.9375rem;
-  font-weight: 500;
-  color: var(--color-text);
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
 }
 
 .status-dot {
@@ -655,94 +604,6 @@ img, svg { display: block; }
   font-size: 0.9375rem;
   color: var(--color-subtext);
   margin-top: -0.5rem;
-}
-
-/* ── 17. PLACEHOLDER CARDS ─────────────────────────────────── */
-.placeholder-card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: 3rem 2rem;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  opacity: 0;
-  transform: translateY(16px);
-}
-
-.placeholder-card.visible {
-  opacity: 1;
-  transform: translateY(0);
-  transition: opacity 0.4s ease-out, transform 0.4s ease-out;
-}
-
-.placeholder-card__icon {
-  width: 48px;
-  height: 48px;
-  color: var(--color-gold);
-}
-
-.placeholder-card__icon svg {
-  width: 100%;
-  height: 100%;
-}
-
-.placeholder-card__title {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--color-text);
-}
-
-.placeholder-card__body {
-  font-size: 0.9375rem;
-  color: var(--color-subtext);
-  max-width: 480px;
-  line-height: 1.7;
-}
-
-/* ── 17b. SECTION CARD (Vehicles / Short Dates inner panels) ── */
-.section-card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: 1.25rem;
-  opacity: 0;
-  transform: translateY(12px);
-}
-
-.section-card.visible {
-  opacity: 1;
-  transform: translateY(0);
-  transition: opacity 0.4s ease-out 0.1s, transform 0.4s ease-out 0.1s;
-}
-
-.section-card__title {
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  color: var(--color-subtext);
-  margin-bottom: 1rem;
-}
-
-/* ── 17c. STAT CARDS — 3-COLUMN VARIANT ───────────────────── */
-.stat-cards--3 {
-  grid-template-columns: 1fr 1fr 1fr;
-}
-
-@media (max-width: 520px) {
-  .stat-cards--3 { grid-template-columns: 1fr 1fr; }
-}
-
-@media (max-width: 340px) {
-  .stat-cards--3 { grid-template-columns: 1fr; }
-}
-
-.stat-card__value--muted {
-  color: var(--color-subtext);
-  letter-spacing: 0.05em;
 }
 
 .status-dot--safe {
@@ -1118,6 +979,7 @@ img, svg { display: block; }
 
 @media (min-width: 1024px) {
   .bottom-nav { display: none; }
+
 }
 
 .bottom-nav__item {
@@ -1281,6 +1143,7 @@ img, svg { display: block; }
     width: calc(100% - 2rem);
     animation: fadeIn 0.25s ease-out;
   }
+
 }
 
 .modal__header {
@@ -1429,6 +1292,7 @@ img, svg { display: block; }
 
 @media (min-width: 600px) {
   .map-placeholder { height: 320px; }
+
 }
 
 .map-placeholder.visible {
@@ -1489,6 +1353,7 @@ img, svg { display: block; }
 
 @media (min-width: 600px) {
   .video-grid { grid-template-columns: repeat(3, 1fr); }
+
 }
 
 .video-grid.visible {
@@ -1640,38 +1505,6 @@ img, svg { display: block; }
   color: var(--color-subtext);
   white-space: nowrap;
   flex-shrink: 0;
-}
-
-/* ── 30. VIEW COPY CARD ────────────────────────────────────── */
-.view-copy-card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: 1.25rem 1.375rem;
-  margin-top: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  opacity: 0;
-  transform: translateY(12px);
-}
-
-.view-copy-card.visible {
-  opacity: 1;
-  transform: translateY(0);
-  transition: opacity 0.4s ease-out 0.1s, transform 0.4s ease-out 0.1s;
-}
-
-.view-copy-card__title {
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--color-text);
-}
-
-.view-copy-card__body {
-  font-size: 0.9375rem;
-  color: var(--color-subtext);
-  line-height: 1.7;
 }
 
 ::-webkit-scrollbar { width: 6px; }
@@ -1918,8 +1751,20 @@ img, svg { display: block; }
   font-size: 1rem;
   font-weight: 700;
   color: var(--color-text);
-  margin-bottom: 0.25rem;
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
+.bookmark-guide__title::-webkit-details-marker { display: none; }
+.bookmark-guide__title::after {
+  content: '▾';
+  color: var(--color-subtext);
+  transition: transform var(--transition);
+}
+details[open] > .bookmark-guide__title { margin-bottom: 0.25rem; }
+details[open] > .bookmark-guide__title::after { transform: rotate(180deg); }
 
 .bookmark-guide__sub {
   font-size: 0.875rem;
@@ -2112,4 +1957,20 @@ img, svg { display: block; }
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+
 }
+
+/* ── Utility classes (replace inline styles) ───────────────── */
+.is-invalid { border-color: var(--color-error) !important; }
+.btn--add-item { margin-top: 0.75rem; }
+.form-card--spaced { margin-top: 1.5rem; }
+.form-group--flush { margin-bottom: 0; }
+.store-search-wrap--spaced { margin-bottom: 0.5rem; }
+
+.history-card { gap: 0.25rem; }
+.history-label { font-size: 0.9rem; }
+.history-date { margin: 0; font-size: 0.75rem; }
+.history-type--receipt  { color: #625636; }
+.history-type--credit   { color: #841b2a; }
+.history-type--donation { color: #2a6084; }
+.history-status--queued { color: var(--color-gold-light); }

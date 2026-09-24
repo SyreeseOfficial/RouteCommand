@@ -2,13 +2,11 @@
 
 Found by reading `index.html`, `app.js`, `style.css`, the Netlify functions, and the `.gs` scripts.
 
-## Top 5 (do these first)
+## Top 3 (do these first)
 
-1. **Fix the wrong-date bug.** `new Date().toISOString().split('T')[0]` returns the UTC date. After ~5pm Pacific, receipts and credits default to tomorrow. Use local date parts instead. Appears in `loadPersistedData`, `initCredits`, `resetCreditForm`.
-2. **Stop serving your whole repo publicly.** There is no `netlify.toml`, so the site root is the repo root. `/Code.gs`, `/PRD.md`, `/CHANGELOG.md` etc. are probably downloadable, and `Code.gs` contains your Drive folder ID and Sheet ID. Move the site files into `public/` and set `publish = "public"`.
-3. **Lock down the backend.** The passcode `boarshead` is in the client JS, and the `/api/*` functions and the GAS web apps accept anyone. Have the Netlify function check a secret (env var) before forwarding, and send the passcode with each request.
-4. **Real PWA.** README says "Offline-capable PWA" but there is no `manifest.json` and no service worker. Add both (about 30 lines total) plus icons.
-5. **Offline queue.** If a submission fails, save it in localStorage and auto-retry when the connection returns. This matters most for trucks and warehouses.
+1. **Stop serving your whole repo publicly.** There is no `netlify.toml`, so the site root is the repo root. `/Code.gs`, `/PRD.md`, `/CHANGELOG.md` etc. are probably downloadable, and `Code.gs` contains your Drive folder ID and Sheet ID. Move the site files into `public/` and set `publish = "public"`.
+2. **Lock down the backend.** The passcode `boarshead` is in the client JS, and the `/api/*` functions and the GAS web apps accept anyone. Have the Netlify function check a secret (env var) before forwarding, and send the passcode with each request.
+3. **Real PWA.** README says "Offline-capable PWA" but there is no `manifest.json` and no service worker. Add both (about 30 lines total) plus icons.
 
 ## Bugs
 
@@ -24,13 +22,8 @@ Found by reading `index.html`, `app.js`, `style.css`, the Netlify functions, and
 
 ## UX
 
-- Suggestion dropdowns: only the store search has arrow-key support. Credits and donations item search have none. Add `role="combobox"` and `aria-activedescendant`.
 - Credits should remember the last reason and type, like donations already do.
 - "Duplicate last item" button on credit and donation lists.
-
-## UI
-
-- Replace inline `style="..."` in the HTML and `cssText` in JS with CSS classes (`.submit-error` is duplicated 3 times).
 
 ## Speed
 
@@ -42,7 +35,6 @@ Found by reading `index.html`, `app.js`, `style.css`, the Netlify functions, and
 
 ## Bloat and cleanup
 
-- Dead CSS: `.stat-card`, `.stat-cards`, `.placeholder-card`, `.section-card`, `.view-copy-card` are in `style.css` and in the `observeAnimatables` selector, but none appear in `index.html`. Probably left over from removed Vehicles, Short Dates, and Roadmap pages. `style.css` is 2,072 lines, so a pass will shrink it.
 - Three near-identical Netlify functions. Merge into one function that takes a route and reads the target URL from an env var.
 - Docs: `PRD.md`, `PROMPTS.md`, `RULES.md`, `TODO.md`, `CHANGELOG.md` are stale (TODO mentions a "More Menu" and pages that no longer exist). Move to `docs/` or delete.
 - Split `app.js` into ES modules: `data.js`, `auth.js`, `receipts.js`, `credits.js`, `donations.js`, `history.js`.
@@ -87,3 +79,8 @@ Big:
 - [x] Show submission status per row (sending, saved, failed, queued) in history.
 - [x] Loading state on the submit button: add a spinner, not just "Uploading...".
 - [x] Duplicated code: the credit and donation forms are ~90% the same (add/remove/count items, suggestions, submit, error element, reset). One generic item-list helper would remove ~300 lines.
+- [x] **Fix the wrong-date bug.** `new Date().toISOString().split('T')[0]` returns the UTC date. After ~5pm Pacific, receipts and credits default to tomorrow. Use local date parts instead. Appears in `loadPersistedData`, `initCredits`, `resetCreditForm`.
+- [x] **Offline queue.** If a submission fails, save it in localStorage and auto-retry when the connection returns. This matters most for trucks and warehouses.
+- [x] Suggestion dropdowns: only the store search has arrow-key support. Credits and donations item search have none. Add `role="combobox"` and `aria-activedescendant`.
+- [x] Replace inline `style="..."` in the HTML and `cssText` in JS with CSS classes (`.submit-error` is duplicated 3 times).
+- [x] Dead CSS: `.stat-card`, `.stat-cards`, `.placeholder-card`, `.section-card`, `.view-copy-card` are in `style.css` and in the `observeAnimatables` selector, but none appear in `index.html`. Probably left over from removed Vehicles, Short Dates, and Roadmap pages. `style.css` is 2,072 lines, so a pass will shrink it.
