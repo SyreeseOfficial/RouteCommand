@@ -90,7 +90,7 @@ passcodeInput.addEventListener('keydown', (e) => {
 /* ═══════════════════════════════════════════════════════════
    2. ROUTER — SPA VIEW SWITCHING
 ═══════════════════════════════════════════════════════════ */
-const VALID_VIEWS = new Set(['receipts', 'credits', 'donations', 'settings']);
+const VALID_VIEWS = new Set(['receipts', 'credits', 'donations', 'history', 'settings']);
 
 function navigateTo(viewId, updateHistory = true, moveFocus = true) {
   /* Hide all views */
@@ -137,8 +137,7 @@ window.addEventListener('popstate', () => {
 /* "View in history" links on success screens */
 document.addEventListener('click', (e) => {
   if (!e.target.closest('[data-goto-history]')) return;
-  navigateTo('settings');
-  submissionHistoryEl.scrollIntoView();
+  navigateTo('history');
 });
 
 /* Sidebar nav */
@@ -200,13 +199,21 @@ function initIdentity() {
 /* ═══════════════════════════════════════════════════════════
    5. IMAGE COMPRESSION (Canvas)
 ═══════════════════════════════════════════════════════════ */
+/* Block submit while a photo is still compressing, so it can't be sent without it */
+function setPhotoBusy(busy) {
+  submitBtn.disabled    = busy;
+  submitBtn.textContent = busy ? 'Processing photo…' : 'Submit Expense';
+}
+
 function handleImageUpload(file) {
   if (!file) return;
 
   const MAX_WIDTH = 1024;
   const QUALITY   = 0.7;
 
+  setPhotoBusy(true);
   const reader = new FileReader();
+  reader.onerror = () => setPhotoBusy(false);
   reader.onload = (e) => {
     const img = new Image();
     img.onload = () => {
@@ -227,7 +234,9 @@ function handleImageUpload(file) {
       compressedImageData = canvas.toDataURL('image/jpeg', QUALITY);
 
       showPhotoPreview(compressedImageData);
+      setPhotoBusy(false);
     };
+    img.onerror = () => setPhotoBusy(false);
     img.src = e.target.result;
   };
   reader.readAsDataURL(file);
@@ -272,7 +281,16 @@ function markInvalid(el) {
 }
 
 /* POST a form, drive the button spinner, error text, history status, and success screen. */
-async function submitForm({ endpoint, payload, btn, label, type, histLabel, formEl, successEl, summaryEl, summaryHTML }) {
+/* Save `snapshot()` to localStorage on every edit, so a reload doesn't lose a long list */
+function autosaveDraft(key, formEl, snapshot) {
+  const save = () => localStorage.setItem(key, JSON.stringify(snapshot()));
+  ['input', 'change', 'click'].forEach(ev => formEl.addEventListener(ev, save));
+}
+function loadDraft(key) {
+  try { return JSON.parse(localStorage.getItem(key)); } catch { return null; }
+}
+
+async function submitForm({ draftKey, endpoint, payload, btn, label, type, histLabel, formEl, successEl, summaryEl, summaryHTML }) {
   if (btn.disabled) return;
   btn.disabled  = true;
   btn.innerHTML = '<span class="spinner" aria-hidden="true"></span>Submitting…';
@@ -297,12 +315,16 @@ async function submitForm({ endpoint, payload, btn, label, type, histLabel, form
     if (data.status !== 'success') throw new Error(data.message || 'Server error');
 
     setHistoryStatus(historyId, 'saved');
+    if (draftKey) localStorage.removeItem(draftKey);
     summaryEl.innerHTML = summaryHTML;
     formEl.classList.add('hidden');
     successEl.classList.remove('hidden');
   } catch (err) {
     setHistoryStatus(historyId, 'failed');
-    errEl.textContent = err.message || 'Network error. Please check your connection and try again.';
+    /* fetch() rejects with a TypeError ("Failed to fetch") when the network is down */
+    errEl.textContent = err instanceof TypeError || !navigator.onLine
+      ? 'Network error. Please check your connection and try again.'
+      : err.message;
   } finally {
     window.removeEventListener('beforeunload', beforeUnloadHandler);
     btn.disabled    = false;
@@ -322,6 +344,30 @@ function createItemList({ listId, countId, buildHTML, onType }) {
   };
   const add   = () => { el.insertAdjacentHTML('beforeend', buildHTML(++counter)); refresh(); };
   const reset = () => { el.innerHTML = ''; counter = 0; add(); };
+
+  const setType = (item, type) => {
+    item.querySelectorAll('[data-type-btn]').forEach(b => b.classList.toggle('pill-toggle__btn--active', b.dataset.typeBtn === type));
+    item.querySelectorAll('[data-fields-type]').forEach(f => f.classList.toggle('hidden', f.dataset.fieldsType !== type));
+  };
+
+  /* Draft support: plain-data snapshot of every item, and the reverse */
+  const serialize = () => [...el.children].map(item => ({
+    type:   item.querySelector('.pill-toggle__btn--active')?.dataset.typeBtn,
+    values: Object.fromEntries([...item.querySelectorAll('[data-fname]')].map(f => [f.dataset.fname, f.value])),
+  }));
+  const restore = (items) => {
+    el.innerHTML = ''; counter = 0;
+    items.forEach(({ type, values }) => {
+      add();
+      const item = el.lastElementChild;
+      if (type) setType(item, type);
+      Object.entries(values).forEach(([k, v]) => {
+        const f = item.querySelector(`[data-fname="${k}"]`);
+        if (f) f.value = v;
+      });
+    });
+    if (!el.children.length) add();
+  };
 
   el.addEventListener('input', (e) => {
     const input = e.target.closest('[data-fname="name"]');
@@ -344,11 +390,8 @@ function createItemList({ listId, countId, buildHTML, onType }) {
     }
     const typeBtn = e.target.closest('[data-type-btn]');
     if (typeBtn) {
-      const item = typeBtn.closest('[data-id]');
-      const type = typeBtn.dataset.typeBtn;
-      item.querySelectorAll('[data-type-btn]').forEach(b => b.classList.toggle('pill-toggle__btn--active', b === typeBtn));
-      item.querySelectorAll('[data-fields-type]').forEach(f => f.classList.toggle('hidden', f.dataset.fieldsType !== type));
-      if (onType) onType(type);
+      setType(typeBtn.closest('[data-id]'), typeBtn.dataset.typeBtn);
+      if (onType) onType(typeBtn.dataset.typeBtn);
       return;
     }
     const rm = e.target.closest('[data-remove]');
@@ -359,7 +402,7 @@ function createItemList({ listId, countId, buildHTML, onType }) {
     if (!e.target.closest('.store-search-wrap')) el.querySelectorAll('.store-suggestions').forEach(b => b.classList.add('hidden'));
   });
 
-  return { el, add, reset };
+  return { el, add, reset, serialize, restore };
 }
 
 const REMOVE_BTN_HTML = `
@@ -384,12 +427,12 @@ if (expenseForm) {
     const vehicle  = document.getElementById('vehicle-tag').value;
     const notes    = document.getElementById('notes').value;
 
-    if (!name || !date || !category || !amount) {
+    if (!name || !date || !category || !(parseFloat(amount) > 0)) {
       /* Basic validation — highlight empty required fields */
       [
         { id: 'receipt-date',     val: date     },
         { id: 'expense-category', val: category },
-        { id: 'expense-amount',   val: amount   },
+        { id: 'expense-amount',   val: parseFloat(amount) > 0 },
       ].forEach(({ id, val }) => {
         const el = document.getElementById(id);
         if (el && !val) {
@@ -480,11 +523,8 @@ if (resetBtn) {
 }
 
 if (darkModeToggle) {
-  const savedTheme = localStorage.getItem('rc_theme');
-  if (savedTheme === 'light') {
-    document.documentElement.classList.add('light');
-    darkModeToggle.checked = false;
-  }
+  /* The <head> script already applied the saved or system theme; just sync the toggle */
+  darkModeToggle.checked = !document.documentElement.classList.contains('light');
 
   darkModeToggle.addEventListener('change', () => {
     if (darkModeToggle.checked) {
@@ -940,6 +980,7 @@ function createCreditItemHTML(id) {
     </div>`;
 }
 
+const CREDIT_DRAFT_KEY = 'rc_draft_credit';
 let creditList;
 
 /* Returns the items, or null if any required field is empty (fields get highlighted). */
@@ -987,6 +1028,7 @@ function handleCreditSubmit(e) {
   const store = storeInput.value.trim();
   const date  = dateEl.value;
   submitForm({
+    draftKey:    CREDIT_DRAFT_KEY,
     endpoint:    '/api/submit-credit',
     payload:     { salesperson: getName(), store, date, notes: $('credit-notes').value.trim(), items, timestamp: new Date().toISOString() },
     btn:         $('credit-submit-btn'),
@@ -1001,6 +1043,7 @@ function handleCreditSubmit(e) {
 }
 
 function resetCreditForm() {
+  localStorage.removeItem(CREDIT_DRAFT_KEY);
   $('credit-date').value = new Date().toISOString().split('T')[0];
   $('credit-store-input').value = '';
   $('credit-notes').value = '';
@@ -1084,7 +1127,19 @@ function initCredits() {
   $('credit-date').value = new Date().toISOString().split('T')[0];
 
   creditList = createItemList({ listId: 'credit-items-list', countId: 'credit-items-count', buildHTML: createCreditItemHTML });
-  creditList.add();
+  const draft = loadDraft(CREDIT_DRAFT_KEY);
+  if (draft) {
+    $('credit-store-input').value = draft.store || '';
+    $('credit-notes').value       = draft.notes || '';
+    creditList.restore(draft.items || []);
+  } else {
+    creditList.add();
+  }
+  autosaveDraft(CREDIT_DRAFT_KEY, $('credit-form'), () => ({
+    store: $('credit-store-input').value,
+    notes: $('credit-notes').value,
+    items: creditList.serialize(),
+  }));
 
   $('add-credit-item-btn').addEventListener('click', creditList.add);
   $('credit-form').addEventListener('submit', handleCreditSubmit);
@@ -1102,6 +1157,7 @@ const DONATION_LAST_TYPE_KEY   = 'rc_donation_last_type';
 const DONATION_LAST_REASON_KEY = 'rc_donation_last_reason';
 
 
+const DONATION_DRAFT_KEY = 'rc_draft_donation';
 let donationList;
 
 function createDonationItemHTML(id) {
@@ -1182,6 +1238,7 @@ function handleDonationSubmit(e) {
 
   const employee = getName();
   submitForm({
+    draftKey:    DONATION_DRAFT_KEY,
     endpoint:    '/api/submit-donation',
     payload:     { employee, notes: $('donation-notes').value.trim(), items, timestamp: new Date().toISOString() },
     btn:         $('donation-submit-btn'),
@@ -1202,7 +1259,17 @@ function initDonations() {
     buildHTML: createDonationItemHTML,
     onType: (type) => localStorage.setItem(DONATION_LAST_TYPE_KEY, type),
   });
-  donationList.add();
+  const draft = loadDraft(DONATION_DRAFT_KEY);
+  if (draft) {
+    $('donation-notes').value = draft.notes || '';
+    donationList.restore(draft.items || []);
+  } else {
+    donationList.add();
+  }
+  autosaveDraft(DONATION_DRAFT_KEY, $('donation-form'), () => ({
+    notes: $('donation-notes').value,
+    items: donationList.serialize(),
+  }));
 
   donationList.el.addEventListener('click', (e) => {
     const btn = e.target.closest('.qty-stepper__btn');
@@ -1222,6 +1289,7 @@ function initDonations() {
   $('add-donation-item-btn').addEventListener('click', donationList.add);
   $('donation-form').addEventListener('submit', handleDonationSubmit);
   $('donation-submit-another-btn').addEventListener('click', () => {
+    localStorage.removeItem(DONATION_DRAFT_KEY);
     $('donation-notes').value = '';
     donationList.reset();
     $('donation-success-state').classList.add('hidden');

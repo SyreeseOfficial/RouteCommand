@@ -6,6 +6,13 @@
   <meta name="theme-color" content="#000000" />
   <meta name="description" content="Route Command — Internal Operations & Expense Portal" />
   <title>Route Command</title>
+  <script>
+    /* Apply theme before first paint: saved choice, else system preference */
+    try {
+      var t = localStorage.getItem('rc_theme');
+      if (t === 'light' || (!t && matchMedia('(prefers-color-scheme: light)').matches)) document.documentElement.classList.add('light');
+    } catch (e) {}
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -83,6 +90,12 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
           </span>
           <span class="nav-item__label">Donations</span>
+        </button>
+        <button class="nav-item" data-view="history">
+          <span class="nav-item__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </span>
+          <span class="nav-item__label">History</span>
         </button>
         <button class="nav-item" data-view="settings">
           <span class="nav-item__icon" aria-hidden="true">
@@ -347,6 +360,15 @@
         </div>
       </section>
 
+      <!-- HISTORY VIEW -->
+      <section id="history-view" class="view" aria-label="History">
+        <div class="view__header">
+          <h2 class="view__title">History</h2>
+          <p class="view__sub">Recent submissions from this device.</p>
+        </div>
+        <div id="submission-history"></div>
+      </section>
+
       <!-- SETTINGS VIEW -->
       <section id="settings-view" class="view" aria-label="Settings">
         <div class="view__header">
@@ -382,12 +404,6 @@
             <p class="settings-card__desc">Add Route Command to your device's home screen for fast, offline-ready access.</p>
             <button class="btn btn--gold btn--full" id="install-pwa-btn">Install to Home Screen (Mobile)</button>
           </div>
-        </div>
-
-        <!-- RECENT SUBMISSIONS -->
-        <div class="settings-section">
-          <h3 class="settings-section__title">Recent Submissions</h3>
-          <div id="submission-history"></div>
         </div>
 
         <!-- APPEARANCE -->
@@ -432,6 +448,12 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
         </span>
         <span class="bottom-nav__label">Donations</span>
+      </button>
+      <button class="bottom-nav__item" data-view="history" aria-label="History">
+        <span class="bottom-nav__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </span>
+        <span class="bottom-nav__label">History</span>
       </button>
       <button class="bottom-nav__item" data-view="settings" aria-label="Settings">
         <span class="bottom-nav__icon" aria-hidden="true">

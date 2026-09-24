@@ -12,14 +12,8 @@ Found by reading `index.html`, `app.js`, `style.css`, the Netlify functions, and
 
 ## Bugs
 
-- Error messages: `err.message` is "Failed to fetch" on network loss, so the friendly "Network error..." fallback never shows. Check `navigator.onLine` or catch `TypeError` and show the friendly text. Same in credits and donations.
-- Photo race: submitting before the image finishes compressing sends no photo, silently. Disable submit until compression is done.
 - "Submit Another Expense" calls `form.reset()`, which clears the auto-filled date and the default vehicle. Re-apply them after reset.
 - No duplicate protection: if GAS saves but the response times out, retrying creates a duplicate row. Add a client-generated submission ID and skip repeats in the `.gs` files.
-- Light theme is applied at the bottom of `app.js`, so light-mode users see a dark flash on load. Set the theme class with a tiny inline script in `<head>`.
-- Negative or zero amounts pass (`novalidate` disables `min`). Validate `amount > 0`.
-- [x] Credit qty and chub weight are not required. A credit can be submitted with no quantity.
-- [x] `capture="environment"` forces the camera on many phones, so you can't pick a screenshot or an existing photo. Add a second "Choose from library" input.
 
 ## Security
 
@@ -30,23 +24,12 @@ Found by reading `index.html`, `app.js`, `style.css`, the Netlify functions, and
 
 ## UX
 
-- [x] One identity. There are three separate remembered names (`rc_employee_name`, `rc_credit_name`, `rc_donation_name`) and three different name lists ("David Lindholm" vs "David"; Nick and Steve only appear in some). Ask once (first run or Settings) and use it everywhere.
-- [x] Hardcoded "Ian has your receipt" and "Ian has your credit request". Put the recipient in one config value.
-- [x] Show a photo thumbnail with a Retake button, not just "Receipt Attached". Warn if submitting a receipt with no photo.
 - Suggestion dropdowns: only the store search has arrow-key support. Credits and donations item search have none. Add `role="combobox"` and `aria-activedescendant`.
-- Move "Recent Submissions" out of Settings. It is a main feature and is buried.
-- Autosave drafts for the credit and donation forms so an accidental reload doesn't wipe a long list.
 - Credits should remember the last reason and type, like donations already do.
 - "Duplicate last item" button on credit and donation lists.
-- [x] Update `document.title` and move focus to the view heading on navigation.
-- [x] Add `:focus-visible` styles and a `prefers-reduced-motion` rule (neither exists in `style.css`).
-- Follow the system light/dark preference on first visit.
 
 ## UI
 
-- [x] Success screens are identical across all three flows. Make them show what was submitted and a "View in history" link.
-- [x] Show submission status per row (sending, saved, failed, queued) in history.
-- [x] Loading state on the submit button: add a spinner, not just "Uploading...".
 - Replace inline `style="..."` in the HTML and `cssText` in JS with CSS classes (`.submit-error` is duplicated 3 times).
 
 ## Speed
@@ -60,7 +43,6 @@ Found by reading `index.html`, `app.js`, `style.css`, the Netlify functions, and
 ## Bloat and cleanup
 
 - Dead CSS: `.stat-card`, `.stat-cards`, `.placeholder-card`, `.section-card`, `.view-copy-card` are in `style.css` and in the `observeAnimatables` selector, but none appear in `index.html`. Probably left over from removed Vehicles, Short Dates, and Roadmap pages. `style.css` is 2,072 lines, so a pass will shrink it.
-- [x] Duplicated code: the credit and donation forms are ~90% the same (add/remove/count items, suggestions, submit, error element, reset). One generic item-list helper would remove ~300 lines.
 - Three near-identical Netlify functions. Merge into one function that takes a route and reads the target URL from an env var.
 - Docs: `PRD.md`, `PROMPTS.md`, `RULES.md`, `TODO.md`, `CHANGELOG.md` are stale (TODO mentions a "More Menu" and pages that no longer exist). Move to `docs/` or delete.
 - Split `app.js` into ES modules: `data.js`, `auth.js`, `receipts.js`, `credits.js`, `donations.js`, `history.js`.
@@ -84,3 +66,24 @@ Medium:
 Big:
 - Receipt OCR: auto-fill amount, date, and category from the photo (Netlify function calling a vision model).
 - Admin view for Ian: filter, approve, and export submissions.
+
+## Completed
+
+- [x] Error messages: `err.message` is "Failed to fetch" on network loss, so the friendly "Network error..." fallback never shows. Check `navigator.onLine` or catch `TypeError` and show the friendly text. Same in credits and donations.
+- [x] Photo race: submitting before the image finishes compressing sends no photo, silently. Disable submit until compression is done.
+- [x] Light theme is applied at the bottom of `app.js`, so light-mode users see a dark flash on load. Set the theme class with a tiny inline script in `<head>`.
+- [x] Negative or zero amounts pass (`novalidate` disables `min`). Validate `amount > 0`.
+- [x] Credit qty and chub weight are not required. A credit can be submitted with no quantity.
+- [x] `capture="environment"` forces the camera on many phones, so you can't pick a screenshot or an existing photo. Add a second "Choose from library" input.
+- [x] One identity. There are three separate remembered names (`rc_employee_name`, `rc_credit_name`, `rc_donation_name`) and three different name lists ("David Lindholm" vs "David"; Nick and Steve only appear in some). Ask once (first run or Settings) and use it everywhere.
+- [x] Hardcoded "Ian has your receipt" and "Ian has your credit request". Put the recipient in one config value.
+- [x] Show a photo thumbnail with a Retake button, not just "Receipt Attached". Warn if submitting a receipt with no photo.
+- [x] Move "Recent Submissions" out of Settings. It is a main feature and is buried.
+- [x] Autosave drafts for the credit and donation forms so an accidental reload doesn't wipe a long list.
+- [x] Update `document.title` and move focus to the view heading on navigation.
+- [x] Add `:focus-visible` styles and a `prefers-reduced-motion` rule (neither exists in `style.css`).
+- [x] Follow the system light/dark preference on first visit.
+- [x] Success screens are identical across all three flows. Make them show what was submitted and a "View in history" link.
+- [x] Show submission status per row (sending, saved, failed, queued) in history.
+- [x] Loading state on the submit button: add a spinner, not just "Uploading...".
+- [x] Duplicated code: the credit and donation forms are ~90% the same (add/remove/count items, suggestions, submit, error element, reset). One generic item-list helper would remove ~300 lines.
