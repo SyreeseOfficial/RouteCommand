@@ -2,8 +2,40 @@
 
 Found by reading `index.html`, `app.js`, `style.css`, the Netlify functions, and the `.gs` scripts.
 
-Sections: **Later** (parked on purpose), **Completed**.
+Sections: **UI/UX ideas** (new, unreviewed), **Later** (parked on purpose), **Completed**.
 Sizes: **S** = under an hour, **M** = a few hours.
+
+## UI/UX ideas
+
+New ideas from a fresh pass over the current app. Not yet triaged.
+
+### Identity and trust
+- **S** Show "Submitting as Hannah · Change" at the top of each form. The name fields were removed, so nothing on the form says who a submission will be filed under. On a shared phone or truck tablet that is easy to miss until it is already sent. "Change" goes to Settings > Your Name.
+
+### Forms
+- **S** "Add Another Item" should focus the new item's first field and scroll it into view. The item list sits above the button, so the new item appears above where you tapped. Also focus the first item after picking a store.
+- **S** Receipt date shortcuts: "Today" and "Yesterday" buttons next to the date field. Most receipts are from today or yesterday, and the native date picker takes several taps.
+- **S** Reason "Other" (credits and donations) should reveal a short "What happened?" field. Today "Other" carries no information.
+- **S** Suggestion lists need a no-match state: "No match. Use "xyz" as typed." Right now the store and item search show nothing when nothing matches, which looks broken even though free text is accepted.
+- **M** Receipt category: preselect the last one used (reps tend to log the same kind of expense repeatedly), or sort the list by use.
+- **M** *(Ask Ian first)* Require a note for "Miscellaneous" and "Sales Lunch / Client Entertainment" (who and why), if accounting needs it.
+
+### Dialogs and feedback
+- **M** Replace the native `confirm()` popups (no photo, old date, reset, clear history) with an in-app dialog styled like the install modal. Native popups look out of place and show the site URL.
+- **S** Show a toast when queued submissions finish sending ("1 submission sent"). Today the History badge just disappears if you are on another tab.
+- **S** Check suggestion lists on a real phone. The keyboard covers the bottom half of the screen and the list opens downward, so it may be hidden. Scroll the field toward the top of the screen on focus, or open the list upward when there is no room.
+
+### Receipt photo
+- **S** Tap the thumbnail to see it full size, so the rep can check the receipt is readable before submitting.
+
+### History
+- **S** Raise the history limit from 15 to 50 and add "Show more". With the day grouping, 15 rows is only a few days of use. Retry payloads are stored only on failed rows, so storage stays small.
+- **S** Better empty state on History: "No submissions yet" with a "Submit a receipt" button.
+
+### Settings and polish
+- **S** Make "Reset Application" less prominent (outline style, in a "Danger zone" at the bottom) and rename it "Reset app and sign out". It is a large solid red button, the same weight as the main actions, so it is an easy mis-tap.
+- **S** Update `<meta name="theme-color">` when the theme changes. It is fixed at black, so light mode gets a mismatched browser bar.
+- **S** Passcode field: change `autocomplete="current-password"` to `off`. Browsers keep offering to save a shared company passcode as a password.
 
 ## Later
 
@@ -19,8 +51,10 @@ Parked on purpose. Not planned for now.
 
 ### PWA
 - **Real PWA.** `sw.js` now caches the app for offline use, but there is still no `manifest.json` and no icons, so "Add to Home Screen" is not a proper install. Add both (about 20 lines) plus icons.
+- When the manifest lands, handle the iPhone safe area: add `viewport-fit=cover` and `env(safe-area-inset-bottom)` padding on the bottom nav and the install tip. There is no safe-area handling today.
 
 ### Bugs
+- Donation items typed by hand lose their name: the item text is split on the first space and the first word is stored as the UPC, so "Ham slices" becomes UPC "Ham". Only split when the first word is a number. Same idea for credit chub items.
 - "Submit Another Expense" calls `form.reset()`, which clears the auto-filled date and the default vehicle. Re-apply them after reset.
 - No duplicate protection: if GAS saves but the response times out, retrying (or the offline queue) creates a duplicate row. Add a client-generated submission ID and skip repeats in the `.gs` files.
 
