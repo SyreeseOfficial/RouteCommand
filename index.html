@@ -488,6 +488,18 @@
       </div>
     </div>
 
+    <!-- CONFIRM DIALOG -->
+    <div class="modal-overlay hidden" id="confirm-overlay" aria-hidden="true"></div>
+    <div class="modal hidden" id="confirm-modal" role="alertdialog" aria-modal="true" aria-describedby="confirm-message">
+      <p class="confirm__message" id="confirm-message"></p>
+      <div class="confirm__actions">
+        <button type="button" class="btn btn--outline" id="confirm-cancel">Cancel</button>
+        <button type="button" class="btn btn--gold" id="confirm-ok">Continue</button>
+      </div>
+    </div>
+
+    <div class="toast hidden" id="toast" role="status"></div>
+
   </div><!-- /app -->
 
   <script src="app.js"></script>

@@ -13,7 +13,6 @@ New ideas from a fresh pass over the current app. Not yet triaged.
 - **S** Show "Submitting as Hannah · Change" at the top of each form. The name fields were removed, so nothing on the form says who a submission will be filed under. On a shared phone or truck tablet that is easy to miss until it is already sent. "Change" goes to Settings > Your Name.
 
 ### Forms
-- **S** "Add Another Item" should focus the new item's first field and scroll it into view. The item list sits above the button, so the new item appears above where you tapped. Also focus the first item after picking a store.
 - **S** Receipt date shortcuts: "Today" and "Yesterday" buttons next to the date field. Most receipts are from today or yesterday, and the native date picker takes several taps.
 - **S** Reason "Other" (credits and donations) should reveal a short "What happened?" field. Today "Other" carries no information.
 - **S** Suggestion lists need a no-match state: "No match. Use "xyz" as typed." Right now the store and item search show nothing when nothing matches, which looks broken even though free text is accepted.
@@ -21,9 +20,6 @@ New ideas from a fresh pass over the current app. Not yet triaged.
 - **M** *(Ask Ian first)* Require a note for "Miscellaneous" and "Sales Lunch / Client Entertainment" (who and why), if accounting needs it.
 
 ### Dialogs and feedback
-- **M** Replace the native `confirm()` popups (no photo, old date, reset, clear history) with an in-app dialog styled like the install modal. Native popups look out of place and show the site URL.
-- **S** Show a toast when queued submissions finish sending ("1 submission sent"). Today the History badge just disappears if you are on another tab.
-- **S** Check suggestion lists on a real phone. The keyboard covers the bottom half of the screen and the list opens downward, so it may be hidden. Scroll the field toward the top of the screen on focus, or open the list upward when there is no room.
 
 ### Receipt photo
 - **S** Tap the thumbnail to see it full size, so the rep can check the receipt is readable before submitting.
@@ -134,3 +130,7 @@ Parked on purpose. Not planned for now.
 - [x] Contrast in dark mode: history type labels are `#841b2a` (1.9:1), `#625636` (2.5:1) and `#2a6084` (2.7:1) on the card, and the gold "Take Photo" text is 2.5:1. WCAG AA needs 4.5:1. Use lighter variants in dark mode.
 - [x] Touch targets: the remove-item button is 36px. Make it 44px like the other controls.
 - [x] Give the submit error text `role="alert"` so screen readers announce a failed submit.
+- [x] "Add Another Item" should focus the new item's first field and scroll it into view. The item list sits above the button, so the new item appears above where you tapped. Also focus the first item after picking a store.
+- [x] Replace the native `confirm()` popups (no photo, old date, reset, clear history) with an in-app dialog styled like the install modal. Native popups look out of place and show the site URL.
+- [x] Show a toast when queued submissions finish sending ("1 submission sent"). Today the History badge just disappears if you are on another tab.
+- [x] Check suggestion lists on a real phone. The keyboard covers the bottom half of the screen and the list opens downward, so it may be hidden. Scroll the field toward the top of the screen on focus, or open the list upward when there is no room.

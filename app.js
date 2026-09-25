@@ -347,6 +347,36 @@ async function postJSON(endpoint, payload) {
 /* fetch() rejects with a TypeError ("Failed to fetch") when offline; a timeout aborts it */
 const isNetworkError = (err) => err.name === 'TypeError' || err.name === 'AbortError' || !navigator.onLine;
 
+/* In-app replacement for confirm(): resolves true on OK, false on Cancel, Escape, or a tap outside */
+function confirmDialog(message, okLabel = 'Continue', danger = false) {
+  return new Promise(resolve => {
+    const parts = [$('confirm-overlay'), $('confirm-modal')];
+    const ok = $('confirm-ok');
+    const ctl = new AbortController();
+    const done = (v) => { parts.forEach(p => p.classList.add('hidden')); ctl.abort(); resolve(v); };
+    $('confirm-message').textContent = message;
+    ok.textContent = okLabel;
+    ok.classList.toggle('btn--red', danger);
+    ok.classList.toggle('btn--gold', !danger);
+    parts.forEach(p => p.classList.remove('hidden'));
+    ok.focus();
+    const on = { signal: ctl.signal };
+    ok.addEventListener('click', () => done(true), on);
+    $('confirm-cancel').addEventListener('click', () => done(false), on);
+    $('confirm-overlay').addEventListener('click', () => done(false), on);
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') done(false); }, on);
+  });
+}
+
+let toastTimer;
+function showToast(message) {
+  const t = $('toast');
+  t.textContent = message;
+  t.classList.remove('hidden');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.add('hidden'), 4000);
+}
+
 /* POST a form, drive the button spinner, error text, history status, and success screen. */
 /* ── Offline queue: submissions that failed for lack of network wait here and retry ── */
 const QUEUE_KEY = 'rc_queue';
@@ -376,6 +406,7 @@ let flushing = false;
 async function flushQueue() {
   if (flushing || !navigator.onLine) return;
   flushing = true;
+  let sent = 0;
   for (const item of loadQueue()) {
     let status;
     try {
@@ -388,8 +419,10 @@ async function flushQueue() {
     setHistoryStatus(item.historyId, status, status === 'failed' ? { endpoint: item.endpoint, payload: item.payload } : undefined);
     localStorage.setItem(QUEUE_KEY, JSON.stringify(loadQueue().filter(q => q.historyId !== item.historyId)));
     updateQueueBadge();
+    if (status === 'saved') sent++;
   }
   flushing = false;
+  if (sent) showToast(`${plural(sent, 'submission')} sent`);
 }
 window.addEventListener('online', flushQueue);
 
@@ -473,6 +506,8 @@ function createItemList({ listId, countId, buildHTML, onType }) {
     el.querySelectorAll('.credit-item__remove').forEach(b => b.classList.toggle('credit-item__remove--hidden', n <= 1));
   };
   const add   = () => { el.insertAdjacentHTML('beforeend', buildHTML(++counter)); refresh(); };
+  /* Focus an item's first visible field (default: the newest); the browser scrolls it into view */
+  const focusItem = (item = el.lastElementChild) => [...item.querySelectorAll('input, select')].find(f => !f.closest('.hidden'))?.focus();
   const reset = () => { el.innerHTML = ''; counter = 0; add(); };
 
   const setType = (item, type) => {
@@ -543,7 +578,7 @@ function createItemList({ listId, countId, buildHTML, onType }) {
     if (!e.target.closest('.store-search-wrap')) el.querySelectorAll('.store-suggestions').forEach(hideSuggestions);
   });
 
-  return { el, add, reset, serialize, restore };
+  return { el, add, focusItem, reset, serialize, restore };
 }
 
 const REMOVE_BTN_HTML = `
@@ -584,10 +619,10 @@ if (expenseForm) {
 
     /* Unusual dates are usually typos */
     const ageDays = (Date.parse(today()) - Date.parse(date)) / 864e5;
-    if (ageDays < 0  && !confirm('This receipt is dated in the future. Submit anyway?')) return;
-    if (ageDays > 60 && !confirm(`This receipt is ${Math.round(ageDays)} days old. Submit anyway?`)) return;
+    if (ageDays < 0  && !await confirmDialog('This receipt is dated in the future. Submit anyway?', 'Submit anyway')) return;
+    if (ageDays > 60 && !await confirmDialog(`This receipt is ${Math.round(ageDays)} days old. Submit anyway?`, 'Submit anyway')) return;
 
-    if (!compressedImageData && !confirm('No receipt photo attached. Submit anyway?')) return;
+    if (!compressedImageData && !await confirmDialog('No receipt photo attached. Submit anyway?', 'Submit anyway')) return;
 
     const photoNote = compressedImageData ? 'Photo attached' : 'No photo';
     const veh       = vehicle && vehicle !== 'N/A' ? ` · ${vehicle}` : '';
@@ -679,12 +714,12 @@ if (pwaModalOverlay) pwaModalOverlay.addEventListener('click', closePwaModal);
 if (pwaModalClose)   pwaModalClose.addEventListener('click', closePwaModal);
 
 if (resetBtn) {
-  resetBtn.addEventListener('click', () => {
+  resetBtn.addEventListener('click', async () => {
     const unsent = loadQueue().length;
     const warning = unsent
       ? `${plural(unsent, 'submission')} ${unsent === 1 ? "hasn't" : "haven't"} sent yet and will be lost. Reset anyway?`
       : 'Reset Route Command? This will clear all saved data and return to the login screen.';
-    if (!confirm(warning)) return;
+    if (!await confirmDialog(warning, 'Reset', true)) return;
     localStorage.clear();
     location.reload();
   });
@@ -749,6 +784,11 @@ function matchAll(list, query) {
 const searchStores        = async (q) => matchAll(await catalog('stores'), q);
 const searchDonationItems = async (q) => matchAll(await catalog('donationItems'), q);
 
+/* Bring a focused search field near the top so the list and the keyboard don't hide each other */
+document.addEventListener('focusin', (e) => {
+  if (e.target.matches('.store-search-wrap input')) setTimeout(() => e.target.scrollIntoView({ block: 'start', behavior: 'smooth' }), 300);
+});
+
 /* Combobox behaviour shared by the store search and the item search boxes */
 let suggestionSeq = 0;
 
@@ -759,6 +799,9 @@ function showSuggestions(input, box, results) {
   input.setAttribute('aria-controls', box.id);
   box.innerHTML = results.map((s, i) => `<div class="store-suggestion" role="option" id="${box.id}-${i}" tabindex="-1">${esc(s)}</div>`).join('');
   box.classList.toggle('hidden', !results.length);
+  /* The keyboard covers the bottom of the screen: open upward if the list won't fit below the field */
+  const below = visualViewport.height - input.getBoundingClientRect().bottom;
+  box.classList.toggle('store-suggestions--up', results.length > 0 && below < Math.min(box.offsetHeight, 220) + 8);
   input.setAttribute('aria-expanded', String(results.length > 0));
   input.removeAttribute('aria-activedescendant');
 }
@@ -810,7 +853,7 @@ function initStoreSearch() {
     const hit = e.target.closest('.store-suggestion');
     if (!hit) return;
     pickSuggestion(input, box, hit.textContent);
-    input.blur();
+    creditList.focusItem(creditList.el.firstElementChild);
   });
   input.addEventListener('keydown', (e) => suggestionKeydown(e, input, box));
   document.addEventListener('click', (e) => {
@@ -1016,7 +1059,7 @@ function initCredits() {
     items: creditList.serialize(),
   }));
 
-  $('add-credit-item-btn').addEventListener('click', creditList.add);
+  $('add-credit-item-btn').addEventListener('click', () => { creditList.add(); creditList.focusItem(); });
   $('credit-form').addEventListener('submit', handleCreditSubmit);
   $('credit-submit-another-btn').addEventListener('click', resetCreditForm);
 
@@ -1154,6 +1197,7 @@ function initDonations() {
     const prev = donationList.el.lastElementChild?.querySelector('[data-fname="sellby"]').value;
     donationList.add();
     if (prev) donationList.el.lastElementChild.querySelector('[data-fname="sellby"]').value = prev;
+    donationList.focusItem();
   });
   $('donation-form').addEventListener('submit', handleDonationSubmit);
   $('donation-submit-another-btn').addEventListener('click', () => {
@@ -1262,8 +1306,8 @@ submissionHistoryEl.addEventListener('toggle', (e) => {
   const row = e.target.closest('details[data-id]');
   if (row) openHistoryRows[row.open ? 'add' : 'delete'](row.dataset.id);
 }, true);
-$('clear-history-btn').addEventListener('click', () => {
-  if (confirm('Clear submission history on this device?')) saveHistory([]);
+$('clear-history-btn').addEventListener('click', async () => {
+  if (await confirmDialog('Clear submission history on this device?', 'Clear', true)) saveHistory([]);
 });
 
 /* ═══════════════════════════════════════════════════════════
