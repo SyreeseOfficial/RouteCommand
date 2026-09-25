@@ -10,7 +10,10 @@
     /* Apply theme before first paint: saved choice, else system preference */
     try {
       var t = localStorage.getItem('rc_theme');
-      if (t === 'light' || (!t && matchMedia('(prefers-color-scheme: light)').matches)) document.documentElement.classList.add('light');
+      if (t === 'light' || (!t && matchMedia('(prefers-color-scheme: light)').matches)) {
+        document.documentElement.classList.add('light');
+        document.querySelector('meta[name=theme-color]').content = '#f0f0f0';
+      }
     } catch (e) {}
   </script>
   <link rel="stylesheet" href="style.css" />
@@ -191,7 +194,7 @@
               <input type="file" id="receipt-photo" name="receipt-photo" accept="image/*" capture="environment" class="sr-only" />
               <input type="file" id="receipt-library" accept="image/*" class="sr-only" />
               <div class="photo-preview hidden" id="photo-preview">
-                <img id="photo-thumb" alt="Receipt preview" />
+                <img id="photo-thumb" alt="Receipt preview. Tap to enlarge." role="button" tabindex="0" />
                 <button type="button" class="btn btn--outline" id="photo-retake">Retake</button>
               </div>
             </div>
@@ -419,8 +422,8 @@
 
         <!-- SYSTEM -->
         <div class="settings-section">
-          <h3 class="settings-section__title">System</h3>
-          <button class="btn btn--red btn--full" id="reset-btn">Reset Application</button>
+          <h3 class="settings-section__title">Danger zone</h3>
+          <button class="btn btn--danger-outline btn--full" id="reset-btn">Reset app and sign out</button>
           <p class="settings-hint">Clears all saved data and returns to the passcode screen.</p>
         </div>
 
@@ -497,6 +500,8 @@
         <button type="button" class="btn btn--gold" id="confirm-ok">Continue</button>
       </div>
     </div>
+
+    <dialog class="photo-dialog" id="photo-dialog" aria-label="Receipt photo"><img id="photo-full" alt="Receipt, full size" /></dialog>
 
     <div class="toast hidden" id="toast" role="status"></div>
 

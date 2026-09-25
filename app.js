@@ -254,6 +254,13 @@ function handleImageUpload(file) {
 const photoActions = document.querySelector('.photo-actions');
 const photoPreview = document.getElementById('photo-preview');
 
+const photoDialog = document.getElementById('photo-dialog');
+document.getElementById('photo-thumb').addEventListener('click', (e) => {
+  document.getElementById('photo-full').src = e.target.src;
+  photoDialog.showModal();
+});
+photoDialog.addEventListener('click', () => photoDialog.close());
+
 function showPhotoPreview(src) {
   document.getElementById('photo-thumb').src = src || '';
   photoPreview.classList.toggle('hidden', !src);
@@ -730,6 +737,7 @@ if (darkModeToggle) {
   darkModeToggle.checked = !document.documentElement.classList.contains('light');
 
   darkModeToggle.addEventListener('change', () => {
+    document.querySelector('meta[name=theme-color]').content = darkModeToggle.checked ? '#000000' : '#f0f0f0';
     if (darkModeToggle.checked) {
       document.documentElement.classList.remove('light');
       localStorage.setItem('rc_theme', 'dark');
@@ -1270,7 +1278,10 @@ function renderHistory() {
   const history = loadHistory();
   $('clear-history-btn').classList.toggle('hidden', !history.length);
   if (!history.length) {
-    submissionHistoryEl.innerHTML = '<p class="settings-hint">No submissions yet on this device.</p>';
+    submissionHistoryEl.innerHTML = `<div class="history-empty">
+      <p class="settings-hint">No submissions yet</p>
+      <button type="button" class="btn btn--gold" data-goto="receipts">Submit a receipt</button>
+    </div>`;
     return;
   }
   let lastDay = '';
@@ -1299,6 +1310,7 @@ function renderHistory() {
 }
 
 submissionHistoryEl.addEventListener('click', (e) => {
+  if (e.target.closest('[data-goto]')) navigateTo('receipts');
   const btn = e.target.closest('[data-retry]');
   if (btn) retryHistoryRow(Number(btn.dataset.retry));
 });
