@@ -23,6 +23,12 @@ const appShell        = document.getElementById('app');
 const passcodeInput   = document.getElementById('passcode-input');
 const passcodeSubmit  = document.getElementById('passcode-submit');
 const passcodeError   = document.getElementById('passcode-error');
+document.getElementById('passcode-toggle').addEventListener('click', (e) => {
+  const show = passcodeInput.type === 'password';
+  passcodeInput.type = show ? 'text' : 'password';
+  e.currentTarget.textContent = show ? 'Hide' : 'Show';
+  e.currentTarget.setAttribute('aria-pressed', String(show));
+});
 
 const sidebarNavItems  = document.querySelectorAll('.sidebar .nav-item[data-view]');
 const bottomNavItems   = document.querySelectorAll('.bottom-nav .bottom-nav__item[data-view]');
@@ -1131,13 +1137,13 @@ function collectDonationItems() {
     const f      = (n) => itemEl.querySelector(`[data-fname="${n}"]`);
     const type   = itemEl.querySelector('.pill-toggle__btn--active')?.dataset.typeBtn || 'chub';
     const raw    = f('name').value.trim();
-    const space  = raw.indexOf(' ');
+    const m      = raw.match(/^(\d+)\s+(.+)$/);   // "12345 Ham slices": only a leading number is a UPC
     if (!raw) valid = markInvalid(f('name'), 'Search for an item');
     if (!f('sellby').value) valid = markInvalid(f('sellby'), 'Pick a sell-by date');
     return {
       type:   type === 'chub' ? 'Chub' : 'Retail',
-      upc:    space > -1 ? raw.slice(0, space) : '',
-      name:   space > -1 ? raw.slice(space + 1) : raw,
+      upc:    m ? m[1] : '',
+      name:   m ? m[2] : raw,
       qty:    parseInt(f('qty').value, 10) || 1,
       sellBy: f('sellby').value,
       reason: f('reason').value,

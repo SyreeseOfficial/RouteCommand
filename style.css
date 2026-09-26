@@ -162,12 +162,26 @@ img, svg { display: block; }
 }
 
 .gatekeeper__input-wrap {
+  position: relative;
   width: 100%;
+}
+
+.gatekeeper__toggle {
+  position: absolute;
+  right: 0.25rem;
+  top: 50%;
+  transform: translateY(-50%);
+  min-width: 48px;
+  min-height: 44px;
+  padding: 0 0.75rem;
+  color: var(--color-gold-text);
+  font-size: 0.875rem;
+  font-weight: 600;
 }
 
 .gatekeeper__input {
   width: 100%;
-  padding: 0.875rem 1rem;
+  padding: 0.875rem 4.5rem;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);

@@ -22,7 +22,6 @@ Parked on purpose. Not planned for now.
 - When the manifest lands, handle the iPhone safe area: add `viewport-fit=cover` and `env(safe-area-inset-bottom)` padding on the bottom nav and the install tip. There is no safe-area handling today.
 
 ### Bugs
-- Donation items typed by hand lose their name: the item text is split on the first space and the first word is stored as the UPC, so "Ham slices" becomes UPC "Ham". Only split when the first word is a number. Same idea for credit chub items.
 - "Submit Another Expense" calls `form.reset()`, which clears the auto-filled date and the default vehicle. Re-apply them after reset.
 - No duplicate protection: if GAS saves but the response times out, retrying (or the offline queue) creates a duplicate row. Add a client-generated submission ID and skip repeats in the `.gs` files.
 
@@ -33,7 +32,6 @@ Parked on purpose. Not planned for now.
 - "Duplicate last item" button on credit and donation lists.
 
 ### Settings and onboarding
-- **S** Passcode screen: add a Show/Hide toggle. The field is masked, so a typo on a phone keyboard is easy.
 - **S** Theme: make it Auto / Light / Dark. The toggle stops following the system setting after the first flip.
 
 ### Code cleanup
@@ -120,3 +118,5 @@ Parked on purpose. Not planned for now.
 - [x] Better empty state on History: "No submissions yet" with a "Submit a receipt" button.
 - [x] Make "Reset Application" less prominent (outline style, in a "Danger zone" at the bottom) and rename it "Reset app and sign out". It is a large solid red button, the same weight as the main actions, so it is an easy mis-tap.
 - [x] Update `<meta name="theme-color">` when the theme changes. It is fixed at black, so light mode gets a mismatched browser bar.
+- [x] Donation items typed by hand lose their name: the item text is split on the first space and the first word is stored as the UPC, so "Ham slices" becomes UPC "Ham". Only split when the first word is a number. Same idea for credit chub items.
+- [x] Passcode screen: add a Show/Hide toggle. The field is masked, so a typo on a phone keyboard is easy.
