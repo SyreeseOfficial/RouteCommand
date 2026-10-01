@@ -2,48 +2,11 @@
  * After deploying DonationCode.gs as a Google Apps Script web app,
  * paste the web app URL below to replace the placeholder.
  */
+import { gasProxy } from './_gasProxy.mjs';
+
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbzOkVZCAmk0MDVPq_7Wf7N3K3WXg1AhoCxyin_IFa9TzslGDVmq-3R4rpjO5sFDPJl8kA/exec';
 
-export default async (req) => {
-  if (req.method !== 'POST') {
-    return new Response(JSON.stringify({ status: 'error', message: 'POST only' }), {
-      status: 405,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  }
-
-  try {
-    const body = await req.text();
-
-    const gasRes = await fetch(GAS_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body,
-      redirect: 'manual',
-    });
-
-    const redirectUrl = gasRes.headers.get('location');
-    if (!redirectUrl) {
-      return new Response(JSON.stringify({ status: 'error', message: 'No redirect from GAS' }), {
-        status: 502,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
-
-    const resultRes  = await fetch(redirectUrl);
-    const resultText = await resultRes.text();
-
-    return new Response(resultText, {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  } catch (err) {
-    return new Response(JSON.stringify({ status: 'error', message: err.message }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  }
-};
+export default gasProxy(GAS_URL);
 
 export const config = {
   path: '/api/submit-donation',

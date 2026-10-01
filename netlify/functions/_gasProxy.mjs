@@ -1,0 +1,47 @@
+/* Route Command — shared GAS proxy
+ * All three submit endpoints forward JSON to a Google Apps Script web app
+ * and follow its 302 redirect to read the real response (GAS can't be
+ * fetched directly from the browser due to CORS on the redirect).
+ */
+export function gasProxy(gasUrl) {
+  return async (req) => {
+    if (req.method !== 'POST') {
+      return new Response(JSON.stringify({ status: 'error', message: 'POST only' }), {
+        status: 405,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    try {
+      const body = await req.text();
+
+      const gasRes = await fetch(gasUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body,
+        redirect: 'manual',
+      });
+
+      const redirectUrl = gasRes.headers.get('location');
+      if (!redirectUrl) {
+        return new Response(JSON.stringify({ status: 'error', message: 'No redirect from GAS' }), {
+          status: 502,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+
+      const resultRes  = await fetch(redirectUrl);
+      const resultText = await resultRes.text();
+
+      return new Response(resultText, {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    } catch (err) {
+      return new Response(JSON.stringify({ status: 'error', message: err.message }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+  };
+}
