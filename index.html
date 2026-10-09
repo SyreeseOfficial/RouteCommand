@@ -200,7 +200,7 @@
               </div>
             </div>
 
-            <button type="submit" class="btn btn--red btn--full" id="submit-btn">Submit Expense</button>
+            <button type="submit" class="btn btn--red btn--full" id="submit-btn" data-label="Submit Expense">Submit Expense</button>
 
           </form>
 
@@ -271,7 +271,7 @@
               <textarea class="form-textarea" id="credit-notes" placeholder="Any extra context…" rows="2"></textarea>
             </div>
 
-            <button type="submit" class="btn btn--red btn--full" id="credit-submit-btn">Submit Credits</button>
+            <button type="submit" class="btn btn--red btn--full" id="credit-submit-btn" data-label="Submit Credits">Submit Credits</button>
 
           </form>
 
@@ -319,7 +319,7 @@
               <textarea class="form-textarea" id="donation-notes" placeholder="Any extra context…" rows="2"></textarea>
             </div>
 
-            <button type="submit" class="btn btn--red btn--full" id="donation-submit-btn">Submit Donation Log</button>
+            <button type="submit" class="btn btn--red btn--full" id="donation-submit-btn" data-label="Submit Donation Log">Submit Donation Log</button>
 
           </form>
 
@@ -346,6 +346,7 @@
           <h2 class="view__title">History</h2>
           <p class="view__sub">Recent submissions from this device.</p>
         </div>
+        <p class="settings-hint history-sync" id="last-synced" aria-live="polite"></p>
         <div id="submission-history"></div>
         <button type="button" class="btn btn--outline btn--full btn--add-item hidden" id="clear-history-btn">Clear history</button>
       </section>
@@ -419,6 +420,17 @@
               <span class="toggle__track"></span>
             </label>
           </div>
+        </div>
+
+        <!-- ABOUT -->
+        <div class="settings-section">
+          <h3 class="settings-section__title">About</h3>
+          <div class="settings-card settings-card--row">
+            <span class="settings-card__label">Version</span>
+            <span class="settings-card__value" id="app-version"></span>
+          </div>
+          <button class="btn btn--outline btn--full" id="copy-diagnostics-btn">Copy diagnostics</button>
+          <p class="settings-hint">Copies version, queue and last error to paste into a message when something goes wrong.</p>
         </div>
 
         <!-- SYSTEM -->
@@ -508,6 +520,6 @@
 
   </div><!-- /app -->
 
-  <script src="app.js"></script>
+  <script type="module" src="app.js"></script>
 </body>
 </html>

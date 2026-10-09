@@ -1,6 +1,6 @@
 # Minify the shipped JS/CSS at deploy time (source files stay readable in git)
 [build]
-  command = "npx -y esbuild app.js --minify --allow-overwrite --outfile=app.js && npx -y esbuild style.css --minify --allow-overwrite --outfile=style.css"
+  command = "npx -y esbuild app.js --bundle --minify --allow-overwrite --define:__BUILD__=\"\\\"${COMMIT_REF:-dev}\\\"\" --outfile=app.js && npx -y esbuild style.css --minify --allow-overwrite --outfile=style.css"
 
 # No filename hashing, so keep the cache short: fast repeat loads, updates within 5 minutes
 [[headers]]

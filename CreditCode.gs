@@ -5,19 +5,25 @@
  * SETUP STEPS:
  *  1. Go to script.google.com and create a NEW project (separate from Code.gs).
  *  2. Paste this entire file into the editor.
- *  3. Create a new Google Sheet and copy its ID from the URL into CREDIT_SHEET_ID below.
- *     (The Sheet ID is the long string between /d/ and /edit in the URL.)
+ *  3. Create a new Google Sheet and copy its ID from the URL (the long string between
+ *     /d/ and /edit). In Project Settings → Script properties, add CREDIT_SHEET_ID = that ID.
+ *     If a deployed copy already exists, copy the ID out of its source first, then set the property.
  *  4. Deploy as a Web App:
  *       Execute as: Me (your Google account)
  *       Who has access: Anyone
- *  5. Copy the Web App URL and paste it into netlify/functions/submit-credit.mjs
- *     where GAS_URL is defined.
+ *  5. Copy the Web App URL into the Netlify environment variable GAS_URL_CREDIT.
  *
  * The sheet will auto-create a header row on the first submission.
  * Ian can manually tick the "Done" column as he processes each credit.
  */
 
-var CREDIT_SHEET_ID = 'PASTE_YOUR_CREDIT_SHEET_ID_HERE';
+/* IDs live in Script Properties (Project Settings → Script properties), not in this file,
+   so pasting a new copy of the code never overwrites them. */
+function getProp_(name) {
+  var v = PropertiesService.getScriptProperties().getProperty(name);
+  if (!v) throw new Error('Script property ' + name + ' is not set');
+  return v;
+}
 
 function doGet(e) {
   return ContentService
@@ -59,7 +65,7 @@ function doPost(e) {
     var timestamp   = payload.timestamp || new Date().toISOString();
     var items       = payload.items || [];
 
-    var sheet = SpreadsheetApp.openById(CREDIT_SHEET_ID).getActiveSheet();
+    var sheet = SpreadsheetApp.openById(getProp_('CREDIT_SHEET_ID')).getActiveSheet();
 
     /* Auto-create header row */
     if (sheet.getLastRow() === 0) {

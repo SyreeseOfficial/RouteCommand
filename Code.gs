@@ -4,14 +4,21 @@
  *   Execute as: Me (your Google account)
  *   Who has access: Anyone
  *
- * After deploying, copy the Web App URL and paste it into app.js
- * where GAS_URL is defined.
+ * After deploying, copy the Web App URL into the Netlify environment variable
+ * GAS_URL_RECEIPT (the Netlify function in netlify/functions/submit.mjs reads it).
  *
- * IDs are read-only constants — never modify them.
+ * Before the first run, add two Script properties (Project Settings → Script properties):
+ *   DRIVE_FOLDER_ID : the Drive folder that receives receipt photos
+ *   SHEET_ID        : the Google Sheet that logs receipts
  */
 
-var DRIVE_FOLDER_ID = '1N0MTnkIyHIhwRGgPnaM-R3v4DXp4zCzb';
-var SHEET_ID        = '1EVNu8oFX3ll-slu8EX0kCtNOEvfii4aXRyvzXt1a-m0';
+/* IDs live in Script Properties (Project Settings → Script properties), not in this file,
+   so pasting a new copy of the code never overwrites them. */
+function getProp_(name) {
+  var v = PropertiesService.getScriptProperties().getProperty(name);
+  if (!v) throw new Error('Script property ' + name + ' is not set');
+  return v;
+}
 
 /* ─── CORS headers required for Vercel/Netlify → GAS requests ─── */
 var CORS_HEADERS = {
@@ -83,7 +90,7 @@ function doPost(e) {
       var imageBlob  = Utilities.newBlob(imageBytes, 'image/jpeg', fileName);
 
       /* Save to the designated Drive folder */
-      var folder    = DriveApp.getFolderById(DRIVE_FOLDER_ID);
+      var folder    = DriveApp.getFolderById(getProp_('DRIVE_FOLDER_ID'));
       var savedFile = folder.createFile(imageBlob);
 
       /* Make the file viewable by anyone with the link */
@@ -93,7 +100,7 @@ function doPost(e) {
     }
 
     /* ── 4. Append row to Google Sheet ── */
-    var sheet = SpreadsheetApp.openById(SHEET_ID).getActiveSheet();
+    var sheet = SpreadsheetApp.openById(getProp_('SHEET_ID')).getActiveSheet();
 
     /* Auto-create header row if the sheet is empty */
     if (sheet.getLastRow() === 0) {

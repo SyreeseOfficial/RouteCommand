@@ -10,8 +10,7 @@
  *  4. Deploy as a Web App:
  *       Execute as: Me (your Google account)
  *       Who has access: Anyone
- *  5. Copy the Web App URL and paste it into netlify/functions/submit-donation.mjs
- *     where GAS_URL is defined.
+ *  5. Copy the Web App URL into the Netlify environment variable GAS_URL_DONATION.
  *
  * The sheet will auto-create a header row on the first submission.
  * One row is written per donation item.

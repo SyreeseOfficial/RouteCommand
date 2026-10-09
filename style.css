@@ -2048,7 +2048,7 @@ details.history-card[open] .history-date::after { content: ' ▴'; }
   padding-top: 0.75rem;
   border-top: 1px solid var(--color-border);
 }
-.history-retry { align-self: flex-start; margin-top: 0.75rem; }
+.history-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
 
 .tip {
   position: fixed;
@@ -2138,3 +2138,8 @@ details.history-card[open] .history-date::after { content: ' ▴'; }
 .photo-dialog::backdrop { background: rgba(0,0,0,0.85); }
 .photo-dialog img { display: block; max-width: 100vw; max-height: 100vh; object-fit: contain; }
 .history-empty { display: flex; flex-direction: column; align-items: center; gap: 1rem; padding: 2rem 0; }
+
+/* History: our own pull-to-refresh replaces the browser's (which would reload the page) */
+html:has(#history-view.active) { overscroll-behavior-y: contain; }
+.history-sync { margin: 0 0 1rem; }
+#history-view.ptr-ready .history-sync::before { content: 'Release to refresh · '; color: var(--color-gold-light); }

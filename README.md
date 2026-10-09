@@ -52,6 +52,14 @@ npx serve .
 
 Netlify functions live in `netlify/functions/` and proxy to the Google Apps Script endpoints configured in each `.mjs` file.
 
+## Tests
+
+```bash
+node --test 'tests/*.test.mjs'
+```
+
+No dependencies; browser globals are stubbed in `tests/_env.mjs`.
+
 ## Deployment
 
 Push to `main` → Netlify auto-deploys. That's it.

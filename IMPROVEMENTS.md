@@ -36,7 +36,7 @@ Parked on purpose. Not planned for now.
 
 ### Code cleanup
 - Three near-identical Netlify functions. Merge into one function that takes a route and reads the target URL from an env var.
-- Docs: `PRD.md`, `PROMPTS.md`, `RULES.md`, `TODO.md`, `CHANGELOG.md` are stale (TODO mentions a "More Menu" and pages that no longer exist). Move to `docs/` or delete.
+- Docs: moved to `docs/` (done).
 - Split `app.js` into ES modules: `data.js`, `auth.js`, `receipts.js`, `credits.js`, `donations.js`, `history.js`.
 - `CreditCode.gs` still has `PASTE_YOUR_CREDIT_SHEET_ID_HERE`. Confirm the deployed script matches the repo.
 
