@@ -31,12 +31,14 @@ function initAuth() {
   const isAuthed = localStorage.getItem(AUTH_KEY) === 'verified';
 
   if (isAuthed) {
+    $('splash').remove();
     gatekeeper.classList.add('hidden');
     appShell.classList.remove('hidden');
     onAppReady();
   } else {
     gatekeeper.classList.remove('hidden');
     appShell.classList.add('hidden');
+    setTimeout(() => $('splash').remove(), 500);   // the gate fades in over the splash (same background), then the splash goes
     setTimeout(() => passcodeInput.focus(), 100);
   }
 }

@@ -20,7 +20,7 @@ function createDonationItemHTML(id) {
   return `
     <div class="item-card" data-id="${id}">
       <div class="item-card__header">
-        <div class="pill-toggle">
+        <div class="pill-toggle" role="group" aria-label="Item type">
           ${pill('chub', 'Chub')}${pill('retail', 'Retail')}
         </div>${REMOVE_BTN_HTML}
       </div>

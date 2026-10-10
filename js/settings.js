@@ -50,6 +50,17 @@ if (defaultVehicleEl) {
 const isStandalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
 if (isStandalone()) $('app-setup-section').classList.add('hidden');
 
+/* Chrome/Android offers a real one-tap install: show the button only while the browser says it can */
+let installEvent;
+window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); installEvent = e; $('install-btn').classList.remove('hidden'); });
+window.addEventListener('appinstalled', () => $('app-setup-section').classList.add('hidden'));
+$('install-btn').addEventListener('click', async () => {
+  installEvent.prompt();
+  await installEvent.userChoice;
+  installEvent = null;
+  $('install-btn').classList.add('hidden');   // the prompt can only be used once
+});
+
 /* One-time hint for phone users, shown the first time they get into the app */
 const INSTALL_TIP_KEY = 'rc_install_tip_seen';
 function showInstallTip() {

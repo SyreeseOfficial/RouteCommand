@@ -113,7 +113,7 @@ export function renderHistory() {
     const day    = dayLabel(entry.timestamp);
     const time   = fmtTime(entry.timestamp);
     const status = entry.status || 'saved';   // rows from before statuses existed were all saved
-    const heading = day !== lastDay ? `<h4 class="history-day">${esc(day)}</h4>` : '';
+    const heading = day !== lastDay ? `<h3 class="history-day">${esc(day)}</h3>` : '';
     lastDay = day;
 
     const head = `

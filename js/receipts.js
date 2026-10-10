@@ -58,8 +58,8 @@ const photoActions = document.querySelector('.photo-actions');
 const photoPreview = document.getElementById('photo-preview');
 
 const photoDialog = document.getElementById('photo-dialog');
-document.getElementById('photo-thumb').addEventListener('click', (e) => {
-  document.getElementById('photo-full').src = e.target.src;
+document.getElementById('photo-thumb-btn').addEventListener('click', () => {
+  document.getElementById('photo-full').src = document.getElementById('photo-thumb').src;
   photoDialog.showModal();
 });
 photoDialog.addEventListener('click', () => photoDialog.close());

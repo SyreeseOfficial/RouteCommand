@@ -54,7 +54,7 @@ function createCreditItemHTML(id) {
   return `
     <div class="item-card" data-id="${id}">
       <div class="item-card__header">
-        <div class="pill-toggle">
+        <div class="pill-toggle" role="group" aria-label="Item type">
           <button type="button" class="pill-toggle__btn pill-toggle__btn--active" aria-pressed="true" data-type-btn="retail">Retail</button>
           <button type="button" class="pill-toggle__btn" aria-pressed="false" data-type-btn="chub">Chub / Deli</button>
         </div>${REMOVE_BTN_HTML}

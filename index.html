@@ -34,26 +34,41 @@
       <circle cx="40" cy="40" r="38" style="stroke:var(--color-gold-text)" stroke-width="2"/>
       <polyline points="40,20 40,42 54,50" style="stroke:var(--color-gold-text)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
     </symbol>
+    <symbol id="i-shield" viewBox="0 0 40 46" fill="none">
+      <path d="M20 1L38 8V22C38 32 30 40 20 44C10 40 2 32 2 22V8L20 1Z" fill="#841b2a" stroke="#a02030" stroke-width="1"/>
+    </symbol>
+    <symbol id="i-shield-lg" viewBox="0 0 80 90" fill="none">
+      <path d="M40 2L76 16V44C76 63 59 80 40 88C21 80 4 63 4 44V16L40 2Z" fill="#841b2a" stroke="#a02030" stroke-width="1.5"/>
+      <path d="M40 18L62 27V44C62 56 52 66 40 72C28 66 18 56 18 44V27L40 18Z" fill="#6b1522" opacity="0.6"/>
+    </symbol>
+    <symbol id="i-receipt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></symbol>
+    <symbol id="i-tag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></symbol>
+    <symbol id="i-history" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></symbol>
+    <symbol id="i-gear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></symbol>
   </svg>
+
+  <!-- ===================== SPLASH (first paint; app.js removes it once the gate or app is ready) ===================== -->
+  <div id="splash" class="gatekeeper gatekeeper--splash" aria-hidden="true">
+    <div class="gatekeeper__inner">
+      <div class="gatekeeper__shield"><svg viewBox="0 0 80 90"><use href="#i-shield-lg"/></svg></div>
+      <p class="gatekeeper__title">Route Command</p>
+    </div>
+  </div>
 
   <!-- ===================== GATEKEEPER ===================== -->
   <div id="gatekeeper" class="gatekeeper hidden">
     <div class="gatekeeper__inner">
-      <div class="gatekeeper__shield" aria-hidden="true">
-        <svg viewBox="0 0 80 90" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M40 2L76 16V44C76 63 59 80 40 88C21 80 4 63 4 44V16L40 2Z" fill="#841b2a" stroke="#a02030" stroke-width="1.5"/>
-          <path d="M40 18L62 27V44C62 56 52 66 40 72C28 66 18 56 18 44V27L40 18Z" fill="#6b1522" opacity="0.6"/>
-        </svg>
-      </div>
+      <div class="gatekeeper__shield" aria-hidden="true"><svg viewBox="0 0 80 90"><use href="#i-shield-lg"/></svg></div>
       <h1 class="gatekeeper__title">Route Command</h1>
-      <p class="gatekeeper__sub">Enter Company Passcode</p>
+      <p class="gatekeeper__sub">Enter company passcode</p>
       <div class="gatekeeper__input-wrap">
         <input
           id="passcode-input"
           type="password"
           class="gatekeeper__input"
           placeholder="Passcode"
-          autocomplete="current-password"
+          autocomplete="off"
           inputmode="text"
         />
         <button type="button" class="gatekeeper__toggle" id="passcode-toggle" aria-pressed="false">Show</button>
@@ -81,44 +96,42 @@
   <div id="app" class="app hidden">
 
     <!-- DESKTOP SIDEBAR -->
-    <aside class="sidebar" role="navigation" aria-label="Main navigation">
+    <aside class="sidebar">
       <div class="sidebar__brand">
         <div class="sidebar__shield" aria-hidden="true">
-          <svg viewBox="0 0 40 46" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M20 1L38 8V22C38 32 30 40 20 44C10 40 2 32 2 22V8L20 1Z" fill="#841b2a" stroke="#a02030" stroke-width="1"/>
-          </svg>
+          <svg viewBox="0 0 40 46"><use href="#i-shield"/></svg>
         </div>
         <span class="sidebar__title">Route Command</span>
       </div>
-      <nav class="sidebar__nav">
+      <nav class="sidebar__nav" aria-label="Main">
         <button class="nav-item active" data-view="receipts" aria-current="page">
           <span class="nav-item__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            <svg viewBox="0 0 24 24"><use href="#i-receipt"/></svg>
           </span>
           <span class="nav-item__label">Receipts</span>
         </button>
         <button class="nav-item" data-view="credits">
           <span class="nav-item__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+            <svg viewBox="0 0 24 24"><use href="#i-tag"/></svg>
           </span>
           <span class="nav-item__label">Credits</span>
         </button>
         <button class="nav-item" data-view="donations">
           <span class="nav-item__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            <svg viewBox="0 0 24 24"><use href="#i-heart"/></svg>
           </span>
           <span class="nav-item__label">Donations</span>
         </button>
         <button class="nav-item" data-view="history">
           <span class="nav-item__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <svg viewBox="0 0 24 24"><use href="#i-history"/></svg>
           </span>
           <span class="nav-item__label">History</span>
           <span class="nav-badge hidden" aria-hidden="true"></span>
         </button>
         <button class="nav-item" data-view="settings">
           <span class="nav-item__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            <svg viewBox="0 0 24 24"><use href="#i-gear"/></svg>
           </span>
           <span class="nav-item__label">Settings</span>
         </button>
@@ -127,12 +140,10 @@
     </aside>
 
     <!-- MOBILE HEADER -->
-    <header class="mobile-header" role="banner">
+    <header class="mobile-header">
       <div class="mobile-header__brand">
         <div class="mobile-header__shield" aria-hidden="true">
-          <svg viewBox="0 0 40 46" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M20 1L38 8V22C38 32 30 40 20 44C10 40 2 32 2 22V8L20 1Z" fill="#841b2a" stroke="#a02030" stroke-width="1"/>
-          </svg>
+          <svg viewBox="0 0 40 46"><use href="#i-shield"/></svg>
         </div>
         <span class="mobile-header__title">Route Command</span>
       </div>
@@ -140,7 +151,7 @@
     </header>
 
     <!-- MAIN CONTENT -->
-    <main class="main-content" role="main">
+    <main class="main-content">
 
       <div class="offline-banner hidden" id="offline-banner" role="status">You're offline. Submissions will be saved and sent later.</div>
 
@@ -148,7 +159,7 @@
       <section id="receipts-view" class="view active" aria-label="Receipts">
         <div class="view__header">
           <h2 class="view__title">Receipts</h2>
-          <p class="view__sub">Submit a new expense receipt.</p>
+          <p class="view__sub">Submit an expense receipt.</p>
         </div>
 
         <!-- EXPENSE FORM -->
@@ -156,12 +167,12 @@
           <form id="expense-form" novalidate>
 
             <div class="form-group">
-              <label class="form-label" for="receipt-date">Date on Receipt</label>
+              <label class="form-label" for="receipt-date">Date on receipt</label>
               <input class="form-input" type="date" id="receipt-date" name="receipt-date" required />
             </div>
 
             <div class="form-group">
-              <label class="form-label" for="expense-category">Expense Category</label>
+              <label class="form-label" for="expense-category">Expense category</label>
               <select class="form-select" id="expense-category" name="expense-category" required>
                 <option value="" disabled selected>Select a category</option>
                 <option value="Fuel">Fuel</option>
@@ -177,14 +188,14 @@
             </div>
 
             <div class="form-group">
-              <label class="form-label" for="expense-amount">Expense Amount</label>
+              <label class="form-label" for="expense-amount">Expense amount</label>
               <div class="input-prefix"><span aria-hidden="true">$</span><input class="form-input" type="number" id="expense-amount" name="expense-amount" placeholder="0.00" inputmode="decimal" step="0.01" min="0" required /></div>
             </div>
 
             <div class="collapse is-collapsed" id="vehicle-group">
               <div class="collapse__inner">
                   <div class="form-group">
-                    <label class="form-label" for="vehicle-tag">Vehicle Tag</label>
+                    <label class="form-label" for="vehicle-tag">Vehicle tag</label>
                     <select class="form-select" id="vehicle-tag" name="vehicle-tag">
                       <option value="N/A" selected>N/A</option>
                       <option value="Bumblebee">Bumblebee</option>
@@ -198,39 +209,39 @@
             </div>
 
             <div class="form-group">
-              <label class="form-label" for="notes">Notes <span class="form-label--optional">(Optional)</span></label>
+              <label class="form-label" for="notes">Notes <span class="form-label--optional">(optional)</span></label>
               <textarea class="form-textarea" id="notes" name="notes" placeholder="Any additional context about this expense…" rows="3"></textarea>
             </div>
 
             <div class="form-group">
-              <label class="form-label">Receipt Photo</label>
+              <span class="form-label">Receipt photo <span class="form-label--optional">(recommended)</span></span>
               <div class="photo-actions">
                 <label class="upload-btn upload-btn--primary" for="receipt-photo" id="upload-label">
                   <span class="upload-btn__icon" aria-hidden="true">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
                   </span>
-                  <span id="upload-label-text">Take Photo</span>
+                  <span id="upload-label-text">Take photo</span>
                 </label>
                 <label class="upload-btn" for="receipt-library">
                   <span class="upload-btn__icon" aria-hidden="true">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                   </span>
-                  <span id="library-label-text">Choose from Library</span>
+                  <span id="library-label-text">Choose from library</span>
                 </label>
               </div>
               <input type="file" id="receipt-photo" name="receipt-photo" accept="image/*" capture="environment" class="sr-only" />
               <input type="file" id="receipt-library" accept="image/*" class="sr-only" />
               <div class="photo-preview hidden" id="photo-preview">
-                <span class="photo-preview__thumb">
-                  <img id="photo-thumb" alt="Receipt preview. Tap to enlarge." role="button" tabindex="0" />
+                <button type="button" class="photo-preview__thumb" id="photo-thumb-btn" aria-label="Enlarge receipt photo">
+                  <img id="photo-thumb" alt="" />
                   <svg class="photo-preview__zoom" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
-                </span>
+                </button>
                 <button type="button" class="btn btn--outline" id="photo-retake">Retake</button>
                 <button type="button" class="btn btn--outline" id="photo-remove">Remove</button>
               </div>
             </div>
 
-            <button type="submit" class="btn btn--red btn--full" id="submit-btn" data-label="Submit Expense">Submit Expense</button>
+            <button type="submit" class="btn btn--red btn--full" id="submit-btn" data-label="Submit expense">Submit expense</button>
 
           </form>
 
@@ -242,7 +253,7 @@
             <h3 class="success-state__title">Receipt sent</h3>
             <p class="success-state__msg"><span data-recipient></span> has your receipt.</p>
             <div class="credit-success-summary" id="receipt-success-summary"></div>
-            <button class="btn btn--red btn--full" id="submit-another-btn">Submit Another Expense</button>
+            <button class="btn btn--red btn--full" id="submit-another-btn">Submit another expense</button>
             <button class="btn btn--link" data-goto-history>View in history</button>
           </div>
         </div>
@@ -286,20 +297,20 @@
             <!-- Credit Line Items -->
             <div class="form-group">
               <div class="credit-items-label">
-                <span class="form-label">Credit Items</span>
+                <span class="form-label">Credit items</span>
                 <span class="credit-items-count" id="credit-items-count">1 item</span>
               </div>
               <div id="credit-items-list"></div>
-              <button type="button" class="btn btn--outline btn--full btn--add-item" id="add-credit-item-btn">+ Add Another Item</button>
+              <button type="button" class="btn btn--outline btn--full btn--add-item" id="add-credit-item-btn">+ Add another item</button>
             </div>
 
             <!-- Notes -->
             <div class="form-group">
-              <label class="form-label" for="credit-notes">Notes <span class="form-label--optional">(Optional)</span></label>
+              <label class="form-label" for="credit-notes">Notes <span class="form-label--optional">(optional)</span></label>
               <textarea class="form-textarea" id="credit-notes" placeholder="Any extra context…" rows="2"></textarea>
             </div>
 
-            <button type="submit" class="btn btn--red btn--full" id="credit-submit-btn" data-label="Submit Credits">Submit Credits</button>
+            <button type="submit" class="btn btn--red btn--full" id="credit-submit-btn" data-label="Submit credits">Submit credits</button>
 
           </form>
 
@@ -311,7 +322,7 @@
             <h3 class="success-state__title">Credit request sent</h3>
             <p class="success-state__msg"><span data-recipient></span> has your credit request.</p>
             <div class="credit-success-summary" id="credit-success-summary"></div>
-            <button class="btn btn--red btn--full" id="credit-submit-another-btn">Submit Another Credit</button>
+            <button class="btn btn--red btn--full" id="credit-submit-another-btn">Submit another credit</button>
             <button class="btn btn--link" data-goto-history>View in history</button>
           </div>
         </div>
@@ -322,7 +333,7 @@
       <section id="donations-view" class="view" aria-label="Donations">
         <div class="view__header">
           <h2 class="view__title">Donations</h2>
-          <p class="view__sub">Log items going into the donation pile.</p>
+          <p class="view__sub">Log items for the donation pile.</p>
         </div>
 
         <div class="form-card" id="donation-form-card">
@@ -331,20 +342,20 @@
             <!-- Donation Items -->
             <div class="form-group">
               <div class="credit-items-label">
-                <span class="form-label">Donation Items</span>
+                <span class="form-label">Donation items</span>
                 <span class="credit-items-count" id="donation-items-count">1 item</span>
               </div>
               <div id="donation-items-list"></div>
-              <button type="button" class="btn btn--outline btn--full btn--add-item" id="add-donation-item-btn">+ Add Another Item</button>
+              <button type="button" class="btn btn--outline btn--full btn--add-item" id="add-donation-item-btn">+ Add another item</button>
             </div>
 
             <!-- Notes -->
             <div class="form-group">
-              <label class="form-label" for="donation-notes">Notes <span class="form-label--optional">(Optional)</span></label>
+              <label class="form-label" for="donation-notes">Notes <span class="form-label--optional">(optional)</span></label>
               <textarea class="form-textarea" id="donation-notes" placeholder="Any extra context…" rows="2"></textarea>
             </div>
 
-            <button type="submit" class="btn btn--red btn--full" id="donation-submit-btn" data-label="Submit Donation Log">Submit Donation Log</button>
+            <button type="submit" class="btn btn--red btn--full" id="donation-submit-btn" data-label="Submit donation log">Submit donation log</button>
 
           </form>
 
@@ -356,7 +367,7 @@
             <h3 class="success-state__title">Donation logged</h3>
             <p class="success-state__msg"><span data-recipient></span> has your donation log.</p>
             <div class="credit-success-summary" id="donation-success-summary"></div>
-            <button class="btn btn--red btn--full" id="donation-submit-another-btn">Log Another Donation</button>
+            <button class="btn btn--red btn--full" id="donation-submit-another-btn">Log another donation</button>
             <button class="btn btn--link" data-goto-history>View in history</button>
           </div>
         </div>
@@ -366,7 +377,7 @@
       <section id="history-view" class="view" aria-label="History">
         <div class="view__header">
           <h2 class="view__title">History</h2>
-          <p class="view__sub">Last 15 submissions from this device.</p>
+          <p class="view__sub">Review your last 15 submissions.</p>
         </div>
         <p class="settings-hint history-sync" id="last-synced" aria-live="polite"></p>
         <div id="submission-history"></div>
@@ -377,18 +388,18 @@
       <section id="settings-view" class="view" aria-label="Settings">
         <div class="view__header">
           <h2 class="view__title">Settings</h2>
-          <p class="view__sub">Manage your preferences and account.</p>
+          <p class="view__sub">Manage your name, vehicle and app.</p>
         </div>
 
         <!-- USER PROFILE -->
         <div class="settings-section">
-          <h3 class="settings-section__title">User Profile</h3>
+          <h3 class="settings-section__title">User profile</h3>
           <div class="settings-card settings-card--field">
-            <label class="settings-card__label" for="identity-select">Your Name</label>
+            <label class="settings-card__label" for="identity-select">Your name</label>
             <select class="form-select settings-select" id="identity-select"></select>
           </div>
           <div class="settings-card settings-card--field">
-            <label class="settings-card__label" for="default-vehicle">Default Vehicle</label>
+            <label class="settings-card__label" for="default-vehicle">Default vehicle</label>
             <select class="form-select settings-select" id="default-vehicle" name="default-vehicle">
               <option value="N/A">N/A</option>
               <option value="Bumblebee">Bumblebee</option>
@@ -407,9 +418,11 @@
             <summary class="bookmark-guide__title">Save Route Command to your phone</summary>
             <p class="settings-card__desc">One-tap access, no typing the URL. A home screen icon also works offline.</p>
 
+            <button type="button" class="btn btn--red btn--full install-btn hidden" id="install-btn">Install app</button>
+
             <div class="form-group">
               <span class="form-label">Your device</span>
-              <div class="pill-toggle" id="bookmark-os-toggle">
+              <div class="pill-toggle" id="bookmark-os-toggle" role="group" aria-label="Your device">
                 <button type="button" class="pill-toggle__btn pill-toggle__btn--active" aria-pressed="true" data-os="ios">iPhone / iOS</button>
                 <button type="button" class="pill-toggle__btn" aria-pressed="false" data-os="android">Android</button>
               </div>
@@ -417,7 +430,7 @@
 
             <div class="form-group form-group--flush">
               <span class="form-label">What to add</span>
-              <div class="pill-toggle" id="bookmark-type-toggle">
+              <div class="pill-toggle" id="bookmark-type-toggle" role="group" aria-label="What to add">
                 <button type="button" class="pill-toggle__btn pill-toggle__btn--active" aria-pressed="true" data-btype="homescreen">Home screen icon</button>
                 <button type="button" class="pill-toggle__btn" aria-pressed="false" data-btype="bookmark">Browser bookmark</button>
               </div>
@@ -431,7 +444,7 @@
         <div class="settings-section">
           <h3 class="settings-section__title">Appearance</h3>
           <div class="settings-card settings-card--row">
-            <span class="settings-card__label">Dark Mode</span>
+            <span class="settings-card__label">Dark mode</span>
             <label class="toggle" aria-label="Toggle dark mode">
               <input type="checkbox" id="dark-mode-toggle" checked />
               <span class="toggle__track"></span>
@@ -462,35 +475,35 @@
     </main>
 
     <!-- MOBILE BOTTOM NAV -->
-    <nav class="bottom-nav" role="navigation" aria-label="Mobile navigation">
+    <nav class="bottom-nav" aria-label="Main">
       <button class="bottom-nav__item active" data-view="receipts" aria-label="Receipts" aria-current="page">
         <span class="bottom-nav__icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          <svg viewBox="0 0 24 24"><use href="#i-receipt"/></svg>
         </span>
         <span class="bottom-nav__label">Receipts</span>
       </button>
       <button class="bottom-nav__item" data-view="credits" aria-label="Credits">
         <span class="bottom-nav__icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+          <svg viewBox="0 0 24 24"><use href="#i-tag"/></svg>
         </span>
         <span class="bottom-nav__label">Credits</span>
       </button>
       <button class="bottom-nav__item" data-view="donations" aria-label="Donations">
         <span class="bottom-nav__icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <svg viewBox="0 0 24 24"><use href="#i-heart"/></svg>
         </span>
         <span class="bottom-nav__label">Donations</span>
       </button>
       <button class="bottom-nav__item" data-view="history" aria-label="History">
         <span class="bottom-nav__icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <svg viewBox="0 0 24 24"><use href="#i-history"/></svg>
         </span>
         <span class="bottom-nav__label">History</span>
         <span class="nav-badge hidden" aria-hidden="true"></span>
       </button>
       <button class="bottom-nav__item" data-view="settings" aria-label="Settings">
         <span class="bottom-nav__icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          <svg viewBox="0 0 24 24"><use href="#i-gear"/></svg>
         </span>
         <span class="bottom-nav__label">Settings</span>
       </button>
@@ -505,7 +518,11 @@
       </div>
     </dialog>
 
-    <dialog class="photo-dialog" id="photo-dialog" aria-label="Receipt photo"><img id="photo-full" alt="Receipt, full size" /></dialog>
+    <dialog class="photo-dialog" id="photo-dialog" aria-label="Receipt photo">
+      <button type="button" class="photo-dialog__close" aria-label="Close photo">×</button>
+      <img id="photo-full" alt="Receipt, full size" />
+      <p class="photo-dialog__hint">Tap anywhere to close</p>
+    </dialog>
 
     <div class="toast-stack" id="toast-stack"><div class="toast hidden" id="toast" role="status"></div></div>
 

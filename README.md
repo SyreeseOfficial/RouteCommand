@@ -70,7 +70,7 @@ GAS scripts (`Code.gs`, `CreditCode.gs`, `DonationCode.gs`) are deployed manuall
 
 ## Design
 
-Pure black canvas (`#000000`), Boar's Head Red (`#841b2a`), Boar's Head Gold (`#625636`). Enterprise-premium aesthetic — rivals high-end SaaS without the SaaS price tag.
+Pure black canvas (`#000000`), brand red (`#841b2a`), brand gold (`#625636`). Enterprise-premium aesthetic — rivals high-end SaaS without the SaaS price tag.
 
 ---
 
