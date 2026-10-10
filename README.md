@@ -44,13 +44,13 @@ Client-side image compression (canvas → JPEG 0.7 @ 1024px max) keeps payloads 
 
 ## Local dev
 
-No build step. Just open `index.html` or run any static file server:
+No build step for development. Just open `index.html` or run any static file server:
 
 ```bash
 npx serve .
 ```
 
-The service worker (`sw.js`) imports `js/outbox.js`, so it only registers in the built version; without it the app still works, and the page sends queued submissions itself. Netlify runs the build (`netlify.toml`) and injects the commit hash into `app.js` and `sw.js`.
+The service worker (`sw.js`) imports `js/outbox.js`, so it only registers in the built version; without it the app still works, and the page sends queued submissions itself. `npm install && npm run build` writes the minified site to `dist/` (sources are never overwritten); Netlify runs the same command, publishes `dist/` and the build injects the commit hash into `app.js` and `sw.js`. esbuild is pinned in `package.json`; `npm test` runs the tests.
 
 Netlify functions live in `netlify/functions/` and proxy to the Google Apps Script endpoints configured in each `.mjs` file.
 

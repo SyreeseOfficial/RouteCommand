@@ -13,6 +13,11 @@ for (const file of ['Code.gs', 'CreditCode.gs', 'DonationCode.gs']) {
     assert.equal(sanitize('x'.repeat(600)).length, 500);
     assert.equal(sanitize(42), '');
     assert.equal(sanitize(null), '');
+    assert.equal(sanitize('=SUM(A1)'), "'=SUM(A1)");
+    assert.equal(sanitize(' @x'), "'@x");
+    assert.equal(sanitize('+1'), "'+1");
+    assert.equal(sanitize('-5'), "'-5");
+    assert.equal(sanitize('2026-10-09'), '2026-10-09');
   });
 }
 

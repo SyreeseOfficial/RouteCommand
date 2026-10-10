@@ -1,6 +1,7 @@
-# Minify the shipped JS/CSS at deploy time (source files stay readable in git)
+# build.mjs bundles + minifies into dist/ (sources stay readable in git); esbuild is pinned in package.json
 [build]
-  command = "npx -y esbuild app.js --bundle --minify --allow-overwrite --define:__BUILD__=\"\\\"${COMMIT_REF:-dev}\\\"\" --outfile=app.js && npx -y esbuild sw.js --bundle --minify --allow-overwrite --define:__BUILD__=\"\\\"${COMMIT_REF:-dev}\\\"\" --outfile=sw.js && npx -y esbuild style.css --minify --allow-overwrite --outfile=style.css"
+  command = "npm run build"
+  publish = "dist"
 
 # No filename hashing, so keep the cache short: fast repeat loads, updates within 5 minutes
 [[headers]]

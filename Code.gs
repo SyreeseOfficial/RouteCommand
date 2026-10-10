@@ -221,5 +221,7 @@ function buildResponse(data) {
  */
 function sanitize(str) {
   if (typeof str !== 'string') return '';
-  return str.trim().substring(0, 500);
+  var out = str.trim().substring(0, 500);
+  // A leading = + - @ would run as a formula in Sheets; the ' prefix keeps it text.
+  return /^[=+\-@]/.test(out) ? "'" + out : out;
 }
