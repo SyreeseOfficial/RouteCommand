@@ -33,10 +33,7 @@ export function navigateTo(viewId, updateHistory = true, moveFocus = true) {
   }
 
   /* Scroll to top of new view */
-  window.scrollTo(0, 0);
-
-  /* Trigger scroll-based animations for the new view */
-  observeAnimatables();
+  window.scrollTo({ top: 0, behavior: 'instant' });
 
   /* Update browser URL */
   if (updateHistory) history.pushState(null, '', '/' + viewId);
@@ -63,29 +60,3 @@ sidebarNavItems.forEach(item => {
 bottomNavItems.forEach(item => {
   item.addEventListener('click', () => navigateTo(item.dataset.view));
 });
-
-let observer = null;
-
-function observeAnimatables() {
-  const animatables = document.querySelectorAll(
-    '.stat-card:not(.visible), .form-card:not(.visible), .placeholder-card:not(.visible), .section-card:not(.visible), .view-copy-card:not(.visible)'
-  );
-
-  if (!animatables.length) return;
-
-  if (!observer) {
-    observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry, i) => {
-        if (entry.isIntersecting) {
-          /* Stagger each element slightly */
-          setTimeout(() => {
-            entry.target.classList.add('visible');
-          }, i * 80);
-          observer.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.1 });
-  }
-
-  animatables.forEach(el => observer.observe(el));
-}

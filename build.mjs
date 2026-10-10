@@ -4,7 +4,7 @@ import { cpSync, mkdirSync, rmSync } from 'node:fs';
 
 rmSync('dist', { recursive: true, force: true });
 mkdirSync('dist');
-for (const f of ['index.html', 'data.json', '_redirects']) cpSync(f, `dist/${f}`);
+for (const f of ['index.html', 'data.json', '_redirects', 'manifest.webmanifest', 'icon.svg', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png']) cpSync(f, `dist/${f}`);
 
 await build({
   entryPoints: ['app.js', 'sw.js', 'style.css'],
