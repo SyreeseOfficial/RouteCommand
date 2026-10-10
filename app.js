@@ -90,6 +90,18 @@ function loadPersistedData() {
   renderHistory();
 }
 
+/* Installed PWAs stay alive for days: roll untouched date fields to the new day */
+let stampedDay = today();
+document.addEventListener('visibilitychange', () => {
+  const now = today();
+  if (document.hidden || now === stampedDay) return;
+  ['receipt-date', 'credit-date'].forEach(id => {
+    const el = $(id);
+    if (el && el.value === stampedDay) el.value = now;
+  });
+  stampedDay = now;
+});
+
 function onAppReady() {
   updateOnlineState();
   initIdentity();
