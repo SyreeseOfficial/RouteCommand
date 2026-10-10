@@ -1,5 +1,5 @@
 /* Route Command — donations form */
-import { $, esc, fmtDate, plural, getName, markInvalid, focusFirstInvalid } from './util.js';
+import { $, plural, getName, markInvalid, focusFirstInvalid } from './util.js';
 import { submitForm, autosaveDraft, loadDraft } from './submit.js';
 import { createItemList, REMOVE_BTN_HTML } from './itemlist.js';
 
@@ -71,16 +71,6 @@ export function collectDonationItems(listEl = donationList.el) {
   return valid ? items : null;
 }
 
-function buildDonationSuccessSummary(items) {
-  return items.map(item => `
-    <div class="credit-success-item">
-      <span class="credit-success-item__type">${item.type}</span>
-      <span class="credit-success-item__product">${esc([item.upc, item.name || '—'].filter(Boolean).join(' — '))}</span>
-      <span class="credit-success-item__qty">x${item.qty} &middot; ${fmtDate(item.sellBy)}</span>
-      <span class="credit-success-item__reason">${esc(item.reason)}</span>
-    </div>`).join('');
-}
-
 function handleDonationSubmit(e) {
   e.preventDefault();
   const items = collectDonationItems();
@@ -97,7 +87,7 @@ function handleDonationSubmit(e) {
     formEl:      $('donation-form'),
     successEl:   $('donation-success-state'),
     summaryEl:   $('donation-success-summary'),
-    summaryHTML: buildDonationSuccessSummary(items),
+    data:        { items },
   });
 }
 

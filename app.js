@@ -3,10 +3,10 @@
  * Entry point: passcode gate and startup. Feature code lives in js/*.js,
  * bundled by esbuild at deploy time.
  */
-import { $, today, AUTH_KEY, DEFAULT_VEHICLE_KEY, HISTORY_KEY } from './js/util.js';
+import { $, today, AUTH_KEY, DEFAULT_VEHICLE_KEY } from './js/util.js';
 import { VALID_VIEWS, navigateTo } from './js/nav.js';
-import { flushQueue, updateOnlineState } from './js/queue.js';
-import { loadHistory, renderHistory } from './js/history.js';
+import { startQueue, updateOnlineState } from './js/queue.js';
+import { renderHistory } from './js/history.js';
 import { initIdentity, initBookmarkGuide } from './js/settings.js';
 import { initCredits } from './js/credits.js';
 import { initDonations } from './js/donations.js';
@@ -85,14 +85,13 @@ function loadPersistedData() {
 }
 
 function onAppReady() {
-  flushQueue();
   updateOnlineState();
-  localStorage.setItem(HISTORY_KEY, JSON.stringify(loadHistory().map(h => h.status === 'sending' ? { ...h, status: 'failed' } : h)));
   initIdentity();
   initBookmarkGuide();
   loadPersistedData();
   initCredits();
   initDonations();
+  startQueue();
   const seg = window.location.pathname.slice(1);
   const initial = VALID_VIEWS.has(seg) ? seg : 'receipts';
   history.replaceState(null, '', '/' + initial);
@@ -102,4 +101,21 @@ function onAppReady() {
 /* Kick off */
 initAuth();
 
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
+/* A new deploy installs a new service worker that takes over at once; the page in front of the user is still the old code */
+function showUpdateTip() {
+  if (document.querySelector('.tip--update')) return;
+  const tip = document.createElement('div');
+  tip.className = 'tip tip--update';
+  tip.setAttribute('role', 'status');
+  tip.innerHTML = `<p>Update available. <button type="button" class="tip__link">Tap to reload</button></p>
+    <button type="button" class="tip__close" aria-label="Dismiss">×</button>`;
+  tip.querySelector('.tip__link').addEventListener('click', () => location.reload());
+  tip.querySelector('.tip__close').addEventListener('click', () => tip.remove());
+  document.body.appendChild(tip);
+}
+
+if ('serviceWorker' in navigator) {
+  const hadController = !!navigator.serviceWorker.controller;   // false on the very first visit: nothing to update
+  navigator.serviceWorker.register('/sw.js').catch(() => {});   // fails when unbundled (dev): the app works without it
+  navigator.serviceWorker.addEventListener('controllerchange', () => { if (hadController) showUpdateTip(); });
+}

@@ -22,3 +22,18 @@ def('document', {
   createElement: () => fakeEl(),
 });
 globalThis.setInterval = () => 0;   // queue.js polls every 30 s; keep the test process able to exit
+
+/* In-memory stand-in for the IndexedDB outbox (js/outbox.js useBackend) */
+export function memoryBackend() {
+  const rows = new Map(), meta = new Map();
+  return {
+    rows, meta,
+    all: async () => [...rows.values()].map(r => ({ ...r })),
+    get: async (id) => rows.has(id) ? { ...rows.get(id) } : undefined,
+    put: async (rec) => void rows.set(rec.submissionId, { ...rec }),
+    delete: async (id) => void rows.delete(id),
+    clear: async () => { rows.clear(); meta.clear(); },
+    getMeta: async (k) => meta.get(k),
+    setMeta: async (k, v) => void meta.set(k, v),
+  };
+}

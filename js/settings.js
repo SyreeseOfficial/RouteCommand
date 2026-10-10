@@ -1,7 +1,7 @@
 /* Route Command — settings, identity, install tip, bookmark guide */
 import { $, plural, catalog, confirmDialog, showToast, getName, APP_VERSION, BUILD, ERROR_KEY, NAME_KEY, RECIPIENT, DEFAULT_VEHICLE_KEY } from './util.js';
 import { navigateTo } from './nav.js';
-import { loadQueue } from './queue.js';
+import { outbox, queuedCount } from './outbox.js';
 
 const resetBtn         = document.getElementById('reset-btn');
 const darkModeToggle   = document.getElementById('dark-mode-toggle');
@@ -88,7 +88,7 @@ $('copy-diagnostics-btn').addEventListener('click', async () => {
     `Route Command v${APP_VERSION} · build ${BUILD}`,
     `Name: ${getName() || 'not set'}`,
     `Online: ${navigator.onLine ? 'yes' : 'no'}`,
-    `Waiting to send: ${loadQueue().length}`,
+    `Waiting to send: ${await queuedCount().catch(() => '?')}`,
     `Last sent: ${localStorage.getItem('rc_last_synced') || 'never'}`,
     `Last error: ${err ? `${err.at} ${err.message}` : 'none'}`,
     `Installed app: ${isStandalone() ? 'yes' : 'no'}`,
@@ -99,12 +99,13 @@ $('copy-diagnostics-btn').addEventListener('click', async () => {
 
 if (resetBtn) {
   resetBtn.addEventListener('click', async () => {
-    const unsent = loadQueue().length;
+    const unsent = await queuedCount().catch(() => 0);
     const warning = unsent
       ? `${plural(unsent, 'submission')} ${unsent === 1 ? "hasn't" : "haven't"} sent yet and will be lost. Reset anyway?`
       : 'Reset Route Command? This will clear all saved data and return to the login screen.';
     if (!await confirmDialog(warning, 'Reset', true)) return;
     localStorage.clear();
+    await outbox.clear().catch(() => {});
     location.reload();
   });
 }

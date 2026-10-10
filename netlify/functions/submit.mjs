@@ -29,11 +29,12 @@ export default async (req) => {
     const redirectUrl = gasRes.headers.get('location');
     if (!redirectUrl) return json({ status: 'error', message: 'No redirect from GAS' }, 502);
 
-    const resultRes = await fetch(redirectUrl);
-    return new Response(await resultRes.text(), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    const text = await (await fetch(redirectUrl)).text();
+    try { JSON.parse(text); } catch {
+      /* Google answered with an HTML error page (quota, outage), not our script's JSON */
+      return json({ status: 'error', message: 'Google is busy, try again in a minute' }, 502);
+    }
+    return new Response(text, { status: 200, headers: { 'Content-Type': 'application/json' } });
   } catch (err) {
     return json({ status: 'error', message: err.message }, 500);
   }

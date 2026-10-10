@@ -25,6 +25,8 @@ export const fmtDate = (d) => d ? new Date(d + 'T12:00:00').toLocaleDateString('
 export const today = () => new Date().toLocaleDateString('en-CA');
 /* Submit buttons say what will happen: sent now, or saved for later when offline */
 export const submitLabel = (btn) => navigator.onLine ? btn.dataset.label : 'Save for later (offline)';
+/* Unique per submission: lets the server recognise a resend of something it already saved */
+export const newId = () => crypto.randomUUID?.() ?? `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
 export const plural = (n, word) => `${n} ${word}${n !== 1 ? 's' : ''}`;
 
 /* Inline field errors: red border, message under the field, aria-invalid. Cleared when the user edits the field.
@@ -81,7 +83,8 @@ export async function postJSON(endpoint, payload) {
       body:    JSON.stringify(payload),
       signal:  ctrl.signal,
     });
-    return await res.json();
+    /* A gateway or Google HTML error page isn't JSON: report it as a normal server error */
+    return await res.json().catch(() => ({ status: 'error', message: 'The server sent an unexpected reply. Try again in a minute.' }));
   } finally {
     clearTimeout(timer);
   }

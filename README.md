@@ -50,6 +50,8 @@ No build step. Just open `index.html` or run any static file server:
 npx serve .
 ```
 
+The service worker (`sw.js`) imports `js/outbox.js`, so it only registers in the built version; without it the app still works, and the page sends queued submissions itself. Netlify runs the build (`netlify.toml`) and injects the commit hash into `app.js` and `sw.js`.
+
 Netlify functions live in `netlify/functions/` and proxy to the Google Apps Script endpoints configured in each `.mjs` file.
 
 ## Tests

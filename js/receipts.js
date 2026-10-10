@@ -1,5 +1,5 @@
 /* Route Command — receipt form and photo */
-import { $, esc, fmtDate, today, getName, submitLabel, markInvalid, focusFirstInvalid, confirmDialog } from './util.js';
+import { $, today, getName, submitLabel, markInvalid, focusFirstInvalid, confirmDialog } from './util.js';
 import { submitForm } from './submit.js';
 
 const expenseForm       = document.getElementById('expense-form');
@@ -116,8 +116,6 @@ if (expenseForm) {
 
     if (!compressedImageData && !await confirmDialog('No receipt photo attached. Submit anyway?', 'Submit anyway')) return;
 
-    const photoNote = compressedImageData ? 'Photo attached' : 'No photo';
-    const veh       = vehicle && vehicle !== 'N/A' ? ` · ${vehicle}` : '';
     submitForm({
       endpoint:    '/api/submit-receipt',
       payload:     { employeeName: name, receiptDate: date, category, amount, vehicleTag: vehicle, notes,
@@ -128,9 +126,7 @@ if (expenseForm) {
       formEl:      expenseForm,
       successEl:   successState,
       summaryEl:   document.getElementById('receipt-success-summary'),
-      summaryHTML: `<div class="credit-success-meta">$${parseFloat(amount).toFixed(2)} &middot; ${esc(category)}</div>
-        <div class="credit-success-item"><span class="credit-success-item__product">${fmtDate(date)}${esc(veh)}</span>
-        <span class="credit-success-item__reason">${photoNote}</span></div>`,
+      data:        { amount: parseFloat(amount), category, date, vehicle, photo: !!compressedImageData },
     });
   });
 }

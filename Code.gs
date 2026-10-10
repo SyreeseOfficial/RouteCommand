@@ -53,10 +53,29 @@ function doGet(e) {
  *   vehicleTag   : string,
  *   notes        : string,
  *   imageData    : string | null  (Base64 data URL, e.g. "data:image/jpeg;base64,..."),
- *   timestamp    : string  (ISO 8601)
+ *   timestamp    : string  (ISO 8601),
+ *   submissionId : string  (unique per submission; a repeat is acknowledged but not saved again)
  * }
  */
 function doPost(e) {
+  /* One request at a time: no double header rows, and no race between the duplicate check and the write */
+  var lock = LockService.getScriptLock();
+  try {
+    lock.waitLock(10000);
+  } catch (err) {
+    return buildResponse({ status: 'error', message: 'Server busy, try again.' });
+  }
+  try {
+    return handlePost_(e);
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/* Column that holds the client's submissionId (hidden); retries of a saved submission are ignored */
+var ID_COL = 9;
+
+function handlePost_(e) {
   try {
     /* ── 1. Parse incoming JSON ── */
     var payload = JSON.parse(e.postData.contents);
@@ -67,10 +86,39 @@ function doPost(e) {
     var amount       = sanitize(String(payload.amount || ''));
     var vehicleTag   = sanitize(payload.vehicleTag   || 'N/A');
     var notes        = sanitize(payload.notes        || '');
+    var submissionId = sanitize(payload.submissionId || '');
     var imageData    = payload.imageData || null;
     var timestamp    = payload.timestamp || new Date().toISOString();
 
-    /* ── 2. Build standardized filename ──
+    /* ── 2. Open the Receipts tab, create the header row if it is empty ── */
+    var sheet = getSheet_();
+
+    if (sheet.getLastRow() === 0) {
+      sheet.appendRow([
+        'Timestamp',
+        'Employee Name',
+        'Receipt Date',
+        'Category',
+        'Amount',
+        'Vehicle Tag',
+        'Notes',
+        'Receipt Image URL'
+      ]);
+
+      /* Style the header row */
+      var headerRange = sheet.getRange(1, 1, 1, 8);
+      headerRange.setFontWeight('bold');
+      headerRange.setBackground('#1a1a1a');
+      headerRange.setFontColor('#ffffff');
+    }
+    ensureIdColumn_(sheet, ID_COL);
+
+    /* ── 3. Already saved? A retry after a lost response must not add a second row or photo ── */
+    if (alreadySaved_(sheet, ID_COL, submissionId)) {
+      return buildResponse({ status: 'success', message: 'Receipt was already submitted.', duplicate: true });
+    }
+
+    /* ── 4. Build standardized filename ──
        Format: YYYY-MM-DD_EmployeeName_Category_Amount.jpg
        Spaces replaced with underscores, special chars stripped.       */
     var safeName     = employeeName.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_\-]/g, '');
@@ -78,7 +126,7 @@ function doPost(e) {
     var safeAmount   = amount.replace(/[^0-9.]/g, '');
     var fileName     = receiptDate + '_' + safeName + '_' + safeCategory + '_' + safeAmount + '.jpg';
 
-    /* ── 3. Save image to Google Drive (if provided) ── */
+    /* ── 5. Save image to Google Drive (if provided) ── */
     var fileUrl = 'No image attached';
 
     if (imageData) {
@@ -99,29 +147,7 @@ function doPost(e) {
       fileUrl = savedFile.getUrl();
     }
 
-    /* ── 4. Append row to Google Sheet ── */
-    var sheet = SpreadsheetApp.openById(getProp_('SHEET_ID')).getActiveSheet();
-
-    /* Auto-create header row if the sheet is empty */
-    if (sheet.getLastRow() === 0) {
-      sheet.appendRow([
-        'Timestamp',
-        'Employee Name',
-        'Receipt Date',
-        'Category',
-        'Amount',
-        'Vehicle Tag',
-        'Notes',
-        'Receipt Image URL'
-      ]);
-
-      /* Style the header row */
-      var headerRange = sheet.getRange(1, 1, 1, 8);
-      headerRange.setFontWeight('bold');
-      headerRange.setBackground('#1a1a1a');
-      headerRange.setFontColor('#ffffff');
-    }
-
+    /* ── 6. Append row to Google Sheet ── */
     sheet.appendRow([
       timestamp,
       employeeName,
@@ -130,10 +156,11 @@ function doPost(e) {
       amount,
       vehicleTag,
       notes,
-      fileUrl
+      fileUrl,
+      submissionId
     ]);
 
-    /* ── 5. Return success response ── */
+    /* ── 7. Return success response ── */
     return buildResponse({
       status:   'success',
       message:  'Receipt submitted successfully.',
@@ -142,12 +169,36 @@ function doPost(e) {
     });
 
   } catch (err) {
-    /* ── 6. Return structured error ── */
+    /* ── 8. Return structured error ── */
     return buildResponse({
       status:  'error',
       message: err.message || 'An unexpected error occurred on the server.'
     });
   }
+}
+
+/* The tab named "Receipts", never whichever tab happens to be active (reordering tabs must not move data) */
+function getSheet_() {
+  var sheet = SpreadsheetApp.openById(getProp_('SHEET_ID')).getSheetByName('Receipts');
+  if (!sheet) throw new Error('Tab "Receipts" not found in the spreadsheet. Rename the receipts tab to Receipts.');
+  return sheet;
+}
+
+/* Header + hidden column for the submissionId; also upgrades sheets created before it existed */
+function ensureIdColumn_(sheet, col) {
+  if (sheet.getRange(1, col).getValue()) return;
+  sheet.getRange(1, col).setValue('Submission ID').setFontWeight('bold').setBackground('#1a1a1a').setFontColor('#ffffff');
+  sheet.hideColumns(col);
+}
+
+/* True if this submissionId is already in the sheet. Only the newest 2000 rows are checked (retries are recent). */
+function alreadySaved_(sheet, col, id) {
+  var last = sheet.getLastRow();
+  if (!id || last < 2) return false;
+  var first = Math.max(2, last - 1999);
+  var ids = sheet.getRange(first, col, last - first + 1, 1).getValues();
+  for (var i = 0; i < ids.length; i++) if (ids[i][0] === id) return true;
+  return false;
 }
 
 /* ─── HELPERS ────────────────────────────────────────────────── */

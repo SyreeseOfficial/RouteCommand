@@ -1,7 +1,9 @@
 /* Route Command — submission history */
 import { $, esc, today, confirmDialog, showToast, HISTORY_KEY } from './util.js';
 import { navigateTo } from './nav.js';
-import { enqueue, flushQueue, loadQueue, updateQueueBadge, updateOnlineState } from './queue.js';
+import { summaryHTML } from './summary.js';
+import { outbox, queuedCount } from './outbox.js';
+import { flushQueue, updateQueueBadge, updateOnlineState, requestSync } from './queue.js';
 
 const submissionHistoryEl = document.getElementById('submission-history');
 
@@ -11,12 +13,7 @@ const fmtTime = (iso) => new Date(iso).toLocaleTimeString('en-US', { hour: 'nume
 const openHistoryRows = new Set();   // rows the user expanded; survives re-renders
 
 export function saveHistory(history) {
-  try {
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
-  } catch {
-    /* Storage full: keep the rows but drop the (large) retry payloads */
-    try { localStorage.setItem(HISTORY_KEY, JSON.stringify(history.map(({ retry, ...h }) => h))); } catch { /* give up quietly */ }
-  }
+  try { localStorage.setItem(HISTORY_KEY, JSON.stringify(history)); } catch { /* storage full: rows are small, but never break the submit flow */ }
   renderHistory();
 }
 
@@ -31,25 +28,25 @@ export function saveToHistory(entry) {
   return id;
 }
 
-/* `retry` ({endpoint, payload}) is kept on failed rows so they can be sent again */
-export function setHistoryStatus(id, status, retry) {
+export function setHistoryStatus(id, status) {
   const history = loadHistory();
   const entry = history.find(h => h.id === id);
-  if (entry) {
-    entry.status = status;
-    if (retry) entry.retry = retry; else delete entry.retry;
-  }
+  if (entry) entry.status = status;
   saveHistory(history);
 }
 
-/* Failed rows go back through the offline queue, so they also wait for a connection */
-function retryHistoryRow(id) {
+/* The payload of an unsent submission lives in the outbox. Retrying goes back through the queue (so it also waits
+   for a connection); the same submissionId means the server ignores it if the first attempt did arrive. */
+async function retryHistoryRow(id) {
   const entry = loadHistory().find(h => h.id === id);
-  if (!entry || !entry.retry || !enqueue({ ...entry.retry, historyId: id })) return;
+  const rec = entry?.submissionId && await outbox.get(entry.submissionId).catch(() => null);
+  if (!rec) return showToast("Can't retry: the details weren't kept");
+  await outbox.put({ ...rec, status: 'queued', queuedAt: Date.now() });
   setHistoryStatus(id, 'queued');
-  flushQueue();
   updateQueueBadge();
   updateOnlineState();
+  flushQueue();
+  requestSync();
 }
 
 /* Plain text of a row, built from the rendered summary (spans joined with " · " so it reads the same without CSS) */
@@ -67,6 +64,7 @@ async function deleteHistoryRow(id) {
   if (!entry) return;
   if (entry.status === 'failed' && !await confirmDialog("This submission was never sent. Delete it anyway?", 'Delete', true)) return;
   saveHistory(loadHistory().filter(h => h.id !== id));
+  if (entry.submissionId) outbox.delete(entry.submissionId).catch(() => {});
 }
 
 function dayLabel(iso) {
@@ -77,8 +75,9 @@ function dayLabel(iso) {
 }
 
 /* Stamp the moment a submission last reached the server */
-export function markSynced() {
-  localStorage.setItem(SYNC_KEY, new Date().toISOString());
+export const lastSynced = () => localStorage.getItem(SYNC_KEY) || '';
+export function markSynced(at = new Date().toISOString()) {
+  localStorage.setItem(SYNC_KEY, at);
   renderLastSynced();
 }
 
@@ -115,18 +114,18 @@ export function renderHistory() {
     const btn = (attr, label, cls = '') => `<button type="button" class="btn btn--outline ${cls}" ${attr}="${entry.id}">${label}</button>`;
     /* Rows still waiting to send can't be deleted: the queue would send them anyway */
     const buttons = [
-      entry.retry   && btn('data-retry', 'Retry', 'history-retry'),
-      entry.summary && btn('data-copy', 'Copy details'),
+      status === 'failed' && entry.submissionId && btn('data-retry', 'Retry', 'history-retry'),
+      entry.data && btn('data-copy', 'Copy details'),
       status !== 'queued' && status !== 'sending' && btn('data-delete', 'Delete'),
     ].filter(Boolean).join('');
     const actions = buttons ? `<div class="history-actions">${buttons}</div>` : '';
 
-    /* Rows saved before details were stored have nothing to expand */
-    if (!entry.summary) return `${heading}<div class="settings-card history-card">${head}${actions}</div>`;
+    /* Rows saved before details were stored as data have nothing to expand */
+    if (!entry.data) return `${heading}<div class="settings-card history-card">${head}${actions}</div>`;
     const open = openHistoryRows.has(String(entry.id)) ? ' open' : '';
     return `${heading}<details class="settings-card history-card" data-id="${entry.id}"${open}>
         <summary>${head}</summary>
-        <div class="history-body">${entry.summary}</div>${actions}
+        <div class="history-body">${summaryHTML(entry.type, entry.data)}</div>${actions}
       </details>`;
   }).join('');
 }
@@ -162,7 +161,7 @@ historyView.addEventListener('touchend', async () => {
   pullDone();
   if (!refresh) return;
   if (!navigator.onLine) return showToast("You're offline");
-  const waiting = loadQueue().length;
+  const waiting = await queuedCount().catch(() => 0);
   await flushQueue();
   renderHistory();
   if (!waiting) showToast('Nothing waiting to send');

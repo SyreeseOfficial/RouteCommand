@@ -1,5 +1,5 @@
 /* Route Command — credits form */
-import { $, esc, fmtDate, today, plural, getName, markInvalid, focusFirstInvalid } from './util.js';
+import { $, today, plural, getName, markInvalid, focusFirstInvalid } from './util.js';
 import { submitForm, autosaveDraft, loadDraft } from './submit.js';
 import { createItemList, REMOVE_BTN_HTML, searchStores, showSuggestions, hideSuggestions, pickSuggestion, suggestionKeydown } from './itemlist.js';
 
@@ -85,17 +85,6 @@ export function collectCreditItems(listEl = creditList.el) {
   return valid ? items : null;
 }
 
-function buildCreditSuccessSummary(store, date, items) {
-  const rows = items.map(item => `
-    <div class="credit-success-item">
-      <span class="credit-success-item__type">${item.type}</span>
-      <span class="credit-success-item__product">${esc(item.product)}</span>
-      <span class="credit-success-item__qty">${esc(item.qty)}</span>
-      <span class="credit-success-item__reason">${esc(item.reason)}</span>
-    </div>`).join('');
-  return `<div class="credit-success-meta">${esc(store)} &middot; ${fmtDate(date)}</div>${rows}`;
-}
-
 function handleCreditSubmit(e) {
   e.preventDefault();
   const dateEl     = $('credit-date');
@@ -118,7 +107,7 @@ function handleCreditSubmit(e) {
     formEl:      $('credit-form'),
     successEl:   $('credit-success-state'),
     summaryEl:   $('credit-success-summary'),
-    summaryHTML: buildCreditSuccessSummary(store, date, items),
+    data:        { store, date, items },
   });
 }
 
