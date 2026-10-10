@@ -1,7 +1,7 @@
 /* Route Command — donations form */
 import { $, plural, getName, markInvalid, focusFirstInvalid } from './util.js';
 import { submitForm, autosaveDraft, loadDraft } from './submit.js';
-import { createItemList, REMOVE_BTN_HTML } from './itemlist.js';
+import { createItemList, REMOVE_BTN_HTML, qtyFieldHTML } from './itemlist.js';
 
 const DONATION_LAST_TYPE_KEY   = 'rc_donation_last_type';
 const DONATION_LAST_REASON_KEY = 'rc_donation_last_reason';
@@ -18,34 +18,33 @@ function createDonationItemHTML(id) {
     `<option value="${r}"${r === defaultReason ? ' selected' : ''}>${r}</option>`
   ).join('');
   return `
-    <div class="donation-item" data-id="${id}">
-      <div class="credit-item__header">
+    <div class="item-card" data-id="${id}">
+      <div class="item-card__header">
         <div class="pill-toggle">
           <button type="button" class="pill-toggle__btn ${active('chub')}" data-type-btn="chub">Chub</button>
           <button type="button" class="pill-toggle__btn ${active('retail')}" data-type-btn="retail">Retail</button>
         </div>${REMOVE_BTN_HTML}
       </div>
-      <div class="store-search-wrap">
-        <input type="text" class="form-input" placeholder="Search item or UPC…" autocomplete="off" autocorrect="off" spellcheck="false" inputmode="search" data-fname="name" />
-        <div class="store-suggestions hidden" role="listbox" aria-label="Item suggestions"></div>
-      </div>
-      <div class="donation-item__row">
-        <div class="donation-item__field">
-          <span class="donation-item__label">Qty</span>
-          <div class="qty-stepper">
-            <button type="button" class="qty-stepper__btn" data-dir="-1">−</button>
-            <input type="number" class="qty-stepper__input" value="1" min="1" inputmode="numeric" data-fname="qty" />
-            <button type="button" class="qty-stepper__btn" data-dir="1">+</button>
-          </div>
-        </div>
-        <div class="donation-item__field">
-          <span class="donation-item__label">Sell-By Date</span>
-          <input type="date" class="form-input" data-fname="sellby" />
+      <div class="item-field">
+        <label class="item-field__label" for="di-${id}-name">Item</label>
+        <div class="store-search-wrap">
+          <input type="text" class="form-input" id="di-${id}-name" placeholder="Search item or UPC…" autocomplete="off" autocorrect="off" spellcheck="false" inputmode="search" data-fname="name" />
+          <div class="store-suggestions hidden" role="listbox" aria-label="Item suggestions"></div>
         </div>
       </div>
-      <select class="form-select" data-fname="reason">
-        ${reasonOptions}
-      </select>
+      <div class="item-card__row">
+        <div class="item-field">
+          <label class="item-field__label" for="di-${id}-sellby">Sell-by date</label>
+          <input type="date" class="form-input" id="di-${id}-sellby" data-fname="sellby" />
+        </div>
+        ${qtyFieldHTML()}
+      </div>
+      <div class="item-field">
+        <label class="item-field__label" for="di-${id}-reason">Reason</label>
+        <select class="form-select" id="di-${id}-reason" data-fname="reason">
+          ${reasonOptions}
+        </select>
+      </div>
     </div>`;
 }
 

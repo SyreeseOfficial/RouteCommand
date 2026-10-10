@@ -47,9 +47,8 @@ export function markInvalid(el, message) {
   el.classList.add('is-invalid');
   el.setAttribute('aria-invalid', 'true');
 
-  /* Put the message after the whole control, and after the row when two fields share one */
+  /* Put the message after the whole control */
   let anchor = el.closest('.store-search-wrap, .input-prefix, .qty-stepper') || el;
-  if (anchor.parentElement.matches('.credit-item__row')) anchor = anchor.parentElement;
   const err = document.createElement('p');
   err.className = 'field-error';
   err.id = `field-error-${++errorSeq}`;
@@ -107,10 +106,10 @@ export function confirmDialog(message, okLabel = 'Continue', danger = false) {
     const done = (v) => { parts.forEach(p => p.classList.add('hidden')); ctl.abort(); resolve(v); };
     $('confirm-message').textContent = message;
     ok.textContent = okLabel;
-    ok.classList.toggle('btn--red', danger);
+    ok.classList.toggle('btn--danger-outline', danger);
     ok.classList.toggle('btn--gold', !danger);
     parts.forEach(p => p.classList.remove('hidden'));
-    ok.focus();
+    (danger ? $('confirm-cancel') : ok).focus();   // a stray Enter must not hit the destructive button
     const on = { signal: ctl.signal };
     ok.addEventListener('click', () => done(true), on);
     $('confirm-cancel').addEventListener('click', () => done(false), on);

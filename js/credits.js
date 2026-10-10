@@ -1,7 +1,7 @@
 /* Route Command — credits form */
 import { $, today, plural, getName, markInvalid, focusFirstInvalid } from './util.js';
 import { submitForm, autosaveDraft, loadDraft } from './submit.js';
-import { createItemList, REMOVE_BTN_HTML, searchStores, showSuggestions, hideSuggestions, pickSuggestion, suggestionKeydown } from './itemlist.js';
+import { createItemList, REMOVE_BTN_HTML, qtyFieldHTML, searchStores, showSuggestions, hideSuggestions, pickSuggestion, suggestionKeydown } from './itemlist.js';
 
 function initStoreSearch() {
   const input = $('credit-store-input');
@@ -26,38 +26,46 @@ function initStoreSearch() {
 
 function createCreditItemHTML(id) {
   return `
-    <div class="credit-item" data-id="${id}">
-      <div class="credit-item__header">
+    <div class="item-card" data-id="${id}">
+      <div class="item-card__header">
         <div class="pill-toggle">
           <button type="button" class="pill-toggle__btn pill-toggle__btn--active" data-type-btn="retail">Retail</button>
           <button type="button" class="pill-toggle__btn" data-type-btn="chub">Chub / Deli</button>
         </div>${REMOVE_BTN_HTML}
       </div>
       <div data-fields-type="retail">
-        <div class="credit-item__row">
-          <input type="text" class="form-input" placeholder="UPC / Item #" inputmode="numeric" autocomplete="off" data-fname="upc" />
-          <div class="qty-stepper">
-            <button type="button" class="qty-stepper__btn" data-dir="-1" aria-label="Decrease quantity">−</button>
-            <input type="number" class="qty-stepper__input" value="1" min="1" inputmode="numeric" aria-label="Quantity" data-fname="qty" />
-            <button type="button" class="qty-stepper__btn" data-dir="1" aria-label="Increase quantity">+</button>
+        <div class="item-card__row">
+          <div class="item-field">
+            <label class="item-field__label" for="ci-${id}-upc">UPC / Item #</label>
+            <input type="text" class="form-input" id="ci-${id}-upc" placeholder="e.g. 0123456789" inputmode="numeric" autocomplete="off" data-fname="upc" />
           </div>
+          ${qtyFieldHTML()}
         </div>
       </div>
       <div class="hidden" data-fields-type="chub">
-        <div class="store-search-wrap store-search-wrap--spaced">
-          <input type="text" class="form-input" placeholder="Search item or UPC…" autocomplete="off" autocorrect="off" spellcheck="false" inputmode="search" data-fname="name" />
-          <div class="store-suggestions hidden" role="listbox" aria-label="Item suggestions"></div>
+        <div class="item-field store-search-wrap--spaced">
+          <label class="item-field__label" for="ci-${id}-name">Item</label>
+          <div class="store-search-wrap">
+            <input type="text" class="form-input" id="ci-${id}-name" placeholder="Search item or UPC…" autocomplete="off" autocorrect="off" spellcheck="false" inputmode="search" data-fname="name" />
+            <div class="store-suggestions hidden" role="listbox" aria-label="Item suggestions"></div>
+          </div>
         </div>
-        <input type="number" class="form-input" placeholder="Weight (lbs)" inputmode="decimal" step="0.01" min="0" data-fname="weight" />
+        <div class="item-field">
+          <label class="item-field__label" for="ci-${id}-weight">Weight (lbs)</label>
+          <input type="number" class="form-input" id="ci-${id}-weight" placeholder="0.00" inputmode="decimal" step="0.01" min="0" data-fname="weight" />
+        </div>
       </div>
-      <select class="form-select" data-fname="reason">
-        <option value="10-Day" selected>10-Day</option>
-        <option value="Expired">Expired</option>
-        <option value="Damaged Packaging">Damaged Packaging</option>
-        <option value="Poor Quality">Poor Quality</option>
-        <option value="Bad Seal">Bad Seal</option>
-        <option value="Other">Other</option>
-      </select>
+      <div class="item-field">
+        <label class="item-field__label" for="ci-${id}-reason">Reason</label>
+        <select class="form-select" id="ci-${id}-reason" data-fname="reason">
+          <option value="10-Day" selected>10-Day</option>
+          <option value="Expired">Expired</option>
+          <option value="Damaged Packaging">Damaged Packaging</option>
+          <option value="Poor Quality">Poor Quality</option>
+          <option value="Bad Seal">Bad Seal</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
     </div>`;
 }
 

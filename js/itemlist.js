@@ -66,11 +66,22 @@ export function suggestionKeydown(e, input, box) {
 }
 
 export const REMOVE_BTN_HTML = `
-  <button type="button" class="credit-item__remove" data-remove aria-label="Remove item">
+  <button type="button" class="item-card__remove" data-remove aria-label="Remove item">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
       <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
     </svg>
   </button>`;
+
+/* Labeled quantity stepper shared by both item cards (the label is a span: a <label> would forward taps to the − button) */
+export const qtyFieldHTML = () => `
+  <div class="item-field">
+    <span class="item-field__label">Qty</span>
+    <div class="qty-stepper">
+      <button type="button" class="qty-stepper__btn" data-dir="-1" aria-label="Decrease quantity">−</button>
+      <input type="number" class="qty-stepper__input" value="1" min="1" inputmode="numeric" aria-label="Quantity" data-fname="qty" />
+      <button type="button" class="qty-stepper__btn" data-dir="1" aria-label="Increase quantity">+</button>
+    </div>
+  </div>`;
 
 /* One add/remove/count/suggest/type-toggle implementation for the credit and donation item lists. */
 export function createItemList({ listId, countId, buildHTML, onType }) {
@@ -80,7 +91,7 @@ export function createItemList({ listId, countId, buildHTML, onType }) {
   const refresh = () => {
     const n = el.children.length;
     $(countId).textContent = plural(n, 'item');
-    el.querySelectorAll('.credit-item__remove').forEach(b => b.classList.toggle('credit-item__remove--hidden', n <= 1));
+    el.querySelectorAll('.item-card__remove').forEach(b => b.classList.toggle('item-card__remove--hidden', n <= 1));
   };
   const add   = () => { el.insertAdjacentHTML('beforeend', buildHTML(++counter)); refresh(); };
   /* Focus an item's first visible field (default: the newest); the browser scrolls it into view */
