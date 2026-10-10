@@ -24,7 +24,28 @@ Commits `cbfeaa2` and `822ae37` were pushed with `[skip netlify]`, so the live s
 - [ ] **4. Real-phone check (Chrome/Android):** submit while offline, close the app, go online; the row should still arrive. Also try pull-to-refresh on History and the "Update available" banner after a second deploy.
 
 ## Open: bugs and UX
-None open.
+UI review 2026-10-09, from screenshots at 390 px (phone, dark and light) and 1280 px (desktop). Ranked within each list.
+
+**Phone: bugs**
+- [ ] **[M]** Credits/donations fields are cramped by nested padding. Page 20 px + form card 24 px + item card 14 px per side leaves ~270 px of the 390 px screen. Visible damage: the donation "Sell-by date" shows `mm/dd/y` cut off (`.item-card__row` is `1fr 132px`), the credit UPC placeholder reads `e.g. 012345…`, and a 360 px Android is worse. Fix: below ~480 px drop the outer card's border, shadow and side padding (keep 16 px gutters), so fields get ~330 px. Also shorten the UPC placeholder to `UPC`.
+- [ ] **[L]** "Copy diagnostics" touches the Version card above it (no gap, `index.html` About section). Add `margin-top: 0.75rem` (the `.btn--add-item` rule does this elsewhere).
+- [ ] **[L]** Receipt photo buttons: "Choose from library" wraps to two lines at 390 px and the two buttons look unequal (solid vs dashed, one-line vs two). Shorten to "Library" or "From library", and give both the same height.
+- [ ] **[L]** History rows with a queued/failed left border (`style.css:1336-1338`) are drawn 2 px further in than saved rows, and the curve at the corners looks broken. Use `box-shadow: inset 3px 0 0 <color>` so every row lines up.
+
+**Phone: flow and speed**
+- [ ] **[H]** Submit is below the fold on the shortest form. On Receipts the button sits at y ≈ 780–826 and the visible area above the nav is ~780 px (iPhone 14; less on Android with browser bars). Credits and donations push it further with every item. Make the submit button a sticky bar above the bottom nav while the form is on screen (hide it when a field has focus, as the nav already does).
+- [ ] **[M]** Compact the page header on phones. "Receipts / Submit an expense receipt." costs ~120 px before the form, and the active tab already says where you are. Hide `.view__sub` under 640 px (keep Credits' "to Ian" by moving it into the Store label or the submit button) and cut `.view__header` margin to 1rem. Pulls the form up ~60 px.
+- [ ] **[M]** Date shortcuts: "Today / Yesterday" chips next to the receipt date and next to the credit date. Nearly every date is one of those two, and the native date picker is 3+ taps. Chips set the input's value; the input stays for anything older.
+- [ ] **[M]** "Duplicate" button on each credit/donation item card (copies type and reason, clears the UPC/item and qty). A store credit is usually several lines with the same reason, so this saves the reason select and the type toggle on every extra line. Also make the credit **Reason** default to the last one used (donations already remember it).
+- [ ] **[M]** Sell-by quick picks on donation items ("Tomorrow", "+3 days") above the date field, same idea as the date chips. The previous item's date is already carried over; this covers the first item.
+- [ ] **[L]** History: the expand chevron is 12 px and grey, so rows do not look tappable. Make it ~20 px, right-aligned and vertically centered. Also trade the two chips per row (type + status) for one chip plus a coloured status dot, and set "Clear history" apart (more space, text-button style) so it is not one mis-tap below the last row.
+- [ ] **[L]** Settings: "Your name" and "Default vehicle" are a label above a select inside a card (card in a card). Make them single rows, label left and select right, like the Dark mode row. Saves ~100 px.
+- [ ] **[L]** Inconsistent defaults: credits list "Retail" first and default, donations list "Chub" first and default. Pick one order for both.
+
+**Desktop (1280 px)**
+- [ ] **[M]** Receipt form is one 670 px wide column: the date input and amount are stretched across the whole card. At 1024 px and up put Date + Amount side by side (and Category + Vehicle). Credits: Store + Date side by side.
+- [ ] **[L]** Hide the number-input spinner arrows on the amount field (`appearance: textfield`); they show on desktop only and add clutter.
+- [ ] **[L]** Ctrl/Cmd+Enter submits the open form (the Enter-as-next handler already exists in `enterAsNext`).
 
 ## Skipped for now
 Parked on purpose; revisit later.
