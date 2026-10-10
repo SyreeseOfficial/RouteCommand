@@ -1,17 +1,13 @@
 /* Route Command — credits form */
 import { $, today, plural, getName, markInvalid, focusFirstInvalid } from './util.js';
-import { submitForm, autosaveDraft, loadDraft } from './submit.js';
-import { createItemList, REMOVE_BTN_HTML, qtyFieldHTML, searchStores, showSuggestions, hideSuggestions, pickSuggestion, suggestionKeydown } from './itemlist.js';
+import { submitForm, autosaveDraft, loadDraft, draftFilled, showDraftNote } from './submit.js';
+import { createItemList, REMOVE_BTN_HTML, qtyFieldHTML, searchStores, runSearch, hideSuggestions, pickSuggestion, suggestionKeydown } from './itemlist.js';
 
 function initStoreSearch() {
   const input = $('credit-store-input');
   const box   = $('store-suggestions');
 
-  input.addEventListener('input', async () => {
-    const q = input.value.trim();
-    const results = q ? await searchStores(q) : [];
-    if (input.value.trim() === q) showSuggestions(input, box, results);   // ignore stale results
-  });
+  input.addEventListener('input', () => runSearch(input, box, searchStores, 'No match. Check the spelling or use the exact store name'));
   box.addEventListener('click', (e) => {
     const hit = e.target.closest('.store-suggestion');
     if (!hit) return;
@@ -120,6 +116,7 @@ function handleCreditSubmit(e) {
 }
 
 function resetCreditForm() {
+  $('credit-form').querySelector('.draft-note')?.remove();
   localStorage.removeItem(CREDIT_DRAFT_KEY);
   $('credit-date').value = today();
   $('credit-store-input').value = '';
@@ -138,6 +135,7 @@ export function initCredits() {
     $('credit-store-input').value = draft.store || '';
     $('credit-notes').value       = draft.notes || '';
     creditList.restore(draft.items || []);
+    if (draftFilled(draft)) showDraftNote($('credit-form'), resetCreditForm);
   } else {
     creditList.add();
   }

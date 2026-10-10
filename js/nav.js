@@ -45,10 +45,10 @@ window.addEventListener('popstate', () => {
   navigateTo(VALID_VIEWS.has(seg) ? seg : 'receipts', false);
 });
 
-/* "View in history" links on success screens */
+/* "View in history" links on success screens, and the name button in the header */
 document.addEventListener('click', (e) => {
-  if (!e.target.closest('[data-goto-history]')) return;
-  navigateTo('history');
+  if (e.target.closest('[data-goto-history]')) navigateTo('history');
+  else if (e.target.closest('[data-goto-settings]')) navigateTo('settings');
 });
 
 /* Sidebar nav */

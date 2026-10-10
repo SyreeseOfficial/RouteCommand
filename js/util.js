@@ -12,8 +12,10 @@ export const HISTORY_KEY          = 'rc_history';
 
 /* Catalog (names, stores, donation items) lives in data.json; fetched on first use, then cached by the service worker */
 let dataPromise = null;
+let dataReady = false;
+export const isDataReady = () => dataReady;
 export function loadData() {
-  dataPromise = dataPromise || fetch('/data.json').then(r => r.json()).catch(err => { dataPromise = null; throw err; });
+  dataPromise = dataPromise || fetch('/data.json').then(r => r.json()).then(d => (dataReady = true, d)).catch(err => { dataPromise = null; throw err; });
   return dataPromise;
 }
 export const catalog = (key) => loadData().then(d => d[key], () => []);
@@ -97,32 +99,67 @@ export function recordError(message) {
 /* fetch() rejects with a TypeError ("Failed to fetch") when offline; a timeout aborts it */
 export const isNetworkError = (err) => err.name === 'TypeError' || err.name === 'AbortError' || !navigator.onLine;
 
+/* Native <dialog> modals: focus trap, Escape and backdrop come from the browser; we add the exit fade and tap-outside.
+   onDismiss runs on Escape or a tap outside (default: close). */
+export function openModal(dlg, onDismiss = () => closeModal(dlg)) {
+  dlg._finish?.();   // a previous close may still be fading out
+  dlg.oncancel = (e) => { e.preventDefault(); onDismiss(); };
+  dlg.onclick  = (e) => {
+    const r = dlg.getBoundingClientRect();
+    if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) onDismiss();
+  };
+  dlg.showModal();
+}
+export function closeModal(dlg) {
+  if (!dlg.open || dlg._finish) return;
+  dlg.classList.add('is-closing');
+  const finish = () => {
+    clearTimeout(timer);
+    dlg.removeEventListener('animationend', finish);
+    dlg._finish = null;
+    dlg.classList.remove('is-closing');
+    if (dlg.open) dlg.close();
+  };
+  const timer = setTimeout(finish, 200);   // reduced motion, or no animation: animationend never fires
+  dlg.addEventListener('animationend', finish);
+  dlg._finish = finish;
+}
+
 /* In-app replacement for confirm(): resolves true on OK, false on Cancel, Escape, or a tap outside */
 export function confirmDialog(message, okLabel = 'Continue', danger = false) {
   return new Promise(resolve => {
-    const parts = [$('confirm-overlay'), $('confirm-modal')];
+    const dlg = $('confirm-modal');
     const ok = $('confirm-ok');
     const ctl = new AbortController();
-    const done = (v) => { parts.forEach(p => p.classList.add('hidden')); ctl.abort(); resolve(v); };
+    const done = (v) => { ctl.abort(); resolve(v); closeModal(dlg); };
     $('confirm-message').textContent = message;
     ok.textContent = okLabel;
     ok.classList.toggle('btn--danger-outline', danger);
     ok.classList.toggle('btn--gold', !danger);
-    parts.forEach(p => p.classList.remove('hidden'));
+    openModal(dlg, () => done(false));
     (danger ? $('confirm-cancel') : ok).focus();   // a stray Enter must not hit the destructive button
     const on = { signal: ctl.signal };
     ok.addEventListener('click', () => done(true), on);
     $('confirm-cancel').addEventListener('click', () => done(false), on);
-    $('confirm-overlay').addEventListener('click', () => done(false), on);
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') done(false); }, on);
   });
 }
 
-let toastTimer;
+/* Toasts and tips share one stack so they never cover each other */
+export function dismiss(el) {
+  el.classList.add('is-out');
+  setTimeout(() => el.remove(), 150);
+}
+export function showTip(el) { $('toast-stack').prepend(el); }
+
+let toastTimer, toastHide;
 export function showToast(message) {
   const t = $('toast');
   t.textContent = message;
-  t.classList.remove('hidden');
+  clearTimeout(toastHide);
+  t.classList.remove('hidden', 'is-out');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.add('hidden'), 4000);
+  toastTimer = setTimeout(() => {
+    t.classList.add('is-out');
+    toastHide = setTimeout(() => t.classList.add('hidden'), 150);
+  }, 4000);
 }

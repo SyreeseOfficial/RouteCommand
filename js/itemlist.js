@@ -1,5 +1,5 @@
 /* Route Command — credit/donation item lists and suggestion boxes */
-import { $, esc, plural, clearInvalid, catalog } from './util.js';
+import { $, esc, plural, clearInvalid, catalog, isDataReady } from './util.js';
 
 /* Every space-separated word must appear somewhere in the entry */
 function matchAll(list, query) {
@@ -17,13 +17,23 @@ document.addEventListener('focusin', (e) => {
 /* Combobox behaviour shared by the store search and the item search boxes */
 let suggestionSeq = 0;
 
-export function showSuggestions(input, box, results) {
+/* Shared by the store and item boxes: search, then show matches, "loading" or a "no match" note */
+export async function runSearch(input, box, search, emptyMsg) {
+  const q = input.value.trim();
+  if (q && !isDataReady()) showSuggestions(input, box, [], 'Loading list…');
+  const results = q ? await search(q) : [];
+  if (input.value.trim() === q) showSuggestions(input, box, results, q && !results.length ? emptyMsg : '');   // ignore stale results
+}
+
+export function showSuggestions(input, box, results, note = '') {
   box.id = box.id || `suggestions-${++suggestionSeq}`;
   input.setAttribute('role', 'combobox');
   input.setAttribute('aria-autocomplete', 'list');
   input.setAttribute('aria-controls', box.id);
-  box.innerHTML = results.map((s, i) => `<div class="store-suggestion" role="option" id="${box.id}-${i}" tabindex="-1">${esc(s)}</div>`).join('');
-  box.classList.toggle('hidden', !results.length);
+  box.innerHTML = results.length
+    ? results.map((s, i) => `<div class="store-suggestion" role="option" id="${box.id}-${i}" tabindex="-1">${esc(s)}</div>`).join('')
+    : note && `<div class="suggestion-note" role="status">${esc(note)}</div>`;
+  box.classList.toggle('hidden', !results.length && !note);
   /* The keyboard covers the bottom of the screen: open upward if the list won't fit below the field */
   const below = visualViewport.height - input.getBoundingClientRect().bottom;
   box.classList.toggle('store-suggestions--up', results.length > 0 && below < Math.min(box.offsetHeight, 220) + 8);
@@ -48,7 +58,8 @@ export function pickSuggestion(input, box, text) {
 /* Arrow keys move through the options, Enter picks, Escape closes */
 export function suggestionKeydown(e, input, box) {
   if (box.classList.contains('hidden')) return;
-  const opts = [...box.children];
+  const opts = [...box.querySelectorAll('[role=option]')];
+  if (!opts.length && e.key !== 'Escape') return;
   const cur  = box.querySelector('.focused');
   let idx    = opts.indexOf(cur);
 
@@ -122,13 +133,9 @@ export function createItemList({ listId, countId, buildHTML, onType }) {
     if (!el.children.length) add();
   };
 
-  el.addEventListener('input', async (e) => {
+  el.addEventListener('input', (e) => {
     const input = e.target.closest('[data-fname="name"]');
-    if (!input) return;
-    const box = input.closest('.store-search-wrap').querySelector('.store-suggestions');
-    const q   = input.value.trim();
-    const results = q ? await searchDonationItems(q) : [];
-    if (input.value.trim() === q) showSuggestions(input, box, results);   // ignore stale results
+    if (input) runSearch(input, input.closest('.store-search-wrap').querySelector('.store-suggestions'), searchDonationItems, 'No match. It will be sent as typed.');
   });
 
   el.addEventListener('keydown', (e) => {

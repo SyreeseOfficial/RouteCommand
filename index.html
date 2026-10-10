@@ -30,6 +30,10 @@
       <circle cx="40" cy="40" r="38" style="stroke:var(--color-red-text)" stroke-width="2"/>
       <polyline points="22,40 35,53 58,28" style="stroke:var(--color-success)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
     </symbol>
+    <symbol id="icon-clock" viewBox="0 0 80 80" fill="none">
+      <circle cx="40" cy="40" r="38" style="stroke:var(--color-gold-text)" stroke-width="2"/>
+      <polyline points="40,20 40,42 54,50" style="stroke:var(--color-gold-text)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
   </svg>
 
   <!-- ===================== GATEKEEPER ===================== -->
@@ -118,6 +122,7 @@
           <span class="nav-item__label">Settings</span>
         </button>
       </nav>
+      <button type="button" class="whoami whoami--sidebar" data-goto-settings aria-label="Signed in. Open settings"><span class="whoami__dot" aria-hidden="true"></span><span class="whoami__text"></span></button>
     </aside>
 
     <!-- MOBILE HEADER -->
@@ -130,6 +135,7 @@
         </div>
         <span class="mobile-header__title">Route Command</span>
       </div>
+      <button type="button" class="whoami" data-goto-settings aria-label="Signed in. Open settings"><span class="whoami__dot" aria-hidden="true"></span><span class="whoami__text"></span></button>
     </header>
 
     <!-- MAIN CONTENT -->
@@ -174,16 +180,20 @@
               <div class="input-prefix"><span aria-hidden="true">$</span><input class="form-input" type="number" id="expense-amount" name="expense-amount" placeholder="0.00" inputmode="decimal" step="0.01" min="0" required /></div>
             </div>
 
-            <div class="form-group hidden" id="vehicle-group">
-              <label class="form-label" for="vehicle-tag">Vehicle Tag</label>
-              <select class="form-select" id="vehicle-tag" name="vehicle-tag">
-                <option value="N/A" selected>N/A</option>
-                <option value="Bumblebee">Bumblebee</option>
-                <option value="Prime">Prime</option>
-                <option value="Heno">Heno</option>
-                <option value="White Van">White Van</option>
-                <option value="Personal Vehicle">Personal Vehicle</option>
-              </select>
+            <div class="collapse is-collapsed" id="vehicle-group">
+              <div class="collapse__inner">
+                  <div class="form-group">
+                    <label class="form-label" for="vehicle-tag">Vehicle Tag</label>
+                    <select class="form-select" id="vehicle-tag" name="vehicle-tag">
+                      <option value="N/A" selected>N/A</option>
+                      <option value="Bumblebee">Bumblebee</option>
+                      <option value="Prime">Prime</option>
+                      <option value="Heno">Heno</option>
+                      <option value="White Van">White Van</option>
+                      <option value="Personal Vehicle">Personal Vehicle</option>
+                    </select>
+                  </div>
+              </div>
             </div>
 
             <div class="form-group">
@@ -221,11 +231,11 @@
             <div class="success-state__icon" aria-hidden="true">
               <svg viewBox="0 0 80 80"><use href="#icon-check"/></svg>
             </div>
-            <h3 class="success-state__title">Upload Successful!</h3>
+            <h3 class="success-state__title">Receipt sent</h3>
             <p class="success-state__msg"><span data-recipient></span> has your receipt.</p>
             <div class="credit-success-summary" id="receipt-success-summary"></div>
-            <button class="btn btn--outline btn--full" data-goto-history>View in history</button>
-            <button class="btn btn--outline btn--full" id="submit-another-btn">Submit Another Expense</button>
+            <button class="btn btn--red btn--full" id="submit-another-btn">Submit Another Expense</button>
+            <button class="btn btn--link" data-goto-history>View in history</button>
           </div>
         </div>
       </section>
@@ -289,11 +299,11 @@
             <div class="success-state__icon" aria-hidden="true">
               <svg viewBox="0 0 80 80"><use href="#icon-check"/></svg>
             </div>
-            <h3 class="success-state__title">Credits Submitted!</h3>
+            <h3 class="success-state__title">Credit request sent</h3>
             <p class="success-state__msg"><span data-recipient></span> has your credit request.</p>
             <div class="credit-success-summary" id="credit-success-summary"></div>
-            <button class="btn btn--outline btn--full" data-goto-history>View in history</button>
-            <button class="btn btn--outline btn--full" id="credit-submit-another-btn">Submit Another Credit</button>
+            <button class="btn btn--red btn--full" id="credit-submit-another-btn">Submit Another Credit</button>
+            <button class="btn btn--link" data-goto-history>View in history</button>
           </div>
         </div>
 
@@ -334,11 +344,11 @@
             <div class="success-state__icon" aria-hidden="true">
               <svg viewBox="0 0 80 80"><use href="#icon-check"/></svg>
             </div>
-            <h3 class="success-state__title">Donation Logged!</h3>
-            <p class="success-state__msg">The donation pile has been recorded.</p>
+            <h3 class="success-state__title">Donation logged</h3>
+            <p class="success-state__msg"><span data-recipient></span> has your donation log.</p>
             <div class="credit-success-summary" id="donation-success-summary"></div>
-            <button class="btn btn--outline btn--full" data-goto-history>View in history</button>
-            <button class="btn btn--outline btn--full" id="donation-submit-another-btn">Log Another Donation</button>
+            <button class="btn btn--red btn--full" id="donation-submit-another-btn">Log Another Donation</button>
+            <button class="btn btn--link" data-goto-history>View in history</button>
           </div>
         </div>
       </section>
@@ -347,7 +357,7 @@
       <section id="history-view" class="view" aria-label="History">
         <div class="view__header">
           <h2 class="view__title">History</h2>
-          <p class="view__sub">Recent submissions from this device.</p>
+          <p class="view__sub">Last 15 submissions from this device.</p>
         </div>
         <p class="settings-hint history-sync" id="last-synced" aria-live="polite"></p>
         <div id="submission-history"></div>
@@ -483,8 +493,7 @@
     </nav>
 
     <!-- PWA INSTALL MODAL -->
-    <div class="modal-overlay hidden" id="pwa-modal-overlay" aria-hidden="true"></div>
-    <div class="modal hidden" id="pwa-modal" role="dialog" aria-modal="true" aria-labelledby="pwa-modal-title">
+    <dialog class="modal" id="pwa-modal" aria-labelledby="pwa-modal-title">
       <div class="modal__header">
         <h3 class="modal__title" id="pwa-modal-title">Install to Home Screen</h3>
         <button class="modal__close" id="pwa-modal-close" aria-label="Close">
@@ -505,21 +514,20 @@
           <p>Confirm the prompt. Route Command will appear on your home screen like a native app — no App Store required.</p>
         </div>
       </div>
-    </div>
+    </dialog>
 
     <!-- CONFIRM DIALOG -->
-    <div class="modal-overlay hidden" id="confirm-overlay" aria-hidden="true"></div>
-    <div class="modal hidden" id="confirm-modal" role="alertdialog" aria-modal="true" aria-describedby="confirm-message">
+    <dialog class="modal" id="confirm-modal" role="alertdialog" aria-describedby="confirm-message">
       <p class="confirm__message" id="confirm-message"></p>
       <div class="confirm__actions">
         <button type="button" class="btn btn--outline" id="confirm-cancel">Cancel</button>
         <button type="button" class="btn btn--gold" id="confirm-ok">Continue</button>
       </div>
-    </div>
+    </dialog>
 
     <dialog class="photo-dialog" id="photo-dialog" aria-label="Receipt photo"><img id="photo-full" alt="Receipt, full size" /></dialog>
 
-    <div class="toast hidden" id="toast" role="status"></div>
+    <div class="toast-stack" id="toast-stack"><div class="toast hidden" id="toast" role="status"></div></div>
 
   </div><!-- /app -->
 

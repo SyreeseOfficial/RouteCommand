@@ -1,5 +1,5 @@
 /* Route Command — page side of the offline queue (storage and sending: outbox.js) */
-import { $, plural, newId, showToast, submitLabel, recordError } from './util.js';
+import { $, plural, newId, showToast, submitLabel, recordError, getName } from './util.js';
 import { outbox, flushOutbox, queuedCount, getMeta } from './outbox.js';
 import { loadHistory, saveHistory, markSynced, lastSynced } from './history.js';
 
@@ -11,6 +11,14 @@ export async function updateQueueBadge() {
     badge.textContent = n;
     badge.classList.toggle('hidden', !n);
     if (nav.hasAttribute('aria-label')) nav.setAttribute('aria-label', n ? `History, ${n} waiting to send` : 'History');
+  });
+
+  /* Who is signed in, and whether anything is stuck: shown in the header (phone) and sidebar (desktop) */
+  const state = !navigator.onLine ? 'Offline' : n ? `${n} waiting` : '';
+  document.querySelectorAll('.whoami').forEach(el => {
+    el.querySelector('.whoami__text').textContent = [getName() || 'Choose name', state].filter(Boolean).join(' · ');
+    el.classList.toggle('whoami--warn', !!state);
+    el.setAttribute('aria-label', `${getName() || 'No name set'}${state ? `, ${state}` : ''}. Open settings`);
   });
 }
 
@@ -94,6 +102,7 @@ navigator.serviceWorker?.addEventListener('message', (e) => {
 export function updateOnlineState() {
   $('offline-banner').classList.toggle('hidden', navigator.onLine);
   document.querySelectorAll('[data-label]').forEach(btn => { if (!btn.disabled) btn.textContent = submitLabel(btn); });   // busy buttons relabel when they finish
+  updateQueueBadge();
 }
 window.addEventListener('online', updateOnlineState);
 window.addEventListener('offline', updateOnlineState);

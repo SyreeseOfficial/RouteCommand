@@ -91,7 +91,9 @@ export function markSynced(at = new Date().toISOString()) {
 
 function renderLastSynced() {
   const iso = localStorage.getItem(SYNC_KEY);
-  $('last-synced').textContent = iso ? `Last sent: ${dayLabel(iso)}, ${fmtTime(iso)}` : 'Nothing sent from this device yet';
+  const text = iso ? `Last sent: ${dayLabel(iso)}, ${fmtTime(iso)}` : 'Nothing sent from this device yet';
+  const waiting = navigator.onLine && loadHistory().some(h => h.status === 'queued');
+  $('last-synced').innerHTML = esc(text) + (waiting ? ' · <button type="button" class="tip__link" data-send-now>Send now</button>' : '');
 }
 
 export function renderHistory() {
@@ -166,13 +168,18 @@ historyView.addEventListener('touchmove', (e) => {
   if (pullStart !== null) historyView.classList.toggle('ptr-ready', e.touches[0].clientY - pullStart > 70);
 }, { passive: true });
 historyView.addEventListener('touchcancel', pullDone);
-historyView.addEventListener('touchend', async () => {
-  const refresh = historyView.classList.contains('ptr-ready');
-  pullDone();
-  if (!refresh) return;
+async function sendNow() {
   if (!navigator.onLine) return showToast("You're offline");
   const waiting = await queuedCount().catch(() => 0);
   await flushQueue();
   renderHistory();
   if (!waiting) showToast('Nothing waiting to send');
+}
+historyView.addEventListener('touchend', () => {
+  const refresh = historyView.classList.contains('ptr-ready');
+  pullDone();
+  if (refresh) sendNow();
 });
+$('last-synced').addEventListener('click', (e) => { if (e.target.closest('[data-send-now]')) sendNow(); });
+window.addEventListener('online', renderLastSynced);
+window.addEventListener('offline', renderLastSynced);

@@ -1,13 +1,13 @@
 /* Route Command — settings, identity, install tip, bookmark guide */
-import { $, plural, catalog, confirmDialog, showToast, getName, APP_VERSION, BUILD, ERROR_KEY, NAME_KEY, RECIPIENT, DEFAULT_VEHICLE_KEY } from './util.js';
+import { $, plural, catalog, confirmDialog, showToast, showTip, dismiss, openModal, closeModal, getName, APP_VERSION, BUILD, ERROR_KEY, NAME_KEY, RECIPIENT, DEFAULT_VEHICLE_KEY } from './util.js';
 import { navigateTo } from './nav.js';
 import { outbox, queuedCount } from './outbox.js';
+import { updateQueueBadge } from './queue.js';
 
 const resetBtn         = document.getElementById('reset-btn');
 const darkModeToggle   = document.getElementById('dark-mode-toggle');
 const defaultVehicleEl = document.getElementById('default-vehicle');
 const installPwaBtn    = document.getElementById('install-pwa-btn');
-const pwaModalOverlay  = document.getElementById('pwa-modal-overlay');
 const pwaModal         = document.getElementById('pwa-modal');
 const pwaModalClose    = document.getElementById('pwa-modal-close');
 
@@ -21,7 +21,7 @@ export async function initIdentity() {
   settingsSel.innerHTML = opts;
   document.querySelectorAll('[data-recipient]').forEach(el => { el.textContent = RECIPIENT; });
 
-  const sync = () => { settingsSel.value = getName(); };
+  const sync = () => { settingsSel.value = getName(); updateQueueBadge(); };
   if (NAMES.includes(getName())) { sync(); showInstallTip(); } else gate.classList.remove('hidden');
 
   document.getElementById('name-gate-submit').addEventListener('click', () => {
@@ -31,7 +31,7 @@ export async function initIdentity() {
     gate.classList.add('hidden');
     showInstallTip();
   });
-  settingsSel.addEventListener('change', () => localStorage.setItem(NAME_KEY, settingsSel.value));
+  settingsSel.addEventListener('change', () => { localStorage.setItem(NAME_KEY, settingsSel.value); updateQueueBadge(); });
 }
 
 /* Default vehicle persistence */
@@ -44,19 +44,7 @@ if (defaultVehicleEl) {
 }
 
 /* PWA install modal */
-function openPwaModal() {
-  pwaModalOverlay.classList.remove('hidden');
-  pwaModal.classList.remove('hidden');
-  pwaModalOverlay.removeAttribute('aria-hidden');
-}
-
-function closePwaModal() {
-  pwaModalOverlay.classList.add('hidden');
-  pwaModal.classList.add('hidden');
-  pwaModalOverlay.setAttribute('aria-hidden', 'true');
-}
-
-if (installPwaBtn)   installPwaBtn.addEventListener('click', openPwaModal);
+if (installPwaBtn) installPwaBtn.addEventListener('click', () => openModal(pwaModal));
 
 /* Already installed: the install help has nothing left to offer */
 const isStandalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
@@ -73,12 +61,11 @@ function showInstallTip() {
   tip.setAttribute('role', 'status');
   tip.innerHTML = `<p>Tip: install Route Command on your phone. Open <button type="button" class="tip__link">Settings → App Setup</button>.</p>
     <button type="button" class="tip__close" aria-label="Dismiss">×</button>`;
-  tip.querySelector('.tip__link').addEventListener('click', () => { navigateTo('settings'); tip.remove(); });
-  tip.querySelector('.tip__close').addEventListener('click', () => tip.remove());
-  document.body.appendChild(tip);
+  tip.querySelector('.tip__link').addEventListener('click', () => { navigateTo('settings'); dismiss(tip); });
+  tip.querySelector('.tip__close').addEventListener('click', () => dismiss(tip));
+  showTip(tip);
 }
-if (pwaModalOverlay) pwaModalOverlay.addEventListener('click', closePwaModal);
-if (pwaModalClose)   pwaModalClose.addEventListener('click', closePwaModal);
+if (pwaModalClose) pwaModalClose.addEventListener('click', () => closeModal(pwaModal));
 
 $('app-version').textContent = `v${APP_VERSION} · build ${BUILD}`;
 $('copy-diagnostics-btn').addEventListener('click', async () => {

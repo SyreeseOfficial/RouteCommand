@@ -1,6 +1,6 @@
 /* Route Command — donations form */
 import { $, plural, getName, markInvalid, focusFirstInvalid } from './util.js';
-import { submitForm, autosaveDraft, loadDraft } from './submit.js';
+import { submitForm, autosaveDraft, loadDraft, draftFilled, showDraftNote } from './submit.js';
 import { createItemList, REMOVE_BTN_HTML, qtyFieldHTML } from './itemlist.js';
 
 const DONATION_LAST_TYPE_KEY   = 'rc_donation_last_type';
@@ -90,6 +90,15 @@ function handleDonationSubmit(e) {
   });
 }
 
+function resetDonationForm() {
+  $('donation-form').querySelector('.draft-note')?.remove();
+  localStorage.removeItem(DONATION_DRAFT_KEY);
+  $('donation-notes').value = '';
+  donationList.reset();
+  $('donation-success-state').classList.add('hidden');
+  $('donation-form').classList.remove('hidden');
+}
+
 export function initDonations() {
   donationList = createItemList({
     listId: 'donation-items-list',
@@ -101,6 +110,7 @@ export function initDonations() {
   if (draft) {
     $('donation-notes').value = draft.notes || '';
     donationList.restore(draft.items || []);
+    if (draftFilled(draft)) showDraftNote($('donation-form'), resetDonationForm);
   } else {
     donationList.add();
   }
@@ -121,11 +131,5 @@ export function initDonations() {
     donationList.focusItem();
   });
   $('donation-form').addEventListener('submit', handleDonationSubmit);
-  $('donation-submit-another-btn').addEventListener('click', () => {
-    localStorage.removeItem(DONATION_DRAFT_KEY);
-    $('donation-notes').value = '';
-    donationList.reset();
-    $('donation-success-state').classList.add('hidden');
-    $('donation-form').classList.remove('hidden');
-  });
+  $('donation-submit-another-btn').addEventListener('click', resetDonationForm);
 }

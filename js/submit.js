@@ -13,6 +13,17 @@ export function autosaveDraft(key, formEl, snapshot) {
 export function loadDraft(key) {
   try { return JSON.parse(localStorage.getItem(key)); } catch { return null; }
 }
+/* An untouched form also autosaves; only announce a draft that holds something the user typed */
+export const draftFilled = (d) => !!(d.store || d.notes || d.items?.some(i => ['upc', 'name', 'weight', 'sellby'].some(k => i.values[k])));
+/* "Draft restored · Clear" at the top of a form; onClear resets the form (which removes the note too) */
+export function showDraftNote(formEl, onClear) {
+  formEl.querySelector('.draft-note')?.remove();
+  const note = document.createElement('p');
+  note.className = 'draft-note';
+  note.innerHTML = 'Draft restored · <button type="button" class="tip__link">Clear</button>';
+  note.querySelector('button').addEventListener('click', onClear);
+  formEl.prepend(note);
+}
 
 /* POST a form, drive the button spinner, error text, history status, and success screen. */
 export async function submitForm({ draftKey, endpoint, payload: basePayload, btn, type, histLabel, formEl, successEl, summaryEl, data }) {
@@ -34,9 +45,12 @@ export async function submitForm({ draftKey, endpoint, payload: basePayload, btn
   const showSuccess = (queued) => {
     const title = successEl.querySelector('.success-state__title');
     const msg   = successEl.querySelector('.success-state__msg');
+    const icon  = successEl.querySelector('.success-state__icon use');
     title.dataset.orig = title.dataset.orig || title.textContent;
     msg.dataset.orig   = msg.dataset.orig   || msg.innerHTML;
-    title.textContent = queued ? 'Saved Offline' : title.dataset.orig;
+    icon.setAttribute('href', queued ? '#icon-clock' : '#icon-check');   // a clock, not a check: it has not reached the office yet
+    successEl.classList.toggle('success-state--queued', queued);
+    title.textContent = queued ? 'Saved offline' : title.dataset.orig;
     msg.innerHTML     = queued ? 'It will send automatically when you\'re back online.' : msg.dataset.orig;
     summaryEl.innerHTML = summaryHTML(type, data);
     formEl.classList.add('hidden');

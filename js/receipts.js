@@ -87,7 +87,7 @@ document.getElementById('photo-retake').addEventListener('click', () => {
 /* Vehicle Tag only matters for these categories */
 const VEHICLE_CATEGORIES = ['Fuel', 'Vehicle Maintenance', 'Tolls / Parking'];
 function syncVehicleField() {
-  $('vehicle-group').classList.toggle('hidden', !VEHICLE_CATEGORIES.includes($('expense-category').value));
+  $('vehicle-group').classList.toggle('is-collapsed', !VEHICLE_CATEGORIES.includes($('expense-category').value));
 }
 $('expense-category').addEventListener('change', syncVehicleField);
 
@@ -100,7 +100,7 @@ if (expenseForm) {
     const category = document.getElementById('expense-category').value;
     const amount   = document.getElementById('expense-amount').value;
     /* The vehicle field is hidden for categories that don't involve a vehicle */
-    const vehicle  = $('vehicle-group').classList.contains('hidden') ? 'N/A' : $('vehicle-tag').value;
+    const vehicle  = $('vehicle-group').classList.contains('is-collapsed') ? 'N/A' : $('vehicle-tag').value;
     const notes    = document.getElementById('notes').value;
 
     let valid = true;

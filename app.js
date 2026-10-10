@@ -3,7 +3,7 @@
  * Entry point: passcode gate and startup. Feature code lives in js/*.js,
  * bundled by esbuild at deploy time.
  */
-import { $, today, AUTH_KEY, DEFAULT_VEHICLE_KEY } from './js/util.js';
+import { $, today, showTip, dismiss, AUTH_KEY, DEFAULT_VEHICLE_KEY } from './js/util.js';
 import { VALID_VIEWS, navigateTo } from './js/nav.js';
 import { startQueue, updateOnlineState } from './js/queue.js';
 import { renderHistory } from './js/history.js';
@@ -110,8 +110,8 @@ function showUpdateTip() {
   tip.innerHTML = `<p>Update available. <button type="button" class="tip__link">Tap to reload</button></p>
     <button type="button" class="tip__close" aria-label="Dismiss">×</button>`;
   tip.querySelector('.tip__link').addEventListener('click', () => location.reload());
-  tip.querySelector('.tip__close').addEventListener('click', () => tip.remove());
-  document.body.appendChild(tip);
+  tip.querySelector('.tip__close').addEventListener('click', () => dismiss(tip));
+  showTip(tip);
 }
 
 if ('serviceWorker' in navigator) {
