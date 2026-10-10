@@ -117,12 +117,14 @@ export function renderHistory() {
     lastDay = day;
 
     const head = `
-        <span class="history-top">
-          <span class="settings-card__label history-type history-type--${esc(entry.type.toLowerCase())}">${esc(entry.type)}</span>
-          <span class="history-status history-status--${status}">${STATUS_ICON[status] || ''}${status}</span>
+        <span class="history-main">
+          <span class="history-label">${esc(entry.label)}</span>
+          <span class="history-date">${time}</span>
         </span>
-        <span class="settings-card__value history-label">${esc(entry.label)}</span>
-        <span class="settings-hint history-date">${time}</span>`;
+        <span class="history-top">
+          <span class="history-type history-type--${esc(entry.type.toLowerCase())}">${esc(entry.type)}</span>
+          <span class="history-status history-status--${status}">${STATUS_ICON[status] || ''}${status}</span>
+        </span>`;
     const btn = (attr, label, cls = '') => `<button type="button" class="btn btn--outline ${cls}" ${attr}="${entry.id}">${label}</button>`;
     /* Rows still waiting to send can't be deleted: the queue would send them anyway */
     const buttons = [

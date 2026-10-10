@@ -1,5 +1,5 @@
 /* Route Command — credit/donation item lists and suggestion boxes */
-import { $, esc, plural, clearInvalid, catalog, isDataReady, setPill } from './util.js';
+import { $, esc, plural, clearInvalid, catalog, isDataReady, setPill, showToast } from './util.js';
 
 /* Every space-separated word must appear somewhere in the entry */
 function matchAll(list, query) {
@@ -30,8 +30,13 @@ export function showSuggestions(input, box, results, note = '') {
   input.setAttribute('role', 'combobox');
   input.setAttribute('aria-autocomplete', 'list');
   input.setAttribute('aria-controls', box.id);
+  /* Items are "<upc> <name>": show the number as a muted prefix so rows scan. data-value is what gets picked. */
+  const row = (s, i) => {
+    const m = s.match(/^(\d+)\s+(.+)$/);
+    return `<div class="store-suggestion" role="option" id="${box.id}-${i}" tabindex="-1" data-value="${esc(s)}">${m ? `<span class="suggestion-upc">${esc(m[1])}</span>${esc(m[2])}` : esc(s)}</div>`;
+  };
   box.innerHTML = results.length
-    ? results.map((s, i) => `<div class="store-suggestion" role="option" id="${box.id}-${i}" tabindex="-1">${esc(s)}</div>`).join('')
+    ? results.map(row).join('')
     : note && `<div class="suggestion-note" role="status">${esc(note)}</div>`;
   box.classList.toggle('hidden', !results.length && !note);
   /* The keyboard covers the bottom of the screen: open upward if the list won't fit below the field */
@@ -65,7 +70,7 @@ export function suggestionKeydown(e, input, box) {
 
   if (e.key === 'ArrowDown')      idx = (idx + 1) % opts.length;
   else if (e.key === 'ArrowUp')   idx = idx <= 0 ? opts.length - 1 : idx - 1;
-  else if (e.key === 'Enter' && cur) { e.preventDefault(); pickSuggestion(input, box, cur.textContent); return; }
+  else if (e.key === 'Enter' && cur) { e.preventDefault(); pickSuggestion(input, box, cur.dataset.value); return; }
   else if (e.key === 'Escape')    { hideSuggestions(box); return; }
   else return;
 
@@ -89,7 +94,7 @@ export const qtyFieldHTML = () => `
     <span class="item-field__label">Qty</span>
     <div class="qty-stepper">
       <button type="button" class="qty-stepper__btn" data-dir="-1" aria-label="Decrease quantity">−</button>
-      <input type="number" class="qty-stepper__input" value="1" min="1" inputmode="numeric" aria-label="Quantity" data-fname="qty" />
+      <input type="number" class="qty-stepper__input" value="1" min="1" inputmode="numeric" aria-label="Quantity" enterkeyhint="next" data-fname="qty" />
       <button type="button" class="qty-stepper__btn" data-dir="1" aria-label="Increase quantity">+</button>
     </div>
   </div>`;
@@ -146,7 +151,7 @@ export function createItemList({ listId, countId, buildHTML, onType }) {
   el.addEventListener('click', (e) => {
     const hit = e.target.closest('.store-suggestion');
     if (hit) {
-      pickSuggestion(hit.closest('.store-search-wrap').querySelector('input'), hit.parentElement, hit.textContent);
+      pickSuggestion(hit.closest('.store-search-wrap').querySelector('input'), hit.parentElement, hit.dataset.value);
       return;
     }
     const typeBtn = e.target.closest('[data-type-btn]');
@@ -162,7 +167,18 @@ export function createItemList({ listId, countId, buildHTML, onType }) {
       return;
     }
     const rm = e.target.closest('[data-remove]');
-    if (rm) { rm.closest('[data-id]').remove(); refresh(); }
+    if (rm) {
+      /* Keep the node (with everything typed into it) so Undo can put it back where it was */
+      const item = rm.closest('[data-id]');
+      const next = item.nextElementSibling;
+      item.remove();
+      refresh();
+      showToast('Item removed', { label: 'Undo', run: () => {
+        el.insertBefore(item, next?.parentNode === el ? next : null);
+        refresh();
+        el.dispatchEvent(new Event('change', { bubbles: true }));   // lets draft autosave see it
+      } }, 5000);
+    }
   });
 
   el.addEventListener('change', (e) => {

@@ -1,4 +1,5 @@
 /* Route Command — SPA view switching */
+import { resetSuccess } from './util.js';
 
 const sidebarNavItems  = document.querySelectorAll('.sidebar .nav-item[data-view]');
 const bottomNavItems   = document.querySelectorAll('.bottom-nav .bottom-nav__item[data-view]');
@@ -7,8 +8,11 @@ const views            = document.querySelectorAll('.view');
 export const VALID_VIEWS = new Set(['receipts', 'credits', 'donations', 'history', 'settings']);
 
 export function navigateTo(viewId, updateHistory = true, moveFocus = true) {
-  /* Hide all views */
-  views.forEach(v => v.classList.remove('active'));
+  /* Hide all views; a confirmation left behind in the one being left goes back to a fresh form */
+  views.forEach(v => {
+    if (v.classList.contains('active') && v.id !== `${viewId}-view`) v.querySelectorAll('.success-state').forEach(resetSuccess);
+    v.classList.remove('active');
+  });
 
   /* Show target */
   const target = document.getElementById(`${viewId}-view`);
@@ -32,8 +36,8 @@ export function navigateTo(viewId, updateHistory = true, moveFocus = true) {
   /* Scroll to top of new view */
   window.scrollTo({ top: 0, behavior: 'instant' });
 
-  /* Update browser URL */
-  if (updateHistory) history.pushState(null, '', '/' + viewId);
+  /* Update browser URL. Tabs are peers, not drill-downs: replace, so Back leaves the app instead of walking every tab visited */
+  if (updateHistory) history.replaceState(null, '', '/' + viewId);
 }
 
 /* Handle browser back / forward */

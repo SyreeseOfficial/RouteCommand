@@ -1,5 +1,5 @@
 /* Route Command — donations form */
-import { $, plural, getName, markInvalid, focusFirstInvalid } from './util.js';
+import { $, getName, markInvalid, focusFirstInvalid, enterAsNext } from './util.js';
 import { submitForm, autosaveDraft, loadDraft, draftFilled, showDraftNote } from './submit.js';
 import { createItemList, REMOVE_BTN_HTML, qtyFieldHTML } from './itemlist.js';
 
@@ -27,14 +27,14 @@ function createDonationItemHTML(id) {
       <div class="item-field">
         <label class="item-field__label" for="di-${id}-name">Item</label>
         <div class="store-search-wrap">
-          <input type="text" class="form-input" id="di-${id}-name" placeholder="Search item or UPC…" autocomplete="off" autocorrect="off" spellcheck="false" inputmode="search" data-fname="name" />
+          <input type="text" class="form-input" id="di-${id}-name" placeholder="Search item or UPC…" autocomplete="off" autocorrect="off" spellcheck="false" inputmode="search" enterkeyhint="next" data-fname="name" />
           <div class="store-suggestions hidden" role="listbox" aria-label="Item suggestions"></div>
         </div>
       </div>
       <div class="item-card__row">
         <div class="item-field">
           <label class="item-field__label" for="di-${id}-sellby">Sell-by date</label>
-          <input type="date" class="form-input" id="di-${id}-sellby" data-fname="sellby" />
+          <input type="date" class="form-input" id="di-${id}-sellby" enterkeyhint="next" data-fname="sellby" />
         </div>
         ${qtyFieldHTML()}
       </div>
@@ -81,7 +81,7 @@ function handleDonationSubmit(e) {
     payload:     { employee, notes: $('donation-notes').value.trim(), items, timestamp: new Date().toISOString() },
     btn:         $('donation-submit-btn'),
     type:        'Donation',
-    histLabel:   `${employee} · ${plural(items.length, 'item')}`,
+    histLabel:   items.length > 1 ? `${items[0].name} +${items.length - 1}` : items[0].name,   // every row is your own name: say what was in the pile
     formEl:      $('donation-form'),
     successEl:   $('donation-success-state'),
     summaryEl:   $('donation-success-summary'),
@@ -129,6 +129,7 @@ export function initDonations() {
     if (prev) donationList.el.lastElementChild.querySelector('[data-fname="sellby"]').value = prev;
     donationList.focusItem();
   });
+  enterAsNext($('donation-form'));
   $('donation-form').addEventListener('submit', handleDonationSubmit);
   $('donation-submit-another-btn').addEventListener('click', resetDonationForm);
 }

@@ -6,8 +6,9 @@
 /* ── 1. CSS VARIABLES ──────────────────────────────────────── */
 :root {
   /* Core Palette */
-  --color-bg:        #000000;
+  --color-bg:        #0b0b0b;
   --color-surface:   #161616;
+  --color-raised:    #1f1f1f;   /* item cards, dropdowns, modals: lighter = closer to you */
   --color-border:    #222222;
   --color-input-border: #3a3a3a;
   --color-red:       #841b2a;
@@ -32,9 +33,9 @@
   --color-focus-glow: rgba(224,112,127,0.25);
 
   /* Overlays that must flip in light mode */
-  --color-inset:        var(--color-inset);
-  --color-hover:        var(--color-hover);
-  --color-hover-strong: var(--color-hover-strong);
+  --color-inset:        rgba(255,255,255,0.03);
+  --color-hover:        rgba(255,255,255,0.05);
+  --color-hover-strong: rgba(255,255,255,0.1);
 
   /* Text-safe variants (WCAG AA, 4.5:1) of the brand colors, for text on the dark surfaces */
   --color-gold-text:    #b8a06a;
@@ -55,8 +56,12 @@
   --radius-md:  12px;
   --radius-lg:  16px;
 
+  /* One chevron everywhere: select arrow (background) and accordions (mask, so it takes currentColor) */
+  --chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a0a0a0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+
   /* Shadows */
-  --shadow-card: 0 4px 24px rgba(0,0,0,0.5);
+  --shadow-top:  inset 0 1px 0 rgba(255,255,255,0.04);   /* 1px top highlight: black shadows are invisible on a dark page */
+  --shadow-card: var(--shadow-top), 0 4px 24px rgba(0,0,0,0.5);
   --shadow-glow: 0 0 0 1px var(--color-red);
 
   /* Transitions */
@@ -71,6 +76,7 @@ html.light {
   color-scheme: light;
   --color-bg:      #f0f0f0;
   --color-surface: #ffffff;
+  --color-raised:  #f7f7f7;
   --color-border:  #d0d0d0;
   --color-text:    #111111;
   --color-subtext: #555555;
@@ -81,6 +87,7 @@ html.light {
   --color-inset:        rgba(0,0,0,0.03);
   --color-hover:        rgba(0,0,0,0.05);
   --color-hover-strong: rgba(0,0,0,0.1);
+  --shadow-top:    none;
   --shadow-card:   0 4px 24px rgba(0,0,0,0.1);
 
   --color-gold-text:    #625636;
@@ -236,6 +243,12 @@ img, svg { display: block; }
 
 .gatekeeper__input:focus {
   border-color: var(--color-focus);
+}
+
+.gatekeeper__input.shake { animation: shake 0.3s ease-out; }
+@keyframes shake {
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
 }
 
 .gatekeeper__error {
@@ -498,7 +511,7 @@ img, svg { display: block; }
 }
 
 .form-select {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a0a0a0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-image: var(--chevron);
   background-repeat: no-repeat;
   background-position: right 1rem center;
   padding-right: 2.5rem;
@@ -1049,10 +1062,16 @@ img, svg { display: block; }
   padding-bottom: env(safe-area-inset-bottom);
   background: var(--color-surface);
   border-top: 1px solid var(--color-border);
+  box-shadow: var(--shadow-top);
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   z-index: 100;
 }
+
+/* The on-screen keyboard shrinks the viewport: the nav would sit right above it. Hide it while a field is focused. */
+body:has(input:focus:not([type=checkbox]), select:focus, textarea:focus) .bottom-nav { display: none; }
+body:has(input:focus:not([type=checkbox]), select:focus, textarea:focus) .toast-stack { bottom: 0.75rem; }
+body:has(input:focus:not([type=checkbox]), select:focus, textarea:focus) .tip { display: none; }   /* never over a form being filled in */
 
 @media (min-width: 1024px) {
   .bottom-nav { display: none; }
@@ -1203,7 +1222,7 @@ img, svg { display: block; }
   inset: auto 0 0 0;
   width: 100%;
   color: var(--color-text);
-  background: var(--color-surface);
+  background: var(--color-raised);
   border: 1px solid var(--color-gold);
   border-bottom: none;
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
@@ -1565,7 +1584,7 @@ img, svg { display: block; }
   top: calc(100% + 4px);
   left: 0;
   right: 0;
-  background: var(--color-surface);
+  background: var(--color-raised);
   border: 1px solid var(--color-input-border);
   border-radius: var(--radius-sm);
   z-index: 50;
@@ -1613,7 +1632,8 @@ img, svg { display: block; }
 
 /* Item cards (credits + donations) */
 .item-card {
-  background: var(--color-inset);
+  background: var(--color-raised);
+  box-shadow: var(--shadow-top);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   padding: 0.875rem;
@@ -1781,8 +1801,12 @@ img, svg { display: block; }
 }
 .bookmark-guide__title::-webkit-details-marker { display: none; }
 .bookmark-guide__title::after {
-  content: '▾';
   color: var(--color-subtext);
+  content: '';
+  width: 12px; height: 12px;
+  background: currentColor;
+  -webkit-mask: var(--chevron) center / contain no-repeat;
+  mask: var(--chevron) center / contain no-repeat;
   transition: transform var(--transition-fast);
 }
 details[open] > .bookmark-guide__title { margin-bottom: 0.25rem; }
@@ -1925,7 +1949,6 @@ details[open] > .bookmark-guide__title::after { transform: rotate(180deg); }
 .history-top {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 0.5rem;
 }
 .history-status {
@@ -1975,8 +1998,18 @@ details[open] > .bookmark-guide__title::after { transform: rotate(180deg); }
 .store-search-wrap--spaced { margin-bottom: 0.5rem; }
 
 .history-card { gap: 0.25rem; }
-.history-label { font-size: var(--fs-sm); }
-.history-date { margin: 0; font-size: var(--fs-xs); }
+.history-main { display: flex; align-items: baseline; justify-content: space-between; gap: 0.75rem; }
+.history-label { font-size: var(--fs-md); font-weight: 600; color: var(--color-text); }
+.history-date { margin: 0; font-size: var(--fs-xs); color: var(--color-subtext); white-space: nowrap; }
+.history-type {
+  padding: 0.15em 0.625em;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
 .history-type--receipt  { color: var(--color-gold-text); }
 .history-type--credit   { color: var(--color-red-text); }
 .history-type--donation { color: var(--color-blue-text); }
@@ -2017,8 +2050,18 @@ details.history-card > summary {
   gap: 0.25rem;
 }
 details.history-card > summary::-webkit-details-marker { display: none; }
-details.history-card .history-date::after { content: ' ▾'; }
-details.history-card[open] .history-date::after { content: ' ▴'; }
+details.history-card .history-date::after {
+  content: '';
+  width: 12px; height: 12px;
+  background: currentColor;
+  -webkit-mask: var(--chevron) center / contain no-repeat;
+  mask: var(--chevron) center / contain no-repeat;
+  transition: transform var(--transition-fast);
+  display: inline-block;
+  margin-left: 0.375rem;
+  vertical-align: -1px;
+}
+details.history-card[open] .history-date::after { transform: rotate(180deg); }
 .history-body {
   margin-top: 0.75rem;
   padding-top: 0.75rem;
@@ -2050,7 +2093,7 @@ details.history-card[open] .history-date::after { content: ' ▴'; }
   align-items: flex-start;
   gap: 0.75rem;
   padding: 0.875rem 1rem;
-  background: var(--color-surface);
+  background: var(--color-raised);
   border: 1px solid var(--color-gold-light);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-card);
@@ -2103,7 +2146,7 @@ details.history-card[open] .history-date::after { content: ' ▴'; }
 
 .toast {
   padding: 0.875rem 1rem;
-  background: var(--color-surface);
+  background: var(--color-raised);
   border: 1px solid var(--color-gold-light);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-card);
@@ -2170,6 +2213,18 @@ html:has(#history-view.active) { overscroll-behavior-y: contain; }
   font-size: var(--fs-sm);
   color: var(--color-subtext);
 }
+
+.suggestion-upc {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: var(--fs-sm);
+  color: var(--color-subtext);
+  flex: none;
+  min-width: 3.25rem;   /* names line up whatever the number's length */
+  margin-right: 0.5rem;
+}
+
+.field-hint { font-size: var(--fs-sm); color: var(--color-gold-text); margin-top: 0.375rem; }
+.field-hint:empty { display: none; }
 
 .suggestion-note {
   padding: 0.75rem 1rem;

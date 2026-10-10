@@ -158,14 +158,39 @@ export function dismiss(el) {
 export function showTip(el) { $('toast-stack').prepend(el); }
 
 let toastTimer, toastHide;
-export function showToast(message) {
+/* `action` ({ label, run }) adds a link-style button after the message, e.g. Undo */
+export function showToast(message, action, ms = 4000) {
   const t = $('toast');
+  const hide = () => {
+    t.classList.add('is-out');
+    toastHide = setTimeout(() => t.classList.add('hidden'), 150);
+  };
   t.textContent = message;
+  if (action) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'tip__link';
+    btn.textContent = action.label;
+    btn.addEventListener('click', () => { clearTimeout(toastTimer); hide(); action.run(); });
+    t.append(' · ', btn);
+  }
   clearTimeout(toastHide);
   t.classList.remove('hidden', 'is-out');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => {
-    t.classList.add('is-out');
-    toastHide = setTimeout(() => t.classList.add('hidden'), 150);
-  }, 4000);
+  toastTimer = setTimeout(hide, ms);
 }
+
+/* Enter in a text field moves to the next field instead of submitting a half-filled form (the Submit button still submits) */
+export function enterAsNext(form) {
+  form.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter' || e.defaultPrevented || e.target.tagName !== 'INPUT') return;
+    e.preventDefault();
+    e.target.closest('.store-search-wrap')?.querySelector('.store-suggestions')?.classList.add('hidden');
+    const fields = [...form.querySelectorAll('input, select, textarea')].filter(f => f.offsetParent && !f.disabled);
+    const next = fields[fields.indexOf(e.target) + 1];
+    if (next) next.focus(); else e.target.blur();   // last field: dismiss the keyboard
+  });
+}
+
+/* A finished submission's confirmation shouldn't greet you an hour later: put the form back by "tapping" Submit Another */
+export const resetSuccess = (successEl) => { if (!successEl.classList.contains('hidden')) successEl.querySelector('[id$="submit-another-btn"]')?.click(); };

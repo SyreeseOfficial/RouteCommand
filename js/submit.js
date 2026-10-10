@@ -1,6 +1,6 @@
 /* Route Command — form submission: drafts, send, queue fallback */
 import { summaryHTML } from './summary.js';
-import { isNetworkError, newId, postJSON, recordError, submitLabel } from './util.js';
+import { isNetworkError, newId, postJSON, recordError, resetSuccess, submitLabel } from './util.js';
 import { outbox } from './outbox.js';
 import { updateQueueBadge, requestSync } from './queue.js';
 import { saveToHistory, setHistoryStatus, markSynced } from './history.js';
@@ -56,6 +56,8 @@ export async function submitForm({ draftKey, endpoint, payload: basePayload, btn
     formEl.classList.add('hidden');
     successEl.classList.remove('hidden');
     successEl.scrollIntoView({ block: 'center' });
+    clearTimeout(successEl._reset);
+    successEl._reset = setTimeout(() => resetSuccess(successEl), 60000);   // leaving the tab resets it too (nav.js)
   };
 
   const payload = { ...basePayload, submissionId: newId() };   // the same id travels with every resend of this submission

@@ -55,8 +55,12 @@ function attemptUnlock() {
     onAppReady();
   } else {
     passcodeError.textContent = 'Incorrect passcode. Please try again.';
-    passcodeInput.value = '';
+    /* Keep what was typed, selected, so a one-letter typo is a quick fix */
     passcodeInput.focus();
+    passcodeInput.select();
+    passcodeInput.classList.remove('shake');
+    void passcodeInput.offsetWidth;   // restart the animation on repeated misses
+    passcodeInput.classList.add('shake');
   }
 }
 

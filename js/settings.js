@@ -21,20 +21,26 @@ export async function initIdentity() {
   const sync = () => { settingsSel.value = getName(); updateQueueBadge(); };
   if (NAMES.includes(getName())) { sync(); showInstallTip(); } else gate.classList.remove('hidden');
 
+  gateSel.addEventListener('change', () => { $('name-gate-error').textContent = ''; });
   document.getElementById('name-gate-submit').addEventListener('click', () => {
-    if (!gateSel.value) return;
+    if (!gateSel.value) { $('name-gate-error').textContent = 'Choose your name'; return; }
     localStorage.setItem(NAME_KEY, gateSel.value);
     sync();
     gate.classList.add('hidden');
     showInstallTip();
   });
-  settingsSel.addEventListener('change', () => { localStorage.setItem(NAME_KEY, settingsSel.value); updateQueueBadge(); });
+  settingsSel.addEventListener('change', () => {
+    localStorage.setItem(NAME_KEY, settingsSel.value);
+    updateQueueBadge();
+    showToast(`Submitting as ${settingsSel.value} now`);
+  });
 }
 
 /* Default vehicle persistence */
 if (defaultVehicleEl) {
   defaultVehicleEl.addEventListener('change', () => {
     localStorage.setItem(DEFAULT_VEHICLE_KEY, defaultVehicleEl.value);
+    showToast('Default vehicle saved');
     const vehicleTagEl = document.getElementById('vehicle-tag');
     if (vehicleTagEl) vehicleTagEl.value = defaultVehicleEl.value;
   });
@@ -58,6 +64,7 @@ function showInstallTip() {
   tip.querySelector('.tip__link').addEventListener('click', () => { navigateTo('settings'); dismiss(tip); });
   tip.querySelector('.tip__close').addEventListener('click', () => dismiss(tip));
   showTip(tip);
+  setTimeout(() => dismiss(tip), 8000);   // it's a hint, not a notice
 }
 
 $('app-version').textContent = `v${APP_VERSION} · build ${BUILD}`;
@@ -95,14 +102,12 @@ if (darkModeToggle) {
   darkModeToggle.checked = !document.documentElement.classList.contains('light');
 
   darkModeToggle.addEventListener('change', () => {
-    document.querySelector('meta[name=theme-color]').content = darkModeToggle.checked ? '#000000' : '#f0f0f0';
-    if (darkModeToggle.checked) {
-      document.documentElement.classList.remove('light');
-      localStorage.setItem('rc_theme', 'dark');
-    } else {
-      document.documentElement.classList.add('light');
-      localStorage.setItem('rc_theme', 'light');
-    }
+    const dark = darkModeToggle.checked;
+    document.querySelector('meta[name=theme-color]').content = dark ? '#0b0b0b' : '#f0f0f0';
+    document.documentElement.classList.toggle('light', !dark);
+    /* Choosing what the phone already uses means "follow my phone": store nothing, so the theme keeps following it */
+    if (dark === !matchMedia('(prefers-color-scheme: light)').matches) localStorage.removeItem('rc_theme');
+    else localStorage.setItem('rc_theme', dark ? 'dark' : 'light');
   });
 }
 
@@ -150,13 +155,13 @@ function renderBookmarkInstructions(os, type) {
 }
 
 export function initBookmarkGuide() {
-  let os   = 'ios';
+  let os   = /iPhone|iPad|iPod/.test(navigator.userAgent) ? 'ios' : 'android';   // iPadOS 13+ reports as Mac; rare for this app
   let type = 'homescreen';
-
-  renderBookmarkInstructions(os, type);
 
   const osToggle   = document.getElementById('bookmark-os-toggle');
   const typeToggle = document.getElementById('bookmark-type-toggle');
+  osToggle?.querySelectorAll('.pill-toggle__btn').forEach(b => setPill(b, b.dataset.os === os));
+  renderBookmarkInstructions(os, type);
 
   osToggle?.addEventListener('click', (e) => {
     const btn = e.target.closest('[data-os]');
