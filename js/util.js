@@ -99,6 +99,12 @@ export function recordError(message) {
 /* fetch() rejects with a TypeError ("Failed to fetch") when offline; a timeout aborts it */
 export const isNetworkError = (err) => err.name === 'TypeError' || err.name === 'AbortError' || !navigator.onLine;
 
+/* Segmented-control button state: the look and what screen readers announce */
+export function setPill(btn, on) {
+  btn.classList.toggle('pill-toggle__btn--active', on);
+  btn.setAttribute('aria-pressed', on);
+}
+
 /* Native <dialog> modals: focus trap, Escape and backdrop come from the browser; we add the exit fade and tap-outside.
    onDismiss runs on Escape or a tap outside (default: close). */
 export function openModal(dlg, onDismiss = () => closeModal(dlg)) {

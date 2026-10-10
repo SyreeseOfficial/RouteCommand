@@ -90,7 +90,7 @@
         <span class="sidebar__title">Route Command</span>
       </div>
       <nav class="sidebar__nav">
-        <button class="nav-item active" data-view="receipts">
+        <button class="nav-item active" data-view="receipts" aria-current="page">
           <span class="nav-item__icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
           </span>
@@ -204,21 +204,28 @@
             <div class="form-group">
               <label class="form-label">Receipt Photo</label>
               <div class="photo-actions">
-                <label class="upload-btn" for="receipt-photo" id="upload-label">
+                <label class="upload-btn upload-btn--primary" for="receipt-photo" id="upload-label">
                   <span class="upload-btn__icon" aria-hidden="true">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
                   </span>
                   <span id="upload-label-text">Take Photo</span>
                 </label>
                 <label class="upload-btn" for="receipt-library">
+                  <span class="upload-btn__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                  </span>
                   <span id="library-label-text">Choose from Library</span>
                 </label>
               </div>
               <input type="file" id="receipt-photo" name="receipt-photo" accept="image/*" capture="environment" class="sr-only" />
               <input type="file" id="receipt-library" accept="image/*" class="sr-only" />
               <div class="photo-preview hidden" id="photo-preview">
-                <img id="photo-thumb" alt="Receipt preview. Tap to enlarge." role="button" tabindex="0" />
+                <span class="photo-preview__thumb">
+                  <img id="photo-thumb" alt="Receipt preview. Tap to enlarge." role="button" tabindex="0" />
+                  <svg class="photo-preview__zoom" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+                </span>
                 <button type="button" class="btn btn--outline" id="photo-retake">Retake</button>
+                <button type="button" class="btn btn--outline" id="photo-remove">Remove</button>
               </div>
             </div>
 
@@ -393,34 +400,29 @@
 
         <!-- APP SETUP -->
         <div class="settings-section" id="app-setup-section">
-          <h3 class="settings-section__title">App Setup</h3>
-          <div class="settings-card">
-            <span class="settings-card__label">Installation</span>
-            <p class="settings-card__desc">Add Route Command to your device's home screen for fast, offline-ready access.</p>
-            <button class="btn btn--gold btn--full" id="install-pwa-btn">Install to Home Screen</button>
-          </div>
-        <details class="form-card form-card--spaced" id="bookmark-guide-card">
-          <summary class="bookmark-guide__title">Save to Your Phone</summary>
-          <p class="bookmark-guide__sub">Add Route Command to your home screen or bookmarks for one-tap access — no typing the URL every time.</p>
+          <h3 class="settings-section__title">Add to home screen</h3>
+          <details class="settings-card" id="bookmark-guide-card">
+            <summary class="bookmark-guide__title">Save Route Command to your phone</summary>
+            <p class="settings-card__desc">One-tap access, no typing the URL. A home screen icon also works offline.</p>
 
-          <div class="form-group">
-            <label class="form-label">Your Device</label>
-            <div class="pill-toggle" id="bookmark-os-toggle">
-              <button type="button" class="pill-toggle__btn pill-toggle__btn--active" data-os="ios">iPhone / iOS</button>
-              <button type="button" class="pill-toggle__btn" data-os="android">Android</button>
+            <div class="form-group">
+              <span class="form-label">Your device</span>
+              <div class="pill-toggle" id="bookmark-os-toggle">
+                <button type="button" class="pill-toggle__btn pill-toggle__btn--active" aria-pressed="true" data-os="ios">iPhone / iOS</button>
+                <button type="button" class="pill-toggle__btn" aria-pressed="false" data-os="android">Android</button>
+              </div>
             </div>
-          </div>
 
-          <div class="form-group form-group--flush">
-            <label class="form-label">What to Add</label>
-            <div class="pill-toggle" id="bookmark-type-toggle">
-              <button type="button" class="pill-toggle__btn pill-toggle__btn--active" data-btype="homescreen">Home Screen Icon</button>
-              <button type="button" class="pill-toggle__btn" data-btype="bookmark">Browser Bookmark</button>
+            <div class="form-group form-group--flush">
+              <span class="form-label">What to add</span>
+              <div class="pill-toggle" id="bookmark-type-toggle">
+                <button type="button" class="pill-toggle__btn pill-toggle__btn--active" aria-pressed="true" data-btype="homescreen">Home screen icon</button>
+                <button type="button" class="pill-toggle__btn" aria-pressed="false" data-btype="bookmark">Browser bookmark</button>
+              </div>
             </div>
-          </div>
 
-          <div class="bookmark-instructions" id="bookmark-instructions"></div>
-        </details>
+            <div class="bookmark-instructions" id="bookmark-instructions"></div>
+          </details>
         </div>
 
         <!-- APPEARANCE -->
@@ -459,7 +461,7 @@
 
     <!-- MOBILE BOTTOM NAV -->
     <nav class="bottom-nav" role="navigation" aria-label="Mobile navigation">
-      <button class="bottom-nav__item active" data-view="receipts" aria-label="Receipts">
+      <button class="bottom-nav__item active" data-view="receipts" aria-label="Receipts" aria-current="page">
         <span class="bottom-nav__icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
         </span>
@@ -491,30 +493,6 @@
         <span class="bottom-nav__label">Settings</span>
       </button>
     </nav>
-
-    <!-- PWA INSTALL MODAL -->
-    <dialog class="modal" id="pwa-modal" aria-labelledby="pwa-modal-title">
-      <div class="modal__header">
-        <h3 class="modal__title" id="pwa-modal-title">Install to Home Screen</h3>
-        <button class="modal__close" id="pwa-modal-close" aria-label="Close">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
-      </div>
-      <div class="modal__body">
-        <div class="pwa-step">
-          <span class="pwa-step__num">1</span>
-          <p><strong>iOS Safari:</strong> Tap the <strong>Share</strong> button at the bottom of your browser, then select <strong>"Add to Home Screen."</strong></p>
-        </div>
-        <div class="pwa-step">
-          <span class="pwa-step__num">2</span>
-          <p><strong>Android Chrome:</strong> Tap the <strong>three-dot menu</strong> in the top right, then tap <strong>"Add to Home Screen"</strong> or <strong>"Install App."</strong></p>
-        </div>
-        <div class="pwa-step">
-          <span class="pwa-step__num">3</span>
-          <p>Confirm the prompt. Route Command will appear on your home screen like a native app — no App Store required.</p>
-        </div>
-      </div>
-    </dialog>
 
     <!-- CONFIRM DIALOG -->
     <dialog class="modal" id="confirm-modal" role="alertdialog" aria-describedby="confirm-message">

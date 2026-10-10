@@ -14,14 +14,11 @@ export function navigateTo(viewId, updateHistory = true, moveFocus = true) {
   const target = document.getElementById(`${viewId}-view`);
   if (target) target.classList.add('active');
 
-  /* Sync sidebar active state */
-  sidebarNavItems.forEach(item => {
-    item.classList.toggle('active', item.dataset.view === viewId);
-  });
-
-  /* Sync bottom nav active state */
-  bottomNavItems.forEach(item => {
-    item.classList.toggle('active', item.dataset.view === viewId);
+  /* Sync sidebar and bottom nav active state */
+  [...sidebarNavItems, ...bottomNavItems].forEach(item => {
+    const on = item.dataset.view === viewId;
+    item.classList.toggle('active', on);
+    if (on) item.setAttribute('aria-current', 'page'); else item.removeAttribute('aria-current');
   });
 
   /* Title and focus for screen readers / keyboard users */

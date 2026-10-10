@@ -1,5 +1,5 @@
 /* Route Command — credit/donation item lists and suggestion boxes */
-import { $, esc, plural, clearInvalid, catalog, isDataReady } from './util.js';
+import { $, esc, plural, clearInvalid, catalog, isDataReady, setPill } from './util.js';
 
 /* Every space-separated word must appear somewhere in the entry */
 function matchAll(list, query) {
@@ -110,7 +110,7 @@ export function createItemList({ listId, countId, buildHTML, onType }) {
   const reset = () => { el.innerHTML = ''; counter = 0; add(); };
 
   const setType = (item, type) => {
-    item.querySelectorAll('[data-type-btn]').forEach(b => b.classList.toggle('pill-toggle__btn--active', b.dataset.typeBtn === type));
+    item.querySelectorAll('[data-type-btn]').forEach(b => setPill(b, b.dataset.typeBtn === type));
     item.querySelectorAll('[data-fields-type]').forEach(f => f.classList.toggle('hidden', f.dataset.fieldsType !== type));
   };
 

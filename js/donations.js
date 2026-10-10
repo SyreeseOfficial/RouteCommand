@@ -13,7 +13,7 @@ let donationList;
 function createDonationItemHTML(id) {
   const defaultType   = localStorage.getItem(DONATION_LAST_TYPE_KEY)   || 'chub';
   const defaultReason = localStorage.getItem(DONATION_LAST_REASON_KEY) || 'Out of Date';
-  const active = (t) => defaultType === t ? 'pill-toggle__btn--active' : '';
+  const pill = (t, label) => `<button type="button" class="pill-toggle__btn ${defaultType === t ? 'pill-toggle__btn--active' : ''}" aria-pressed="${defaultType === t}" data-type-btn="${t}">${label}</button>`;
   const reasonOptions = ['Out of Date', 'Damaged Packaging', 'Bad Seal', 'Other'].map(r =>
     `<option value="${r}"${r === defaultReason ? ' selected' : ''}>${r}</option>`
   ).join('');
@@ -21,8 +21,7 @@ function createDonationItemHTML(id) {
     <div class="item-card" data-id="${id}">
       <div class="item-card__header">
         <div class="pill-toggle">
-          <button type="button" class="pill-toggle__btn ${active('chub')}" data-type-btn="chub">Chub</button>
-          <button type="button" class="pill-toggle__btn ${active('retail')}" data-type-btn="retail">Retail</button>
+          ${pill('chub', 'Chub')}${pill('retail', 'Retail')}
         </div>${REMOVE_BTN_HTML}
       </div>
       <div class="item-field">

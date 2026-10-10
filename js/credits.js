@@ -25,8 +25,8 @@ function createCreditItemHTML(id) {
     <div class="item-card" data-id="${id}">
       <div class="item-card__header">
         <div class="pill-toggle">
-          <button type="button" class="pill-toggle__btn pill-toggle__btn--active" data-type-btn="retail">Retail</button>
-          <button type="button" class="pill-toggle__btn" data-type-btn="chub">Chub / Deli</button>
+          <button type="button" class="pill-toggle__btn pill-toggle__btn--active" aria-pressed="true" data-type-btn="retail">Retail</button>
+          <button type="button" class="pill-toggle__btn" aria-pressed="false" data-type-btn="chub">Chub / Deli</button>
         </div>${REMOVE_BTN_HTML}
       </div>
       <div data-fields-type="retail">

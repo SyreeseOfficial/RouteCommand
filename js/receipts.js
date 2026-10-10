@@ -79,7 +79,9 @@ function showPhotoPreview(src) {
   });
 });
 
-document.getElementById('photo-retake').addEventListener('click', () => {
+/* Retake keeps the current photo until a new one is chosen; Remove drops it */
+document.getElementById('photo-retake').addEventListener('click', () => receiptPhotoInput.click());
+document.getElementById('photo-remove').addEventListener('click', () => {
   compressedImageData = null;
   showPhotoPreview(null);
 });
