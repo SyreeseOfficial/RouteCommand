@@ -1,5 +1,5 @@
 /* Route Command — receipt form and photo */
-import { $, today, getName, submitLabel, markInvalid, focusFirstInvalid, confirmDialog } from './util.js';
+import { $, today, getName, DEFAULT_VEHICLE_KEY, submitLabel, markInvalid, focusFirstInvalid, confirmDialog } from './util.js';
 import { submitForm } from './submit.js';
 
 const expenseForm       = document.getElementById('expense-form');
@@ -137,6 +137,9 @@ if (expenseForm) {
 if (submitAnotherBtn) {
   submitAnotherBtn.addEventListener('click', () => {
     expenseForm.reset();
+    /* reset() restores the HTML defaults: put back today's date and the saved default vehicle */
+    $('receipt-date').value = today();
+    $('vehicle-tag').value = localStorage.getItem(DEFAULT_VEHICLE_KEY) || $('vehicle-tag').value;
     compressedImageData = null;
 
     showPhotoPreview(null);
