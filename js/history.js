@@ -10,14 +10,6 @@ const submissionHistoryEl = document.getElementById('submission-history');
 export const loadHistory = () => JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
 const SYNC_KEY = 'rc_last_synced';
 const fmtTime = (iso) => new Date(iso).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-const icon = (d) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
-const CLOCK = icon('<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>');
-const STATUS_ICON = {
-  saved:   icon('<polyline points="20 6 9 17 4 12"/>'),
-  queued:  CLOCK,
-  sending: CLOCK,
-  failed:  icon('<line x1="12" y1="6" x2="12" y2="13"/><line x1="12" y1="18" x2="12.01" y2="18"/>'),
-};
 const openHistoryRows = new Set();   // rows the user expanded; survives re-renders
 
 export function saveHistory(history) {
@@ -111,19 +103,19 @@ export function renderHistory() {
   let lastDay = '';
   submissionHistoryEl.innerHTML = history.map(entry => {
     const day    = dayLabel(entry.timestamp);
-    const time   = fmtTime(entry.timestamp);
     const status = entry.status || 'saved';   // rows from before statuses existed were all saved
     const heading = day !== lastDay ? `<h3 class="history-day">${esc(day)}</h3>` : '';
     lastDay = day;
 
+    /* One chip for the type; the status is a coloured dot plus its word (colour alone isn't enough) */
     const head = `
         <span class="history-main">
           <span class="history-label">${esc(entry.label)}</span>
-          <span class="history-date">${time}</span>
-        </span>
-        <span class="history-top">
-          <span class="history-type history-type--${esc(entry.type.toLowerCase())}">${esc(entry.type)}</span>
-          <span class="history-status history-status--${status}">${STATUS_ICON[status] || ''}${status}</span>
+          <span class="history-meta">
+            <span class="history-type history-type--${esc(entry.type.toLowerCase())}">${esc(entry.type)}</span>
+            <span class="history-status history-status--${status}">${status}</span>
+            <span class="history-date">${fmtTime(entry.timestamp)}</span>
+          </span>
         </span>`;
     const btn = (attr, label, cls = '') => `<button type="button" class="btn btn--outline ${cls}" ${attr}="${entry.id}">${label}</button>`;
     /* Rows still waiting to send can't be deleted: the queue would send them anyway */

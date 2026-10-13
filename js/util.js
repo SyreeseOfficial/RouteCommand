@@ -24,7 +24,7 @@ export const $ = (id) => document.getElementById(id);
 export const esc = (s) => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 export const fmtDate = (d) => d ? new Date(d + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
 /* Local YYYY-MM-DD (toISOString would give the UTC date, which is tomorrow after ~5pm Pacific) */
-export const today = () => new Date().toLocaleDateString('en-CA');
+export const today = (offsetDays = 0) => { const d = new Date(); d.setDate(d.getDate() + offsetDays); return d.toLocaleDateString('en-CA'); };
 /* Submit buttons say what will happen: sent now, or saved for later when offline */
 export const submitLabel = (btn) => navigator.onLine ? btn.dataset.label : 'Save for later (offline)';
 /* Unique per submission: lets the server recognise a resend of something it already saved */

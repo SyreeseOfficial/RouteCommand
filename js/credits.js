@@ -1,7 +1,7 @@
 /* Route Command — credits form */
 import { $, today, catalog, plural, getName, markInvalid, focusFirstInvalid, enterAsNext } from './util.js';
 import { submitForm, autosaveDraft, loadDraft, draftFilled, showDraftNote } from './submit.js';
-import { createItemList, REMOVE_BTN_HTML, qtyFieldHTML, searchStores, runSearch, showSuggestions, hideSuggestions, pickSuggestion, suggestionKeydown } from './itemlist.js';
+import { createItemList, ITEM_BUTTONS_HTML, qtyFieldHTML, searchStores, runSearch, showSuggestions, hideSuggestions, pickSuggestion, suggestionKeydown } from './itemlist.js';
 
 /* Last 3 stores sent to, offered when the field is focused and empty (72 stores is too many to browse) */
 const RECENT_STORES_KEY = 'rc_recent_stores';
@@ -50,20 +50,26 @@ function initStoreSearch() {
   });
 }
 
+const CREDIT_LAST_REASON_KEY = 'rc_credit_last_reason';
+const CREDIT_REASONS = ['10-Day', 'Expired', 'Damaged Packaging', 'Poor Quality', 'Bad Seal', 'Other'];
+
 function createCreditItemHTML(id) {
+  const saved = localStorage.getItem(CREDIT_LAST_REASON_KEY);
+  const defaultReason = CREDIT_REASONS.includes(saved) ? saved : CREDIT_REASONS[0];
+  const reasonOptions = CREDIT_REASONS.map(r => `<option value="${r}"${r === defaultReason ? ' selected' : ''}>${r}</option>`).join('');
   return `
     <div class="item-card" data-id="${id}">
       <div class="item-card__header">
         <div class="pill-toggle" role="group" aria-label="Item type">
           <button type="button" class="pill-toggle__btn pill-toggle__btn--active" aria-pressed="true" data-type-btn="retail">Retail</button>
           <button type="button" class="pill-toggle__btn" aria-pressed="false" data-type-btn="chub">Chub / Deli</button>
-        </div>${REMOVE_BTN_HTML}
+        </div>${ITEM_BUTTONS_HTML}
       </div>
       <div data-fields-type="retail">
         <div class="item-card__row">
           <div class="item-field">
             <label class="item-field__label" for="ci-${id}-upc">UPC / Item #</label>
-            <input type="text" class="form-input" id="ci-${id}-upc" placeholder="e.g. 0123456789" inputmode="numeric" autocomplete="off" enterkeyhint="next" data-fname="upc" />
+            <input type="text" class="form-input" id="ci-${id}-upc" placeholder="UPC" inputmode="numeric" autocomplete="off" enterkeyhint="next" data-fname="upc" />
           </div>
           ${qtyFieldHTML()}
         </div>
@@ -84,12 +90,7 @@ function createCreditItemHTML(id) {
       <div class="item-field">
         <label class="item-field__label" for="ci-${id}-reason">Reason</label>
         <select class="form-select" id="ci-${id}-reason" data-fname="reason">
-          <option value="10-Day" selected>10-Day</option>
-          <option value="Expired">Expired</option>
-          <option value="Damaged Packaging">Damaged Packaging</option>
-          <option value="Poor Quality">Poor Quality</option>
-          <option value="Bad Seal">Bad Seal</option>
-          <option value="Other">Other</option>
+          ${reasonOptions}
         </select>
       </div>
     </div>`;
@@ -176,6 +177,10 @@ export function initCredits() {
     notes: $('credit-notes').value,
     items: creditList.serialize(),
   }));
+
+  creditList.el.addEventListener('change', (e) => {
+    if (e.target.matches('[data-fname="reason"]')) localStorage.setItem(CREDIT_LAST_REASON_KEY, e.target.value);
+  });
 
   $('add-credit-item-btn').addEventListener('click', () => { creditList.add(); creditList.focusItem(); });
   enterAsNext($('credit-form'));

@@ -102,6 +102,22 @@ document.addEventListener('visibilitychange', () => {
   stampedDay = now;
 });
 
+/* Date chips ("Today", "Yesterday", "Tomorrow"...) set the date input in their field group; the input stays for anything else */
+document.addEventListener('click', (e) => {
+  const chip = e.target.closest('[data-days]');
+  const input = chip?.closest('.form-group, .item-field')?.querySelector('input[type=date]');
+  if (!input) return;
+  input.value = today(Number(chip.dataset.days));
+  input.dispatchEvent(new Event('input', { bubbles: true }));   // clears an error, saves the draft
+});
+
+/* Ctrl/Cmd+Enter submits the form on screen (not while a dialog is open) */
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Enter' || !(e.ctrlKey || e.metaKey) || document.querySelector('dialog[open]')) return;
+  const form = document.querySelector('.view.active form:not(.hidden)');
+  if (form?.checkVisibility()) { e.preventDefault(); form.requestSubmit(); }
+});
+
 function onAppReady() {
   updateOnlineState();
   initIdentity();

@@ -446,6 +446,15 @@ img, svg { display: block; }
   margin-top: 0.25rem;
 }
 
+/* Phones: the active tab already says where you are, so the form starts higher */
+@media (max-width: 639.98px) {
+  .view__header { margin-bottom: 1rem; }
+  .view:not(#history-view) .view__sub { display: none; }
+}
+@media (min-width: 640px) {
+  .phone-only { display: none; }
+}
+
 /* ── 11. FORM CARD (GLASSMORPHISM) ─────────────────────────── */
 .form-card {
   background: var(--color-surface);
@@ -453,6 +462,12 @@ img, svg { display: block; }
   border-radius: var(--radius-lg);
   padding: 1.75rem 1.5rem;
   box-shadow: var(--shadow-card);
+}
+
+/* Small phones: the card's border and padding stack with the item cards' and leave ~270 of 390 px for fields */
+@media (max-width: 479.98px) {
+  .main-content { padding-inline: 1rem; }
+  .form-card { background: none; border: 0; box-shadow: none; padding: 0; border-radius: 0; }
 }
 
 /* ── 12. FORM ELEMENTS ─────────────────────────────────────── */
@@ -513,6 +528,10 @@ img, svg { display: block; }
   color: var(--color-text);
 }
 
+input[type=number] { -moz-appearance: textfield; appearance: textfield; }
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
 .form-textarea {
   resize: vertical;
   min-height: 80px;
@@ -567,6 +586,7 @@ img, svg { display: block; }
 }
 
 .photo-actions { display: flex; gap: 0.5rem; }
+.photo-actions .upload-btn { flex: 1; width: auto; min-width: 0; }
 .photo-preview { display: flex; align-items: center; gap: 0.75rem; }
 .photo-preview .btn { flex: 1; }
 .photo-preview__thumb { position: relative; flex-shrink: 0; padding: 0; border: 0; background: none; cursor: zoom-in; }
@@ -735,11 +755,9 @@ img, svg { display: block; }
   margin-top: 0.625rem;
 }
 
-.settings-card--field {
-  flex-direction: column;
-  gap: 0.625rem;
-  margin-top: 0.75rem;
-}
+/* Label left, select right (same shape as the Dark mode row) */
+.settings-card--row + .settings-card--row { margin-top: 0.75rem; }
+.settings-card--row .settings-select { flex: 0 1 60%; min-height: 44px; }
 
 .settings-card__desc {
   font-size: var(--fs-sm);
@@ -747,10 +765,6 @@ img, svg { display: block; }
   line-height: 1.6;
   margin-top: 0.125rem;
   margin-bottom: 0.75rem;
-}
-
-.settings-select {
-  margin-top: 0.125rem;
 }
 
 /* ── 17. TOGGLE ────────────────────────────────────────────── */
@@ -1047,7 +1061,8 @@ body:has(input:focus:not([type=checkbox]), select:focus, textarea:focus) .tip { 
   min-width: 0;
 }
 
-.item-card__remove {
+.item-card__remove,
+.item-card__dup {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1063,6 +1078,13 @@ body:has(input:focus:not([type=checkbox]), select:focus, textarea:focus) .tip { 
 .item-card__remove--hidden {
   display: none;
 }
+
+.item-card__dup:hover {
+  color: var(--color-text);
+  background: var(--color-hover);
+}
+
+.item-card__header .pill-toggle__btn { padding-inline: 0.5rem; }
 
 .item-card__remove:hover {
   color: var(--color-error-text);
@@ -1282,13 +1304,6 @@ details[open] > .bookmark-guide__title::after { transform: rotate(180deg); }
   font-family: inherit;
   padding: 0;
   outline: none;
-  -moz-appearance: textfield;
-}
-
-.qty-stepper__input::-webkit-outer-spin-button,
-.qty-stepper__input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
 }
 
 /* ── Submit spinner, error text, history status ────────────── */
@@ -1310,32 +1325,29 @@ details[open] > .bookmark-guide__title::after { transform: rotate(180deg); }
   text-align: center;
 }
 
-.history-top {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
 .history-status {
   display: inline-flex;
   align-items: center;
-  gap: 0.3em;
-  padding: 0.15em 0.625em;
-  border-radius: 999px;
+  gap: 0.375rem;
   font-size: var(--fs-xs);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--color-success-text);
-  background: rgba(45,158,95,0.12);
-  border: 1px solid rgba(45,158,95,0.35);
+  font-weight: 600;
+  text-transform: capitalize;
+  color: var(--color-subtext);
 }
-.history-status svg { width: 12px; height: 12px; }
+.history-status::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--dot, var(--color-success));
+}
 .history-status--sending,
-.history-status--queued { color: var(--color-gold-text); background: rgba(184,160,106,0.12); border-color: rgba(184,160,106,0.4); }
-.history-status--failed { color: var(--color-error-text); background: rgba(207,68,68,0.12); border-color: rgba(207,68,68,0.45); }
+.history-status--queued { --dot: var(--color-gold-text); color: var(--color-gold-text); }
+.history-status--failed { --dot: var(--color-error); color: var(--color-error-text); }
+/* Inset shadow, not border-left: every row keeps the same width and the accent follows the corner curve */
 .history-card--queued,
-.history-card--sending { border-left: 3px solid var(--color-gold-text); }
-.history-card--failed { border-left: 3px solid var(--color-error); }
+.history-card--sending { box-shadow: inset 3px 0 0 var(--color-gold-text); }
+.history-card--failed { box-shadow: inset 3px 0 0 var(--color-error); }
 
 /* ── Accessibility ─────────────────────────────────────────── */
 :focus-visible {
@@ -1362,7 +1374,8 @@ details[open] > .bookmark-guide__title::after { transform: rotate(180deg); }
 .store-search-wrap--spaced { margin-bottom: 0.5rem; }
 
 .history-card { gap: 0.25rem; }
-.history-main { display: flex; align-items: baseline; justify-content: space-between; gap: 0.75rem; }
+.history-main { display: flex; flex-direction: column; gap: 0.25rem; flex: 1; min-width: 0; }
+.history-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 0.25rem 0.625rem; }
 .history-label { font-size: var(--fs-md); font-weight: 600; color: var(--color-text); }
 .history-date { margin: 0; font-size: var(--fs-xs); color: var(--color-subtext); white-space: nowrap; }
 .history-type {
@@ -1410,22 +1423,20 @@ details.history-card > summary {
   list-style: none;
   cursor: pointer;
   display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
+  align-items: center;
+  gap: 0.75rem;
 }
 details.history-card > summary::-webkit-details-marker { display: none; }
-details.history-card .history-date::after {
+details.history-card > summary::after {
   content: '';
-  width: 12px; height: 12px;
-  background: currentColor;
+  flex: none;
+  width: 20px; height: 20px;
+  background: var(--color-text);
   -webkit-mask: var(--chevron) center / contain no-repeat;
   mask: var(--chevron) center / contain no-repeat;
   transition: transform var(--transition-fast);
-  display: inline-block;
-  margin-left: 0.375rem;
-  vertical-align: -1px;
 }
-details.history-card[open] .history-date::after { transform: rotate(180deg); }
+details.history-card[open] > summary::after { transform: rotate(180deg); }
 .history-body {
   margin-top: 0.75rem;
   padding-top: 0.75rem;
@@ -1558,6 +1569,7 @@ details.history-card[open] .history-date::after { transform: rotate(180deg); }
 /* History: our own pull-to-refresh replaces the browser's (which would reload the page) */
 html:has(#history-view.active) { overscroll-behavior-y: contain; }
 .history-sync { margin: 0 0 1rem; }
+.history-clear { display: flex; margin: 2rem auto 0; }
 #history-view.ptr-ready .history-sync::before { content: 'Release to refresh · '; color: var(--color-gold-light); }
 
 /* ── Flow and feedback ─────────────────────────────────────── */
@@ -1617,4 +1629,46 @@ html:has(#history-view.active) { overscroll-behavior-y: contain; }
   padding: 0.75rem 1rem;
   font-size: var(--fs-sm);
   color: var(--color-subtext);
+}
+
+/* ── Phone: sticky submit, date chips; desktop: two-column forms ── */
+.label-row { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+.chips { display: flex; flex-wrap: wrap; gap: 0.375rem; }
+.chip {
+  min-height: 36px;
+  padding: 0 0.75rem;
+  border: 1px solid var(--color-input-border);
+  border-radius: 999px;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--color-subtext);
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+.chip:active { background: var(--color-hover-strong); color: var(--color-text); }
+@media (hover: hover) {
+  .chip:hover { background: var(--color-hover); color: var(--color-text); }
+}
+
+/* Submit stays above the bottom nav while the form is longer than the screen. Holds the error text too. */
+.submit-bar { --bar-bg: var(--color-surface); }
+@media (max-width: 479.98px) { .submit-bar { --bar-bg: var(--color-bg); } }
+@media (max-width: 1023.98px) {
+  .submit-bar {
+    position: sticky;
+    bottom: var(--bottom-nav-h);
+    z-index: 5;
+    padding-top: 1rem;
+    padding-bottom: 0.625rem;
+    background: linear-gradient(to top, var(--bar-bg) 75%, transparent);
+  }
+  /* Keyboard up (the nav hides too): back to its place at the end of the form */
+  body:has(input:focus:not([type=checkbox]), select:focus, textarea:focus) .submit-bar { position: static; }
+}
+
+@media (min-width: 1024px) {
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; column-gap: 1rem; }
+  .form-grid > * { grid-column: 1 / -1; }
+  .form-grid > .col-half { grid-column: auto; }
+  /* Labels without chips match the height of the ones with, so side-by-side inputs line up */
+  .form-grid .col-half > .form-label { display: flex; align-items: center; min-height: 36px; }
 }

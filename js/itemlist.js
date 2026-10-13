@@ -81,12 +81,14 @@ export function suggestionKeydown(e, input, box) {
   opts[idx].scrollIntoView({ block: 'nearest' });
 }
 
-export const REMOVE_BTN_HTML = `
-  <button type="button" class="item-card__remove" data-remove aria-label="Remove item">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
-      <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-    </svg>
+/* Header buttons shared by both item cards: duplicate, and remove (hidden while it is the only item) */
+const iconBtn = (cls, attr, label, paths) => `
+  <button type="button" class="${cls}" ${attr} aria-label="${label}">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">${paths}</svg>
   </button>`;
+export const ITEM_BUTTONS_HTML =
+  iconBtn('item-card__dup', 'data-duplicate', 'Duplicate item', '<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>') +
+  iconBtn('item-card__remove', 'data-remove', 'Remove item', '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>');
 
 /* Labeled quantity stepper shared by both item cards (the label is a span: a <label> would forward taps to the − button) */
 export const qtyFieldHTML = () => `
@@ -120,22 +122,34 @@ export function createItemList({ listId, countId, buildHTML, onType }) {
   };
 
   /* Draft support: plain-data snapshot of every item, and the reverse */
-  const serialize = () => [...el.children].map(item => ({
+  const serializeItem = (item) => ({
     type:   item.querySelector('.pill-toggle__btn--active')?.dataset.typeBtn,
     values: Object.fromEntries([...item.querySelectorAll('[data-fname]')].map(f => [f.dataset.fname, f.value])),
-  }));
+  });
+  const restoreItem = (item, { type, values }) => {
+    if (type) setType(item, type);
+    Object.entries(values).forEach(([k, v]) => {
+      const f = item.querySelector(`[data-fname="${k}"]`);
+      if (f) f.value = v;
+    });
+  };
+  const serialize = () => [...el.children].map(serializeItem);
   const restore = (items) => {
     el.innerHTML = ''; counter = 0;
-    items.forEach(({ type, values }) => {
-      add();
-      const item = el.lastElementChild;
-      if (type) setType(item, type);
-      Object.entries(values).forEach(([k, v]) => {
-        const f = item.querySelector(`[data-fname="${k}"]`);
-        if (f) f.value = v;
-      });
-    });
+    items.forEach(it => { add(); restoreItem(el.lastElementChild, it); });
     if (!el.children.length) add();
+  };
+
+  /* A copy right below the original with its type, reason and date; the product and the amounts are what changes between lines */
+  const PER_LINE = ['upc', 'name', 'qty', 'weight'];
+  const duplicate = (item) => {
+    const { type, values } = serializeItem(item);
+    add();
+    const copy = el.lastElementChild;
+    item.after(copy);
+    restoreItem(copy, { type, values: Object.fromEntries(Object.entries(values).filter(([k]) => !PER_LINE.includes(k))) });
+    el.dispatchEvent(new Event('change', { bubbles: true }));   // lets draft autosave see it
+    focusItem(copy);
   };
 
   el.addEventListener('input', (e) => {
@@ -160,6 +174,8 @@ export function createItemList({ listId, countId, buildHTML, onType }) {
       if (onType) onType(typeBtn.dataset.typeBtn);
       return;
     }
+    const dup = e.target.closest('[data-duplicate]');
+    if (dup) { duplicate(dup.closest('[data-id]')); return; }
     const step = e.target.closest('.qty-stepper__btn');
     if (step) {
       const qty = step.closest('.qty-stepper').querySelector('[data-fname="qty"]');

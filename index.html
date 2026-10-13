@@ -164,14 +164,22 @@
 
         <!-- EXPENSE FORM -->
         <div class="form-card" id="expense-form-card">
-          <form id="expense-form" novalidate>
+          <form id="expense-form" class="form-grid" novalidate>
 
-            <div class="form-group">
-              <label class="form-label" for="receipt-date">Date on receipt</label>
+            <div class="form-group col-half">
+              <div class="label-row">
+                <label class="form-label" for="receipt-date">Date on receipt</label>
+                <span class="chips"><button type="button" class="chip" data-days="0">Today</button><button type="button" class="chip" data-days="-1">Yesterday</button></span>
+              </div>
               <input class="form-input" type="date" id="receipt-date" name="receipt-date" required />
             </div>
 
-            <div class="form-group">
+            <div class="form-group col-half">
+              <label class="form-label" for="expense-amount">Expense amount</label>
+              <div class="input-prefix"><span aria-hidden="true">$</span><input class="form-input" type="number" id="expense-amount" name="expense-amount" placeholder="0.00" inputmode="decimal" step="0.01" min="0" required /></div>
+            </div>
+
+            <div class="form-group col-half">
               <label class="form-label" for="expense-category">Expense category</label>
               <select class="form-select" id="expense-category" name="expense-category" required>
                 <option value="" disabled selected>Select a category</option>
@@ -187,12 +195,7 @@
               </select>
             </div>
 
-            <div class="form-group">
-              <label class="form-label" for="expense-amount">Expense amount</label>
-              <div class="input-prefix"><span aria-hidden="true">$</span><input class="form-input" type="number" id="expense-amount" name="expense-amount" placeholder="0.00" inputmode="decimal" step="0.01" min="0" required /></div>
-            </div>
-
-            <div class="collapse is-collapsed" id="vehicle-group">
+            <div class="collapse is-collapsed col-half" id="vehicle-group">
               <div class="collapse__inner">
                   <div class="form-group">
                     <label class="form-label" for="vehicle-tag">Vehicle tag</label>
@@ -226,7 +229,7 @@
                   <span class="upload-btn__icon" aria-hidden="true">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                   </span>
-                  <span id="library-label-text">Choose from library</span>
+                  <span id="library-label-text">From library</span>
                 </label>
               </div>
               <input type="file" id="receipt-photo" name="receipt-photo" accept="image/*" capture="environment" class="sr-only" />
@@ -241,7 +244,9 @@
               </div>
             </div>
 
-            <button type="submit" class="btn btn--red btn--full" id="submit-btn" data-label="Submit expense">Submit expense</button>
+            <div class="submit-bar">
+              <button type="submit" class="btn btn--red btn--full" id="submit-btn" data-label="Submit expense">Submit expense</button>
+            </div>
 
           </form>
 
@@ -267,11 +272,11 @@
         </div>
 
         <div class="form-card" id="credit-form-card">
-          <form id="credit-form" novalidate>
+          <form id="credit-form" class="form-grid" novalidate>
 
             <!-- Store -->
-            <div class="form-group">
-              <label class="form-label" for="credit-store-input">Store</label>
+            <div class="form-group col-half">
+              <label class="form-label" for="credit-store-input">Store <span class="form-label--optional phone-only">· sent to <span data-recipient></span></span></label>
               <div class="store-search-wrap">
                 <input
                   type="text"
@@ -289,8 +294,11 @@
             </div>
 
             <!-- Date -->
-            <div class="form-group">
-              <label class="form-label" for="credit-date">Date</label>
+            <div class="form-group col-half">
+              <div class="label-row">
+                <label class="form-label" for="credit-date">Date</label>
+                <span class="chips"><button type="button" class="chip" data-days="0">Today</button><button type="button" class="chip" data-days="-1">Yesterday</button></span>
+              </div>
               <input class="form-input" type="date" id="credit-date" enterkeyhint="next" required />
             </div>
 
@@ -310,7 +318,9 @@
               <textarea class="form-textarea" id="credit-notes" placeholder="Any extra context…" rows="2"></textarea>
             </div>
 
-            <button type="submit" class="btn btn--red btn--full" id="credit-submit-btn" data-label="Submit credits">Submit credits</button>
+            <div class="submit-bar">
+              <button type="submit" class="btn btn--red btn--full" id="credit-submit-btn" data-label="Submit credits">Submit credits</button>
+            </div>
 
           </form>
 
@@ -355,7 +365,9 @@
               <textarea class="form-textarea" id="donation-notes" placeholder="Any extra context…" rows="2"></textarea>
             </div>
 
-            <button type="submit" class="btn btn--red btn--full" id="donation-submit-btn" data-label="Submit donation log">Submit donation log</button>
+            <div class="submit-bar">
+              <button type="submit" class="btn btn--red btn--full" id="donation-submit-btn" data-label="Submit donation log">Submit donation log</button>
+            </div>
 
           </form>
 
@@ -381,7 +393,7 @@
         </div>
         <p class="settings-hint history-sync" id="last-synced" aria-live="polite"></p>
         <div id="submission-history"></div>
-        <button type="button" class="btn btn--outline btn--full btn--add-item hidden" id="clear-history-btn">Clear history</button>
+        <button type="button" class="btn btn--link history-clear hidden" id="clear-history-btn">Clear history</button>
       </section>
 
       <!-- SETTINGS VIEW -->
@@ -394,11 +406,11 @@
         <!-- USER PROFILE -->
         <div class="settings-section">
           <h3 class="settings-section__title">User profile</h3>
-          <div class="settings-card settings-card--field">
+          <div class="settings-card settings-card--row">
             <label class="settings-card__label" for="identity-select">Your name</label>
             <select class="form-select settings-select" id="identity-select"></select>
           </div>
-          <div class="settings-card settings-card--field">
+          <div class="settings-card settings-card--row">
             <label class="settings-card__label" for="default-vehicle">Default vehicle</label>
             <select class="form-select settings-select" id="default-vehicle" name="default-vehicle">
               <option value="N/A">N/A</option>
@@ -459,7 +471,7 @@
             <span class="settings-card__label">Version</span>
             <span class="settings-card__value" id="app-version"></span>
           </div>
-          <button class="btn btn--outline btn--full" id="copy-diagnostics-btn">Copy diagnostics</button>
+          <button class="btn btn--outline btn--full btn--add-item" id="copy-diagnostics-btn">Copy diagnostics</button>
           <p class="settings-hint">Copies version, queue and last error to paste into a message when something goes wrong.</p>
         </div>
 

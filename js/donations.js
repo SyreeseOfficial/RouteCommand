@@ -1,7 +1,7 @@
 /* Route Command — donations form */
 import { $, getName, markInvalid, focusFirstInvalid, enterAsNext } from './util.js';
 import { submitForm, autosaveDraft, loadDraft, draftFilled, showDraftNote } from './submit.js';
-import { createItemList, REMOVE_BTN_HTML, qtyFieldHTML } from './itemlist.js';
+import { createItemList, ITEM_BUTTONS_HTML, qtyFieldHTML } from './itemlist.js';
 
 const DONATION_LAST_TYPE_KEY   = 'rc_donation_last_type';
 const DONATION_LAST_REASON_KEY = 'rc_donation_last_reason';
@@ -11,7 +11,7 @@ const DONATION_DRAFT_KEY = 'rc_draft_donation';
 let donationList;
 
 function createDonationItemHTML(id) {
-  const defaultType   = localStorage.getItem(DONATION_LAST_TYPE_KEY)   || 'chub';
+  const defaultType   = localStorage.getItem(DONATION_LAST_TYPE_KEY)   || 'retail';
   const defaultReason = localStorage.getItem(DONATION_LAST_REASON_KEY) || 'Out of Date';
   const pill = (t, label) => `<button type="button" class="pill-toggle__btn ${defaultType === t ? 'pill-toggle__btn--active' : ''}" aria-pressed="${defaultType === t}" data-type-btn="${t}">${label}</button>`;
   const reasonOptions = ['Out of Date', 'Damaged Packaging', 'Bad Seal', 'Other'].map(r =>
@@ -21,8 +21,8 @@ function createDonationItemHTML(id) {
     <div class="item-card" data-id="${id}">
       <div class="item-card__header">
         <div class="pill-toggle" role="group" aria-label="Item type">
-          ${pill('chub', 'Chub')}${pill('retail', 'Retail')}
-        </div>${REMOVE_BTN_HTML}
+          ${pill('retail', 'Retail')}${pill('chub', 'Chub')}
+        </div>${ITEM_BUTTONS_HTML}
       </div>
       <div class="item-field">
         <label class="item-field__label" for="di-${id}-name">Item</label>
@@ -35,6 +35,7 @@ function createDonationItemHTML(id) {
         <div class="item-field">
           <label class="item-field__label" for="di-${id}-sellby">Sell-by date</label>
           <input type="date" class="form-input" id="di-${id}-sellby" enterkeyhint="next" data-fname="sellby" />
+          <div class="chips"><button type="button" class="chip" data-days="1">Tomorrow</button><button type="button" class="chip" data-days="3">+3 days</button></div>
         </div>
         ${qtyFieldHTML()}
       </div>
