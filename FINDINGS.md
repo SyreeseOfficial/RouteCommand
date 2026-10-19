@@ -54,9 +54,6 @@ Parked on purpose; revisit later.
 ---
 
 ## Completed
-One list, newest areas first. Dates are 2026-10-09 unless noted.
-
-**Phone and desktop UI review** (2026-10-13)
 - [x] **[H]** Submit sits in a sticky bar above the bottom nav while a form is longer than the screen; it drops back to the end of the form while a field has focus. The bar also holds the submit error text. CSS only (`.submit-bar`).
 - [x] **[M]** Below 480 px the form card loses its border, shadow and padding and the gutter is 16 px, so credit and donation fields get ~330 px (sell-by date no longer cut off). UPC placeholder is `UPC`.
 - [x] **[M]** Phones hide the page subtitle (History keeps its "last 15" line) and the header margin is 1 rem. Credits' recipient moved into the Store label ("Store · sent to Ian", phones only).
@@ -71,8 +68,6 @@ One list, newest areas first. Dates are 2026-10-09 unless noted.
 - [x] **[L]** Credits and donations both list Retail first and default to it (donations still remember the last type used).
 - [x] **[L]** Number inputs hide the spinner arrows (amount, weight, qty).
 - [x] **[L]** Ctrl/Cmd+Enter submits the form on screen (ignored while a dialog is open).
-
-**Deploy and data safety**
 - [x] **[H]** Apps Script deployed as new versions of the existing deployments (same URLs): `Code.gs` (Script properties `DRIVE_FOLDER_ID`, `SHEET_ID`; tab named `Receipts`), `CreditCode.gs` (property `CREDIT_SHEET_ID`), `DonationCode.gs`. They also accept requests from the old app.
 - [x] **[H]** Duplicate rows on retry: client adds a `submissionId` (UUID) once per submission, kept on every resend. All three scripts keep it in a hidden `Submission ID` column, check the newest 2000 rows under the lock before saving the photo, and answer a repeat with success + `duplicate:true`. Tested against the real `.gs` files with a fake spreadsheet.
 - [x] **[H]** Rows marked `sending` no longer flip to `failed` on next load. An interrupted send stays in the outbox, is queued again and resent with the same `submissionId`, so the row ends `saved`.
@@ -94,15 +89,11 @@ One list, newest areas first. Dates are 2026-10-09 unless noted.
 - [x] **[L]** `_redirects` vs `netlify.toml`: already one SPA rule, no change needed.
 - [x] **[L]** `app.js` split into ES modules under `js/*.js`; also fixed the Settings bookmark guide being empty until a history retry.
 - [x] **[L]** Branding: `style.css` header and README say Cascade Deli Provisions; sections renumbered 1-23.
-
-**Features**
 - [x] **[M]** Settings → About shows `v1.4 · build <commit>` and a "Copy diagnostics" button.
 - [x] **[M]** Submit buttons read "Save for later (offline)" while offline; the offline banner now shows when the app opens offline.
 - [x] **[L]** Pull-to-refresh on History (>70 px) sends the queue; "Last sent" line under the title. Verified in jsdom only.
 - [x] **[L]** History rows: "Copy details" and "Delete" (hidden while queued/sending; confirms for failed rows); Retry moved into the same row.
 - [x] **[L]** Haptic tick on confirmed (not queued) send.
-
-**Look and depth**
 - [x] **[H]** Transitions: 0.15 s for state changes, 0.3 s only for drawer/modal.
 - [x] **[H]** Tab switches: instant scroll to top, card entrance animation removed.
 - [x] **[H]** Hover scale removed from buttons; hover styles under `@media (hover: hover)`.
@@ -125,8 +116,6 @@ One list, newest areas first. Dates are 2026-10-09 unless noted.
 - [x] **[L]** One `<svg><symbol>` sprite for nav, header, gate and splash icons.
 - [x] **[L]** About 640 lines of dead CSS removed (`style.css` 2,233 → 1,590 lines; built file −9.4 KB). The unused `observeAnimatables()` was already gone.
 - [x] **[L]** Splash (shield + "Route Command") visible from the first frame; removed once the app or gate shows.
-
-**Flow and feedback**
 - [x] **[L]** Dates no longer go stale: on `visibilitychange` → visible after midnight, untouched Receipts and Credits date fields roll to the new day (`app.js`).
 - [x] **[M]** Offline success uses a different icon and gold color from confirmed success.
 - [x] **[M]** Success copy: "Receipt sent", "Credit request sent", "Donation logged", no exclamation marks. "Submit another" is primary; history is secondary.
@@ -146,8 +135,6 @@ One list, newest areas first. Dates are 2026-10-09 unless noted.
 - [x] **[L]** Toggling the theme to what the phone uses removes `rc_theme`, so it follows the phone again.
 - [x] **[L]** Install tip auto-dismisses after 8 s and never shows over a focused field. Bookmark guide preselects iOS/Android from the user agent.
 - [x] **[L]** Passcode input is `autocomplete="off"`.
-
-**Navigation, copy and accessibility**
 - [x] **[M]** Active tab has a pill behind the icon and `aria-current="page"`; pill toggles use `aria-pressed` through `setPill()`.
 - [x] **[M]** One "Add to home screen" accordion in Settings (hidden when standalone); the install modal is gone. On Chrome/Android an "Install app" button uses `beforeinstallprompt`.
 - [x] **[M]** Sentence case on every button, label and heading (option values left as is: they land in the sheet).
