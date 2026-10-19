@@ -102,15 +102,6 @@ document.addEventListener('visibilitychange', () => {
   stampedDay = now;
 });
 
-/* Date chips ("Today", "Yesterday", "Tomorrow"...) set the date input in their field group; the input stays for anything else */
-document.addEventListener('click', (e) => {
-  const chip = e.target.closest('[data-days]');
-  const input = chip?.closest('.form-group, .item-field')?.querySelector('input[type=date]');
-  if (!input) return;
-  input.value = today(Number(chip.dataset.days));
-  input.dispatchEvent(new Event('input', { bubbles: true }));   // clears an error, saves the draft
-});
-
 /* Ctrl/Cmd+Enter submits the form on screen (not while a dialog is open) */
 document.addEventListener('keydown', (e) => {
   if (e.key !== 'Enter' || !(e.ctrlKey || e.metaKey) || document.querySelector('dialog[open]')) return;
@@ -127,7 +118,7 @@ function onAppReady() {
   initDonations();
   startQueue();
   const seg = window.location.pathname.slice(1);
-  const initial = VALID_VIEWS.has(seg) ? seg : 'receipts';
+  const initial = VALID_VIEWS.has(seg) ? seg : 'credits';
   history.replaceState(null, '', '/' + initial);
   navigateTo(initial, false, false);
 }

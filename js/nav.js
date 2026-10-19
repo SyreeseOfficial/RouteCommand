@@ -1,11 +1,11 @@
 /* Route Command — SPA view switching */
 import { resetSuccess } from './util.js';
 
-const sidebarNavItems  = document.querySelectorAll('.sidebar .nav-item[data-view]');
-const bottomNavItems   = document.querySelectorAll('.bottom-nav .bottom-nav__item[data-view]');
+const navItems         = document.querySelectorAll('.nav-item[data-view]');   // sidebar and phone menu
+const mobileMenu       = document.getElementById('mobile-menu');
 const views            = document.querySelectorAll('.view');
 
-export const VALID_VIEWS = new Set(['receipts', 'credits', 'donations', 'history', 'settings']);
+export const VALID_VIEWS = new Set(['credits', 'donations', 'receipts', 'history', 'settings']);
 
 export function navigateTo(viewId, updateHistory = true, moveFocus = true) {
   /* Hide all views; a confirmation left behind in the one being left goes back to a fresh form */
@@ -18,8 +18,8 @@ export function navigateTo(viewId, updateHistory = true, moveFocus = true) {
   const target = document.getElementById(`${viewId}-view`);
   if (target) target.classList.add('active');
 
-  /* Sync sidebar and bottom nav active state */
-  [...sidebarNavItems, ...bottomNavItems].forEach(item => {
+  /* Sync nav active state */
+  navItems.forEach(item => {
     const on = item.dataset.view === viewId;
     item.classList.toggle('active', on);
     if (on) item.setAttribute('aria-current', 'page'); else item.removeAttribute('aria-current');
@@ -43,7 +43,7 @@ export function navigateTo(viewId, updateHistory = true, moveFocus = true) {
 /* Handle browser back / forward */
 window.addEventListener('popstate', () => {
   const seg = window.location.pathname.slice(1);
-  navigateTo(VALID_VIEWS.has(seg) ? seg : 'receipts', false);
+  navigateTo(VALID_VIEWS.has(seg) ? seg : 'credits', false);
 });
 
 /* "View in history" links on success screens, and the name button in the header */
@@ -52,12 +52,10 @@ document.addEventListener('click', (e) => {
   else if (e.target.closest('[data-goto-settings]')) navigateTo('settings');
 });
 
-/* Sidebar nav */
-sidebarNavItems.forEach(item => {
-  item.addEventListener('click', () => navigateTo(item.dataset.view));
-});
-
-/* Bottom nav */
-bottomNavItems.forEach(item => {
-  item.addEventListener('click', () => navigateTo(item.dataset.view));
+/* Sidebar and phone menu */
+navItems.forEach(item => {
+  item.addEventListener('click', () => {
+    mobileMenu.hidePopover();
+    navigateTo(item.dataset.view);
+  });
 });

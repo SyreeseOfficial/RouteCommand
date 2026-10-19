@@ -35,7 +35,6 @@ function createDonationItemHTML(id) {
         <div class="item-field">
           <label class="item-field__label" for="di-${id}-sellby">Sell-by date</label>
           <input type="date" class="form-input" id="di-${id}-sellby" enterkeyhint="next" data-fname="sellby" />
-          <div class="chips"><button type="button" class="chip" data-days="1">Tomorrow</button><button type="button" class="chip" data-days="3">+3 days</button></div>
         </div>
         ${qtyFieldHTML()}
       </div>

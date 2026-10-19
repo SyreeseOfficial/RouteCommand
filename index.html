@@ -104,13 +104,7 @@
         <span class="sidebar__title">Route Command</span>
       </div>
       <nav class="sidebar__nav" aria-label="Main">
-        <button class="nav-item active" data-view="receipts" aria-current="page">
-          <span class="nav-item__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24"><use href="#i-receipt"/></svg>
-          </span>
-          <span class="nav-item__label">Receipts</span>
-        </button>
-        <button class="nav-item" data-view="credits">
+        <button class="nav-item active" data-view="credits" aria-current="page">
           <span class="nav-item__icon" aria-hidden="true">
             <svg viewBox="0 0 24 24"><use href="#i-tag"/></svg>
           </span>
@@ -121,6 +115,12 @@
             <svg viewBox="0 0 24 24"><use href="#i-heart"/></svg>
           </span>
           <span class="nav-item__label">Donations</span>
+        </button>
+        <button class="nav-item" data-view="receipts">
+          <span class="nav-item__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><use href="#i-receipt"/></svg>
+          </span>
+          <span class="nav-item__label">Receipts</span>
         </button>
         <button class="nav-item" data-view="history">
           <span class="nav-item__icon" aria-hidden="true">
@@ -141,14 +141,44 @@
 
     <!-- MOBILE HEADER -->
     <header class="mobile-header">
-      <div class="mobile-header__brand">
-        <div class="mobile-header__shield" aria-hidden="true">
-          <svg viewBox="0 0 40 46"><use href="#i-shield"/></svg>
-        </div>
-        <span class="mobile-header__title">Route Command</span>
-      </div>
       <button type="button" class="whoami" data-goto-settings aria-label="Signed in. Open settings"><span class="whoami__dot" aria-hidden="true"></span><span class="whoami__text"></span></button>
+      <button type="button" class="hamburger" popovertarget="mobile-menu" aria-label="Menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
     </header>
+
+    <!-- MOBILE MENU (popover: Escape and tap-outside close it) -->
+    <nav id="mobile-menu" class="mobile-menu" popover aria-label="Main">
+        <button class="nav-item active" data-view="credits" aria-current="page">
+          <span class="nav-item__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><use href="#i-tag"/></svg>
+          </span>
+          <span class="nav-item__label">Credits</span>
+        </button>
+        <button class="nav-item" data-view="donations">
+          <span class="nav-item__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><use href="#i-heart"/></svg>
+          </span>
+          <span class="nav-item__label">Donations</span>
+        </button>
+        <button class="nav-item" data-view="receipts">
+          <span class="nav-item__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><use href="#i-receipt"/></svg>
+          </span>
+          <span class="nav-item__label">Receipts</span>
+        </button>
+        <button class="nav-item" data-view="history">
+          <span class="nav-item__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><use href="#i-history"/></svg>
+          </span>
+          <span class="nav-item__label">History</span>
+          <span class="nav-badge hidden" aria-hidden="true"></span>
+        </button>
+        <button class="nav-item" data-view="settings">
+          <span class="nav-item__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><use href="#i-gear"/></svg>
+          </span>
+          <span class="nav-item__label">Settings</span>
+        </button>
+    </nav>
 
     <!-- MAIN CONTENT -->
     <main class="main-content">
@@ -156,7 +186,7 @@
       <div class="offline-banner hidden" id="offline-banner" role="status">You're offline. Submissions will be saved and sent later.</div>
 
       <!-- RECEIPTS VIEW -->
-      <section id="receipts-view" class="view active" aria-label="Receipts">
+      <section id="receipts-view" class="view" aria-label="Receipts">
         <div class="view__header">
           <h2 class="view__title">Receipts</h2>
           <p class="view__sub">Submit an expense receipt.</p>
@@ -167,10 +197,7 @@
           <form id="expense-form" class="form-grid" novalidate>
 
             <div class="form-group col-half">
-              <div class="label-row">
-                <label class="form-label" for="receipt-date">Date on receipt</label>
-                <span class="chips"><button type="button" class="chip" data-days="0">Today</button><button type="button" class="chip" data-days="-1">Yesterday</button></span>
-              </div>
+              <label class="form-label" for="receipt-date">Date on receipt</label>
               <input class="form-input" type="date" id="receipt-date" name="receipt-date" required />
             </div>
 
@@ -265,7 +292,7 @@
       </section>
 
       <!-- CREDITS VIEW -->
-      <section id="credits-view" class="view" aria-label="Credits">
+      <section id="credits-view" class="view active" aria-label="Credits">
         <div class="view__header">
           <h2 class="view__title">Credits</h2>
           <p class="view__sub">Submit a store credit request to <span data-recipient></span>.</p>
@@ -295,10 +322,7 @@
 
             <!-- Date -->
             <div class="form-group col-half">
-              <div class="label-row">
-                <label class="form-label" for="credit-date">Date</label>
-                <span class="chips"><button type="button" class="chip" data-days="0">Today</button><button type="button" class="chip" data-days="-1">Yesterday</button></span>
-              </div>
+              <label class="form-label" for="credit-date">Date</label>
               <input class="form-input" type="date" id="credit-date" enterkeyhint="next" required />
             </div>
 
@@ -486,40 +510,6 @@
 
     </main>
 
-    <!-- MOBILE BOTTOM NAV -->
-    <nav class="bottom-nav" aria-label="Main">
-      <button class="bottom-nav__item active" data-view="receipts" aria-label="Receipts" aria-current="page">
-        <span class="bottom-nav__icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24"><use href="#i-receipt"/></svg>
-        </span>
-        <span class="bottom-nav__label">Receipts</span>
-      </button>
-      <button class="bottom-nav__item" data-view="credits" aria-label="Credits">
-        <span class="bottom-nav__icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24"><use href="#i-tag"/></svg>
-        </span>
-        <span class="bottom-nav__label">Credits</span>
-      </button>
-      <button class="bottom-nav__item" data-view="donations" aria-label="Donations">
-        <span class="bottom-nav__icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24"><use href="#i-heart"/></svg>
-        </span>
-        <span class="bottom-nav__label">Donations</span>
-      </button>
-      <button class="bottom-nav__item" data-view="history" aria-label="History">
-        <span class="bottom-nav__icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24"><use href="#i-history"/></svg>
-        </span>
-        <span class="bottom-nav__label">History</span>
-        <span class="nav-badge hidden" aria-hidden="true"></span>
-      </button>
-      <button class="bottom-nav__item" data-view="settings" aria-label="Settings">
-        <span class="bottom-nav__icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24"><use href="#i-gear"/></svg>
-        </span>
-        <span class="bottom-nav__label">Settings</span>
-      </button>
-    </nav>
 
     <!-- CONFIRM DIALOG -->
     <dialog class="modal" id="confirm-modal" role="alertdialog" aria-describedby="confirm-message">
