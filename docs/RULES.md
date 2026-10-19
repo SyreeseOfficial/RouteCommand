@@ -1,7 +1,7 @@
 > **AI INSTRUCTIONS:** This file outlines the strict rules for the "Route Command" project.
 > - **Purpose:** To enforce technical constraints, workflows, and guidelines you must follow at all times.
 > - **How to use:** Internalize these rules before writing any code or performing any actions. Do not deviate from these constraints under any circumstances.
-> - **Relationship:** These rules govern how you execute the `PROMPTS.md` and check off the `TODO.md`. They ensure that the technical implementation matches the `PRD.md` precisely.
+> - **Relationship:** These rules keep the implementation matching `PRD.md`. Open work lives in `FINDINGS.md`.
 
 ---
 
@@ -10,12 +10,12 @@
 ## 1. Process & Memory
 * Reference `PRD.md` for all architectural decisions.
 * Update `CHANGELOG.md` after every successful task. Include Date/Time.
-* Follow `TODO.md` strictly. Complete one task, update the file, and STOP. Never jump ahead.
+* Track open work in `FINDINGS.md`: tick items off when done.
 
 ## 2. Technical Constraints
 * **Stack:** Vanilla HTML5, CSS3, and ES6+ JavaScript ONLY. 
 * **Frameworks:** Strictly forbidden (No React, Tailwind, etc.).
-* **Color Palette:** Primary Red (#7b0618), Deep Black (#000000), Charcoal (#201f1d), White (#FFFFFF).
+* **Colors:** Use the CSS variables in `style.css`; do not hardcode new hex values.
 * **Mobile-First:** 48px minimum touch targets. Must pass PWA lighthouse audits.
 
 ## 3. Environment & Security

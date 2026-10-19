@@ -1,7 +1,7 @@
 # Route Command: Findings
 
 Reviewed 2026-10-08, updated 2026-10-13. Open work is at the top, finished work is in one list at the bottom.
-Tags: **[H]** high, **[M]** medium, **[L]** low. `[ ]` = open. Items marked "promoted" were parked in `IMPROVEMENTS.md` under "Later" and should move up.
+Tags: **[H]** high, **[M]** medium, **[L]** low. `[ ]` = open.
 
 ## Contents
 - [Do first: deploy](#do-first-deploy)
@@ -49,6 +49,11 @@ Parked on purpose; revisit later.
 - [ ] **[L]** Move name list, stores, items and category rules to a "Config" sheet tab read by `doGet`; Ian edits without a deploy. Cache in the service worker.
 - [ ] **[L]** Mileage log with odometer photo, tied to the vehicle tag.
 - [ ] **[L]** Spanish for warehouse staff: UI strings in a small `strings.js` dictionary, picked from `navigator.language` with a Settings override.
+- [ ] **[S]** Theme setting: Auto / Light / Dark. The toggle stops following the system setting after the first flip.
+- [ ] **[S]** Reason "Other" (credits and donations) should reveal a short "What happened?" field; today it carries no information.
+- [ ] **[S]** Raise the history limit from 15 to 50 and add "Show more" (15 rows is only a few days of use). Retry payloads live in the outbox, so storage stays small.
+- [ ] **[S]** Store list: show recent and favorite stores first on Receipts too (Credits already offers the last 3).
+- [ ] **[M]** *(Ask Ian first)* Require a note for "Miscellaneous" and "Sales Lunch / Client Entertainment" (who and why), if accounting needs it. Fits the policy-rules item above.
 - [ ] **[L]** README: add the deploy steps (GAS deployment, Netlify env vars, how to rotate the secret) so someone else can take over.
 
 ---
@@ -80,7 +85,7 @@ Parked on purpose; revisit later.
 - [x] **[M]** Sheet formula injection: `sanitize()` in all three `.gs` files prefixes a leading `= + - @` with `'`. Test in `tests/gas.test.mjs`.
 - [x] **[M]** Service worker versions its cache (`rc-<7-char commit>`), precaches with `cache:'reload'`, deletes old caches, and shows an "Update available. Tap to reload" banner (not on first install).
 - [x] **[M]** Netlify functions merged into one `netlify/functions/submit.mjs` route table, URLs from env vars; a missing var returns a clear 500.
-- [x] **[M]** Stale docs (`PRD.md`, `PROMPTS.md`, `RULES.md`, `TODO.md`, `CHANGELOG.md`) moved to `docs/`.
+- [x] **[M]** Stale docs moved to `docs/`; later `PROMPTS.md`, `TODO.md` and `IMPROVEMENTS.md` deleted (history is in git, open work is here).
 - [x] **[L]** Build: `esbuild` 0.28.2 pinned; `build.mjs` writes to `dist/`, Netlify publishes `dist/`. Only `index.html`, `app.js`, `sw.js`, `style.css`, `data.json`, `_redirects` are public.
 - [x] **[L]** `CreditCode.gs` placeholder removed; sheet ID comes from Script property `CREDIT_SHEET_ID`. Stale step 5 fixed in the credit and donation scripts.
 - [x] **[L]** `Code.gs` header points at `GAS_URL_RECEIPT`; `DRIVE_FOLDER_ID` and `SHEET_ID` moved to Script Properties.
@@ -181,4 +186,3 @@ Nothing here repeats the open lists above (passcode, GAS URL, `data.json`, doPos
 ### Docs and repo
 - [ ] **[L]** README is stale: it says Netlify functions are "configured in each `.mjs` file" (there is one `submit.mjs` reading three env vars), shows v1.2 while the app says v1.4, and has no env-var list. Update it alongside the deploy-steps item.
 - [ ] **[L]** `npm test` uses `node --test 'tests/*.test.mjs'`, whose glob needs a recent Node. Add `"engines": { "node": ">=22" }` and `.nvmrc` so Netlify and local runs agree.
-- [ ] **[L]** `docs/PRD.md`, `PROMPTS.md`, `RULES.md`, `TODO.md` and `IMPROVEMENTS.md` overlap this file. Fold what is still true into `FINDINGS.md`/README and delete the rest, so there is one source of truth for open work.
