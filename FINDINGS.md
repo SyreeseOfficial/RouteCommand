@@ -15,11 +15,11 @@ Tags: **[H]** high, **[M]** medium, **[L]** low. `[ ]` = open. Items marked "pro
 ---
 
 ## Do first: deploy
-Commits `cbfeaa2` and `822ae37` were pushed with `[skip netlify]`, so the live site still runs the **old** code. **Do not push without `[skip netlify]` until step 1 is ticked**, or every submission fails with "Endpoint not configured".
+Live since 2026-10-19: env vars set and deployed. The function paths in `submit.mjs` must stay a literal array, or Netlify ignores them and `/api/*` returns the HTML page. Only step 4 is left.
 
-- [ ] **1. Netlify env vars** (Site configuration → Environment variables): `GAS_URL_RECEIPT`, `GAS_URL_CREDIT`, `GAS_URL_DONATION`. Values are the web app URLs of the three Apps Script deployments (unchanged; also in `git show db9dfda:netlify/functions/submit-receipt.mjs`, `-credit.mjs`, `-donation.mjs`). Harmless to add early: the old code ignores them.
-- [ ] **2. Deploy the site** once the UI/UX work is done: Deploys → Trigger deploy → Deploy site (or push without `[skip netlify]`). Then check the build log: it should run `npm run build` and publish `dist/`.
-- [ ] **3. Smoke test on the live site:** submit a test receipt, credit and donation; each should add a row, with an ID in the hidden last column.
+- [x] **1. Netlify env vars** (Site configuration → Environment variables): `GAS_URL_RECEIPT`, `GAS_URL_CREDIT`, `GAS_URL_DONATION`. Values are the web app URLs of the three Apps Script deployments (unchanged; also in `git show db9dfda:netlify/functions/submit-receipt.mjs`, `-credit.mjs`, `-donation.mjs`). Harmless to add early: the old code ignores them.
+- [x] **2. Deploy the site** once the UI/UX work is done: Deploys → Trigger deploy → Deploy site (or push without `[skip netlify]`). Then check the build log: it should run `npm run build` and publish `dist/`.
+- [x] **3. Smoke test on the live site:** submit a test receipt, credit and donation; each should add a row, with an ID in the hidden last column.
 - [ ] **4. Real-phone check (Chrome/Android):** submit while offline, close the app, go online; the row should still arrive. Also try pull-to-refresh on History and the "Update available" banner after a second deploy.
 
 ## Skipped for now
