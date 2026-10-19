@@ -40,4 +40,5 @@ export default async (req) => {
   }
 };
 
-export const config = { path: Object.keys(ROUTES) };
+// Literal on purpose: Netlify reads this at build time and ignores computed values
+export const config = { path: ['/api/submit-receipt', '/api/submit-credit', '/api/submit-donation'] };
