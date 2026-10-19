@@ -118,19 +118,21 @@ export function renderHistory() {
           </span>
         </span>`;
     const btn = (attr, label, cls = '') => `<button type="button" class="btn btn--outline ${cls}" ${attr}="${entry.id}">${label}</button>`;
-    /* Rows still waiting to send can't be deleted: the queue would send them anyway */
     const buttons = [
       status === 'failed' && entry.submissionId && btn('data-retry', 'Retry', 'history-retry'),
       entry.data && btn('data-copy', 'Copy details'),
-      status !== 'queued' && status !== 'sending' && btn('data-delete', 'Delete'),
     ].filter(Boolean).join('');
     const actions = buttons ? `<div class="history-actions">${buttons}</div>` : '';
 
+    /* Rows still waiting to send can't be deleted: the queue would send them anyway */
+    const trash = status === 'queued' || status === 'sending' ? '' :
+      `<button type="button" class="history-trash" data-delete="${entry.id}" aria-label="Delete submission"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-trash"/></svg></button>`;
+
     /* Rows saved before details were stored as data have nothing to expand */
-    if (!entry.data) return `${heading}<div class="settings-card history-card history-card--${status}">${head}${actions}</div>`;
+    if (!entry.data) return `${heading}<div class="settings-card history-card history-card--${status}"><div class="history-head">${head}${trash}</div>${actions}</div>`;
     const open = openHistoryRows.has(String(entry.id)) ? ' open' : '';
     return `${heading}<details class="settings-card history-card history-card--${status}" data-id="${entry.id}"${open}>
-        <summary>${head}</summary>
+        <summary>${head}${trash}</summary>
         <div class="history-body">${summaryHTML(entry.type, entry.data)}</div>${actions}
       </details>`;
   }).join('');
