@@ -9,7 +9,6 @@
 
 ## 1. Process & Memory
 * Reference `PRD.md` for all architectural decisions.
-* Update `CHANGELOG.md` after every successful task. Include Date/Time.
 * Track open work in `FINDINGS.md`: tick items off when done.
 
 ## 2. Technical Constraints
